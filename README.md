@@ -1,6 +1,23 @@
-# Amicus Theologi 0.2.1
+# Amicus Theologi 0.3.0
 
-Eine freie, offlinefähige Studienumgebung für wissenschaftliche Bibelarbeit. **Frühe Entwicklungsfassung:** die wissenschaftliche Suche (0.3), Morphologie (0.4) und komplette Textbibliothek sind noch nicht enthalten.
+**Offlinefähige Bibel-Studienumgebung** mit parallelen Textmodulen und indizierter Volltextsuche.
+
+## Update von 0.2.1
+1. Anwendung beenden; Datenbank sichern (siehe unten).
+2. ZIP in einen neuen Ordner entpacken und normal starten.
+3. Die ursprüngliche lokale Datenbank wird weiterbenutzt und beim Start automatisch um einen FTS5-Index sowie Trigger ergänzt. **Dies ist eine Datenbankschemaänderung.** Bestehende Verse/Module/Einstellungen bleiben erhalten.
+4. Vor dem Update die Datei `amicus_theologi.sqlite3` aus dem Datenordner kopieren. Der Datenordner lässt sich über `/api/info` prüfen; standardmäßig unter Linux `~/.local/share/biblewoerks`, unter Windows `%LOCALAPPDATA%\Biblewoerks`. Die alten Ordnernamen bleiben aus Gründen der Abwärtskompatibilität vorerst bestehen.
+
+## Suchbeispiele (nach Import der mitgelieferten Demomodule)
+- `Anfang` – alle Verse mit diesem Wort
+- `=im Anfang` – genaue Wortfolge
+- `+Anfang Wort` – beide Wörter im Vers
+- `?Anfang Wort` – mindestens eines der Wörter
+- `Anfang*` – Wortanfang
+- Buchfilter `Joh` und Modulauswahl zur Eingrenzung
+- Klick auf einen Treffer öffnet das Kapitel und markiert den Vers.
+
+**Hinweis:** Diese Befehle sind eine erste Amicus-Syntax, noch keine direkte BibleWorks-Suchsprachenkompatibilität. FTS5 sucht nach Wörtern, nicht nach beliebigen Zeichenfolgen. Für Morphologie sind annotierte Quellen nötig (Roadmap 0.4).
 
 ## Start
 
@@ -39,27 +56,22 @@ Rufe `Joh 1,1` auf. Klicke Vers 3: beide Ausgaben markieren Vers 3.
 - **Keine automatische Rechteprüfung:** die importierende Person verantwortet die Zulässigkeit der Texte.
 - Import ist lokal und benötigt keinen Internetzugriff.
 
-## Aktualisierung von 0.1
+## Aktualisierung und bisherige Einstellungen
 
-1. Backup empfohlen: die Datendatei `biblewoerks.sqlite3` im bisherigen 0.1-Datenordner sichern.
-2. 0.1 beenden, 0.2 in einen **neuen** Programmordner entpacken, starten.
-3. Die App nutzt absichtlich weiterhin den alten 0.1-Datenpfad, damit die Einstellungen übernommen werden:
-   - Linux: `${XDG_DATA_HOME:-~/.local/share}/biblewoerks/biblewoerks.sqlite3`
-   - Windows: `%LOCALAPPDATA%\Biblewoerks\biblewoerks.sqlite3`
-   - Benutzerdefiniert: `AMICUS_THEOLOGI_DATA_DIR` oder weiterhin `BIBLEWOERKS_DATA_DIR`.
-4. **Keine notwendige Änderung des vorhandenen Datenbankschemas!** Das vorhandene `modules`/`verses`-Schema aus 0.1 wird erstmals produktiv verwendet.
-5. Die alten Datenverzeichnisse und der alte Datenbank-Dateiname bleiben aus Gründen der Updatekompatibilität vorerst erhalten. Im Programmnamen ist der alte Name vollständig entfernt.
+Das Programm behält den vorhandenen Datenordner aus 0.1/0.2 bei, um installierte Module und Einstellungen zu erhalten. Die Datenbankdatei heißt `amicus_theologi.sqlite3` (die vorherige README erwähnte hier irrtümlich `biblewoerks.sqlite3`).
 
-## Projekt
+- Linux: `${XDG_DATA_HOME:-~/.local/share}/biblewoerks/amicus_theologi.sqlite3`
+- Windows: `%LOCALAPPDATA%\Biblewoerks\amicus_theologi.sqlite3`
+- Eigenes Verzeichnis: über `AMICUS_THEOLOGI_DATA_DIR` (oder den älteren Alias `BIBLEWOERKS_DATA_DIR`).
 
-- `backend/` FastAPI und SQLite-Datenhaltung
-- `frontend/` HTML, CSS und Vanilla JavaScript
-- `modules/examples/` kleine Beispieldateien zum manuellen Import
-- `docs/` Roadmap und Architektur
-- `tests/` automatisierte Backendtests
+**Datenbankänderung mit 0.3.0:** Die SQLite-Datenbank erhält einen Volltextindex (`verse_fts`) und drei Trigger. Bereits vorhandene Daten werden beim ersten Start in den Suchindex aufgenommen. Bitte vorher sichern. Ein Zurückwechseln auf 0.2 wird nach der Migration nicht als regulärer Downgrade unterstützt.
 
-Das Projekt ist noch nicht unter einer endgültigen Open-Source-Lizenz veröffentlicht. Vor dem öffentlichen Verteilen oder Einbinden fremder Inhalte bitte eine Lizenz wählen und die Textrechte prüfen.
+## Projektstruktur und Rechte
 
-## Fehlerbehebung in 0.2.1
+- `backend/` FastAPI, SQLite und Suchlogik
+- `frontend/` HTML/CSS/JavaScript
+- `modules/examples/` Mini-Demos (jeweils nur fünf Verse)
+- `docs/` Architektur, Roadmap, Änderungen
+- `tests/` automatische Tests
 
-Die Modulauswahl erkennt die beiden mitgelieferten Johannes-Demodateien und füllt ID, Titel, Sprache, Lizenzhinweis und Herkunft im Importformular automatisch aus. Bei anderen CSV-/TSV-Dateien werden nur die Modul-ID und der Titel vorgeschlagen; Lizenz und Herkunft müssen weiterhin bewusst ergänzt werden. Du kannst sämtliche Angaben manuell ändern. Die Datenbankstruktur bleibt gegenüber 0.2.0 unverändert.
+Vor einer öffentlichen Veröffentlichung ist die endgültige Open-Source-Lizenz festzulegen. Die Textrechte sind pro Modul zu prüfen.

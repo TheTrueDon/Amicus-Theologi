@@ -19,3 +19,7 @@ FastAPI (Python) liefert eine lokale API unter `127.0.0.1` und stellt die statis
 Importprüfungen: Größe 12 MB, maximal 200.000 Verse, UTF-8, Spalten und Referenzen validiert, keine direkten SQL-Strings aus Texteingaben, eindeutige Modul-IDs. Die App ist ein lokales Einzelplatzwerkzeug, **nicht zur Veröffentlichung im Internet bestimmt**: keine Authentifizierung und keine CSRF-Abwehr für Schreibendpunkte. Nur an 127.0.0.1 binden.
 
 Ab Version 0.3 tokenbasierte Indizes und Volltextzugriff auf importierte Module. Versifikationsmappings und OSIS/SWORD sind noch nicht implementiert.
+
+
+## Suchindex 0.3
+`verse_fts` ist eine FTS5-External-Content-Tabelle auf `verses.rowid` mit `unicode61`-Tokenizer. Drei Trigger halten INSERT, UPDATE und DELETE synchron. `fts_schema_version` ist eine interne Migrationsmarke in `settings`. Der Abfragetext wird in `backend/search.py` in eine eingeschränkte, parametrisierte FTS5-Abfrage übersetzt. Ohne Morphologie-Annotationen ist nur Textsuche möglich.

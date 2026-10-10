@@ -1,6 +1,6 @@
 "use strict";
 const $=x=>document.querySelector(x), $$=x=>document.querySelectorAll(x);
-let settings={},saving=Promise.resolve(),modules=[],view=null,activeVerse=1,books=[];
+let settings={},saving=Promise.resolve(),modules=[],view=null,activeVerse=1,books=[],searchState={offset:0,total:0,limit:50};
 async function api(path,opts={}){const r=await fetch(path,opts);if(!r.ok){let j;try{j=await r.json()}catch{};throw new Error(typeof j?.detail==='string'?j.detail:`HTTP ${r.status}`)}return r.json()}
 function save(p){Object.assign(settings,p);saving=saving.then(()=>api('/api/settings',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)})).catch(e=>message(e.message))}
 function message(text){$('#error-msg').textContent=text;$('#error-msg').hidden=!text}
@@ -17,8 +17,8 @@ const first=out.querySelector(`.verse-line[data-verse="${activeVerse}"]`);if(fir
 async function go(b,c,v=1){try{const data=await api(`/api/chapter?book=${encodeURIComponent(b)}&chapter=${c}`);view=data;activeVerse=v;render();save({active_reference:`${b} ${c},${v}`})}catch(e){message(e.message)}}
 async function navigate(){try{const r=await api('/api/reference?q='+encodeURIComponent($('#reference').value));await go(r.book,r.chapter,r.verse)}catch(e){message(e.message)}}
 function moduleText(m){let row=el('div','module-entry');row.append(el('b','',m.title),el('small','',`${m.language} · ${m.verse_count} Verse · ${m.license}`));return row}
-async function refreshModules(){modules=await api('/api/modules');$('#module-counter').textContent=modules.length+' Module';for(const id of ['#module-summary','#module-list','#manage-list'])$(id).replaceChildren();if(!modules.length){for(const id of ['#module-summary','#module-list','#manage-list'])$(id).append(el('p','hint','Noch keine Module installiert.'))}for(const m of modules){$('#module-summary').append(moduleText(m));$('#module-list').append(moduleText(m));let row=el('div','manage-row'),detail=el('div');detail.append(el('b','',m.title),el('small','',`${m.id} · ${m.verse_count} Verse · ${m.license}`));const btn=el('button','btn','Entfernen');btn.type='button';btn.onclick=async()=>{if(!confirm(`Modul „${m.title}“ und alle zugehörigen Verse löschen?`))return;try{await api('/api/modules/'+encodeURIComponent(m.id),{method:'DELETE'});await refreshModules();await go(view.book,view.chapter,activeVerse)}catch(e){alert(e.message)}};row.append(detail,btn);$('#manage-list').append(row)}}
-async function start(){try{settings=await api('/api/settings');books=await api('/api/books');for(const b of books){const o=el('option','',b.name);o.value=b.id;$('#book-choice').append(o)}apply();await refreshModules();try{const r=await api('/api/reference?q='+encodeURIComponent(settings.active_reference));await go(r.book,r.chapter,r.verse)}catch{await go('Joh',1,1)}}catch(e){message('Lokaler Start fehlgeschlagen: '+e.message)}}
+async function refreshModules(){modules=await api('/api/modules');refreshSearchFilters();$('#module-counter').textContent=modules.length+' Module';for(const id of ['#module-summary','#module-list','#manage-list'])$(id).replaceChildren();if(!modules.length){for(const id of ['#module-summary','#module-list','#manage-list'])$(id).append(el('p','hint','Noch keine Module installiert.'))}for(const m of modules){$('#module-summary').append(moduleText(m));$('#module-list').append(moduleText(m));let row=el('div','manage-row'),detail=el('div');detail.append(el('b','',m.title),el('small','',`${m.id} · ${m.verse_count} Verse · ${m.license}`));const btn=el('button','btn','Entfernen');btn.type='button';btn.onclick=async()=>{if(!confirm(`Modul „${m.title}“ und alle zugehörigen Verse löschen?`))return;try{await api('/api/modules/'+encodeURIComponent(m.id),{method:'DELETE'});await refreshModules();await go(view.book,view.chapter,activeVerse)}catch(e){alert(e.message)}};row.append(detail,btn);$('#manage-list').append(row)}}
+async function start(){try{settings=await api('/api/settings');books=await api('/api/books');for(const b of books){const sb=el('option','',b.name);sb.value=b.id;$('#search-book').append(sb);const o=el('option','',b.name);o.value=b.id;$('#book-choice').append(o)}apply();await refreshModules();try{const r=await api('/api/reference?q='+encodeURIComponent(settings.active_reference));await go(r.book,r.chapter,r.verse)}catch{await go('Joh',1,1)}}catch(e){message('Lokaler Start fehlgeschlagen: '+e.message)}}
 $('#navigate').onclick=navigate;$('#reference').onkeydown=e=>{if(e.key==='Enter')navigate()};$('#book-choice').onchange=e=>go(e.target.value,1,1);$('#chapter-choice').onchange=e=>go($('#book-choice').value,Number(e.target.value),1);$('#prev').onclick=()=>view?.previous&&go(...view.previous,1);$('#next').onclick=()=>view?.next&&go(...view.next,1);
 $('#settings-btn').onclick=()=>show('#settings-dialog');$('#help-btn').onclick=()=>show('#help-dialog');$('#module-btn').onclick=()=>show('#module-dialog');$('#add-module-left').onclick=()=>show('#module-dialog');$('#modules-close').onclick=()=>$('#module-dialog').close();$('#reset').onclick=()=>{save({search_width:25,analysis_width:27});apply()};$('#theme').onchange=e=>{save({theme:e.target.value});apply()};$('#font-size').oninput=e=>{save({font_size:Number(e.target.value)});apply()};for(const l of ['greek','german','latin'])$('#show-'+l).onchange=e=>{save({['show_'+l]:e.target.checked});apply()};$('#larger').onclick=()=>{save({font_size:Math.min(28,settings.font_size+1)});apply()};$('#smaller').onclick=()=>{save({font_size:Math.max(12,settings.font_size-1)});apply()};
 // Bei Auswahl einer Demo-Datei alle Importfelder passend vorbelegen.
@@ -40,4 +40,33 @@ $('#import-form').elements.namedItem('file').addEventListener('change',e=>{
 });
 $('#import-form').onsubmit=async e=>{e.preventDefault();const form=e.target,status=$('#import-status'),btn=form.querySelector('button[type=submit]');btn.disabled=true;status.textContent='Import wird geprüft…';try{const response=await api('/api/modules/import',{method:'POST',body:new FormData(form)});status.textContent=`Import erfolgreich: ${response.verses} Verse.`;form.reset();await refreshModules();await go(view.book,view.chapter,activeVerse)}catch(err){status.textContent='Fehler: '+err.message}finally{btn.disabled=false}};
 for(const splitter of $$('.splitter'))splitter.addEventListener('pointerdown',e=>{if(innerWidth<850)return;splitter.setPointerCapture(e.pointerId);const box=$('#panels');function move(ev){const b=box.getBoundingClientRect(),pct=(ev.clientX-b.left)/b.width*100;if(splitter.dataset.resize==='left')settings.search_width=Math.max(17,Math.min(40,pct));else settings.analysis_width=Math.max(17,Math.min(40,100-pct));if(settings.search_width+settings.analysis_width>75)return;apply()}function end(){splitter.removeEventListener('pointermove',move);splitter.removeEventListener('pointerup',end);save({search_width:Math.round(settings.search_width),analysis_width:Math.round(settings.analysis_width)})}splitter.addEventListener('pointermove',move);splitter.addEventListener('pointerup',end)});
+
+function refreshSearchFilters(){
+ const select=$('#search-module'); const old=select.value;select.replaceChildren(el('option','','Alle Module'));select.firstChild.value='';
+ for(const mod of modules){const o=el('option','',mod.title);o.value=mod.id;select.append(o)}
+ if([...select.options].some(o=>o.value===old))select.value=old;
+}
+async function runSearch(offset=0){
+ const term=$('#search').value.trim();if(!term){$('#search-error').hidden=true;$('#search-results').replaceChildren(el('p','hint','Bitte einen Suchausdruck eingeben.'));return}
+ const params=new URLSearchParams({q:term,mode:$('#search-mode').value,limit:'50',offset:String(offset)});
+ if($('#search-module').value)params.set('module_id',$('#search-module').value);
+ if($('#search-book').value)params.set('book',$('#search-book').value);
+ const button=$('#search-btn');button.disabled=true;$('#search-error').hidden=true;
+ try{const result=await api('/api/search?'+params);searchState=result;const list=$('#search-results');list.replaceChildren();
+  $('#search-total').textContent=result.total+' Treffer';
+  if(!result.results.length)list.append(el('p','hint',result.total?'Keine weiteren Treffer.':'Keine Treffer für diesen Suchausdruck.'));
+  for(const hit of result.results){const btn=el('button','search-hit');btn.type='button';
+   btn.append(el('strong','',`${hit.book} ${hit.chapter},${hit.verse}`),el('small','',`${hit.module_title} · ${hit.language}`),el('span','hit-text',hit.text));
+   btn.addEventListener('click',()=>go(hit.book,hit.chapter,hit.verse));list.append(btn)}
+  $('#search-prev').hidden=offset===0;$('#search-next').hidden=offset+result.results.length>=result.total;
+  $('#search-page').textContent=result.total?`${offset+1}–${offset+result.results.length} / ${result.total}`:'';
+ }catch(e){$('#search-error').textContent=e.message;$('#search-error').hidden=false}
+ finally{button.disabled=false}
+}
+$('#search-btn').addEventListener('click',()=>runSearch(0));
+$('#search').addEventListener('keydown',e=>{if(e.key==='Enter')runSearch(0)});
+$('#search-prev').addEventListener('click',()=>runSearch(Math.max(0,searchState.offset-50)));
+$('#search-next').addEventListener('click',()=>runSearch(searchState.offset+50));
+for(const id of ['#search-mode','#search-module','#search-book'])$(id).addEventListener('change',()=>{if($('#search').value.trim())runSearch(0)});
+
 start();

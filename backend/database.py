@@ -4,7 +4,7 @@ import os
 import sqlite3
 from pathlib import Path
 
-APP_VERSION = '0.2.1'
+APP_VERSION = '0.3.0'
 DEFAULT_SETTINGS = {
     'theme': 'dark', 'font_size': 17, 'search_width': 25,
     'analysis_width': 27, 'active_reference': 'Joh 1,1',
@@ -60,6 +60,28 @@ def init_db():
             target_module TEXT NOT NULL, target_ref TEXT NOT NULL,
             PRIMARY KEY(source_module, source_ref, target_module)
         );""")
+        # v0.3 migration: add an FTS5 virtual table plus maintenance triggers.
+        # Existing module IDs, verses and user settings are preserved.
+        db.executescript("""
+        CREATE VIRTUAL TABLE IF NOT EXISTS verse_fts USING fts5(
+            text, content='verses', content_rowid='rowid', tokenize='unicode61 remove_diacritics 2'
+        );
+        CREATE TRIGGER IF NOT EXISTS verse_fts_insert AFTER INSERT ON verses BEGIN
+            INSERT INTO verse_fts(rowid,text) VALUES (new.rowid,new.text);
+        END;
+        CREATE TRIGGER IF NOT EXISTS verse_fts_delete AFTER DELETE ON verses BEGIN
+            INSERT INTO verse_fts(verse_fts,rowid,text) VALUES ('delete',old.rowid,old.text);
+        END;
+        CREATE TRIGGER IF NOT EXISTS verse_fts_update AFTER UPDATE ON verses BEGIN
+            INSERT INTO verse_fts(verse_fts,rowid,text) VALUES ('delete',old.rowid,old.text);
+            INSERT INTO verse_fts(rowid,text) VALUES(new.rowid,new.text);
+        END;
+        """)
+        # Rebuild on initial migration only, not on each startup.
+        version=db.execute("SELECT value FROM settings WHERE key='fts_schema_version'").fetchone()
+        if not version or version[0] != '1':
+            db.execute("INSERT INTO verse_fts(verse_fts) VALUES ('rebuild')")
+            db.execute("INSERT INTO settings(key,value) VALUES ('fts_schema_version','1') ON CONFLICT(key) DO UPDATE SET value='1'")
         for key,value in DEFAULT_SETTINGS.items():
             db.execute('INSERT OR IGNORE INTO settings(key,value) VALUES (?,?)',(key,json.dumps(value)))
 

@@ -1,4 +1,4 @@
-"""Amicus Theologi 0.2 – loopback-only API."""
+"""Amicus Theologi 0.3 – loopback-only API."""
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Literal
@@ -9,6 +9,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, Field
 from .database import APP_VERSION, data_dir, init_db, get_settings, set_settings, connect
 from .library import BOOKS, NAMES, parse_reference, installed, chapter_view, chapter_refs, neighbor, read_import, install_module
+from .search import search_verses
 ROOT=Path(__file__).resolve().parent.parent; WEB=ROOT/'frontend'
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -75,5 +76,9 @@ def delete_module(module_id:str):
   cur=db.execute('DELETE FROM modules WHERE id=?',(module_id,))
   if not cur.rowcount:raise HTTPException(404,'Modul nicht gefunden.')
  return {'deleted':module_id}
+@app.get('/api/search')
+def search(q:str, module_id:str|None=None, book:str|None=None, mode:Literal['all','any','phrase']='all', limit:int=50,offset:int=0):
+ try:return search_verses(q,module_id,book,mode,limit,offset)
+ except ValueError as e:raise HTTPException(422,str(e))
 @app.get('/api/info')
-def info():return {'message':'Version 0.2: Kapitelansicht, parallele Module und CSV/TSV-Import. Volltextsuche und Morphologie folgen.','data_dir':str(data_dir())}
+def info():return {'message':'Version 0.3: indizierte Volltextsuche, Suchbereiche und Suchbefehle. Morphologie folgt in 0.4.','data_dir':str(data_dir())}

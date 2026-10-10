@@ -1,6 +1,6 @@
 # Amicus Theologi 📖
 
-**Freie, offlinefähige Studienumgebung für wissenschaftliche Bibelarbeit – Version 1.0.0.**
+**Freie, offlinefähige Studienumgebung für wissenschaftliche Bibelarbeit – Version 1.0.1.**
 
 Amicus Theologi bietet eine dreigeteilte Oberfläche aus **Suche · Bibeltext · Analyse**, griechisch/hebräische Wortinformationen, importierbare Bibelausgaben und Lexika, exegetische Studienprojekte, eine begrenzte Synopse und textkritische Vergleiche. Eine aktive Internetverbindung ist **nur zum erstmaligen Installieren von Python-Abhängigkeiten und zum Nachladen von Datenmodulen** erforderlich.
 
@@ -16,7 +16,14 @@ Amicus Theologi bietet eine dreigeteilte Oberfläche aus **Suche · Bibeltext ·
 
 Im Browser erscheint beim ersten Start die **dreiteilige Einführung**. Mit „Mini-Beispiele installieren“ kannst du Johannes 1 und Genesis 1 mit Wortanalyse ganz ohne Download ausprobieren. Diese Auszüge sind absichtlich kurz, nicht zitierfähig und keine vollständige Bibel. Über „Textmodule“ → „Modulkatalog“ installierst du weitere Quellen, sofern eine Internetverbindung besteht.
 
-📗 Eine verständliche Schritt-für-Schritt-Anleitung: [docs/SCHNELLSTART.md](docs/SCHNELLSTART.md). Auch die Datei `ANLEITUNG.html` lässt sich direkt im Browser öffnen.
+📗 Eine verständliche Schritt-für-Schritt-Anleitung: [docs/SCHNELLSTART.md](docs/SCHNELLSTART.md). Auch die Datei `ANLEITUNG.html` lässt sich direkt im Browser öffnen; für die Suche werden `ANLEITUNG.js` und `ANLEITUNG.css` aus demselben Ordner geladen.
+
+## Neu in 1.0.1: Ausführliche Suche im Handbuch und Windows-Setup
+
+- **`ANLEITUNG.html`**: großes, offline nutzbares Benutzerhandbuch mit JavaScript-Volltextsuche, kopierbaren Suchbeispielen, FAQ, Grammatik, Lexika, Textkritik und Datensicherung. Im Programm öffnet **F1** oder **Handbuch** die Anleitung.
+- **Windows-Setup als Build**: Inno Setup erstellt einen normalen Installationsassistenten mit Startmenü-Verknüpfung, optionalem Desktop-Icon und Deinstallation. Die Python-Laufzeit wird durch PyInstaller eingebettet – Anwender müssen Python nicht installieren.
+- **Wichtig:** Ein ausführbares Windows-Setup ist **nicht bereits im plattformneutralen Quellcode-ZIP**. Der beigefügte GitHub-Actions-Workflow erstellt es automatisiert auf Windows (Details: [docs/WINDOWS_INSTALLATION.md](docs/WINDOWS_INSTALLATION.md)).
+- **Keine neue Datenbanktabelle / Migration.** Bestehende Bibliotheks- und Nutzerdaten bleiben erhalten.
 
 ## Was funktioniert?
 
@@ -64,6 +71,7 @@ python3 -m venv .venv
 node --check frontend/app.js
 node --check frontend/workflow.js
 node --check frontend/release1.js
+node --check ANLEITUNG.js
 ```
 
 Die API ist auf `127.0.0.1` gebunden, blockiert fremde HTTP-Hosts und Cross-Origin-Schreibzugriffe. Es gibt keine Nutzerkonten, Telemetrie oder KI-Pflicht. **Nicht als öffentlich erreichbaren Webserver betreiben:** Für einen Mehrbenutzerbetrieb bräuchte die Anwendung gesonderte Authentifizierung und Rechteverwaltung.

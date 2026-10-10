@@ -1,3 +1,11 @@
+## 1.0.1 – Benutzerhandbuch & Windows-Installationsprojekt (10.10.2026)
+- Ausführliches, offline lesbares HTML/JavaScript-Handbuch mit Suche und Praxisbeispielen. F1 / Handbuch öffnet die Anleitung.
+- Eigenes Anwendungssymbol als ICO/PNG/SVG, auch im Browser.
+- Windows-Desktoplauncher mit lokaler Serversteuerung und eigenem Beenden-Knopf.
+- PyInstaller-Build mit gebündelter Python-Laufzeit; echter Inno-Setup-Assistent mit Startmenü-, optionalem Desktop-Eintrag und Deinstallation.
+- Automatisierter Windows-Build inklusive Self-Test über GitHub Actions. Die fertig kompilierte Windows-EXE entsteht bei diesem Build, nicht hier im Linux-Quellpaket.
+- Keine Datenbankmigration; vorhandene Notizen, Wörterbücher und Bibeltexte bleiben unverändert.
+
 ## 0.9.0 – Bedienung und Arbeitsabläufe
 - Befehlssuche per Strg+K/Cmd+K und Schaltfläche in der Kopfzeile.
 - Tastenkürzel für Bibelstellennavigation, Suche, Kapitel, Studienprojekte und Bereichsfokus.

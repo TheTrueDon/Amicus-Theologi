@@ -61,7 +61,7 @@ inp.addEventListener('keydown',e=>{if(e.key==='ArrowDown'){e.preventDefault();ac
 document.addEventListener('keydown',e=>{
  if(e.defaultPrevented||e.isComposing)return;
  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openPalette();return}
- if(e.key==='F1'){e.preventDefault();openDialog('#help-dialog');return}
+ if(e.key==='F1'){e.preventDefault();run('help');return}
  if(dlg.open||document.querySelector('dialog[open]'))return;
  if((e.ctrlKey||e.metaKey)&&e.shiftKey&&e.key.toLowerCase()==='p'){e.preventDefault();run('projects');return}
  if(e.altKey&&!e.ctrlKey&&!e.metaKey){const map={r:'reference',s:'advanced','1':'search-panel','2':'text-panel','3':'analysis-panel','ArrowLeft':'back','ArrowRight':'forward','ArrowUp':'previous','ArrowDown':'next'};const id=map[e.key]||map[e.key.toLowerCase()];if(id){e.preventDefault();run(id)}return}

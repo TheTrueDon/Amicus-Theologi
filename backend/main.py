@@ -63,6 +63,12 @@ class SettingsUpdate(BaseModel):
  welcome_completed:bool|None=None
 @app.get('/')
 def home():return FileResponse(WEB/'index.html')
+@app.get('/ANLEITUNG.html', include_in_schema=False)
+def help_manual():return FileResponse(ROOT/'ANLEITUNG.html', media_type='text/html')
+@app.get('/ANLEITUNG.css', include_in_schema=False)
+def help_styles():return FileResponse(ROOT/'ANLEITUNG.css', media_type='text/css')
+@app.get('/ANLEITUNG.js', include_in_schema=False)
+def help_script():return FileResponse(ROOT/'ANLEITUNG.js', media_type='application/javascript')
 @app.get('/api/status')
 def status():return {'name':'Amicus Theologi','version':APP_VERSION,'offline':True,'installed_modules':len(installed()),'mode':'local','pending_restore':maintenance.pending_restore()}
 @app.get('/api/settings')

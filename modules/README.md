@@ -1,3 +1,7 @@
-# Biblewörks-Module
+# Amicus Theologi – Bibeltextmodule
 
-Die Module-SQL-Struktur ist bereits angelegt. Version 0.1 liefert absichtlich **keine vollständigen Bibelausgaben** und noch keinen Modulimport. Für Version 0.2 sind lizenzgeprüfte Textmodule mit Quelle, Edition, Sprache, Lizenz, Datum, Format und Versmapping vorgesehen. Kein ungeprüfter Upload geschützter Werke in ein öffentliches Git-Repository.
+Version 0.2 akzeptiert lokal hochgeladene UTF-8-CSV- und TSV-Dateien mit `book,chapter,verse,text`.
+Metadaten (ID, Titel/Edition, Sprache, Lizenz, Herkunft, Version) werden im Modulmanager erfasst.
+Beispiele im Unterordner `examples/` enthalten nur Johannes 1,1–5 und sind **keine vollständigen Bibelausgaben**.
+
+SWORD/OSIS-Importer und echte Modulkataloge sind späteren Ausbaustufen vorbehalten.

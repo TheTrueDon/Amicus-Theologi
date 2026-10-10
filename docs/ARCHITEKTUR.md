@@ -1,11 +1,21 @@
-# Architektur 0.1
+# Architektur 0.2
 
-`start.py` startet Uvicorn auf einer zufälligen lokalen Loopback-Portnummer. `backend/main.py` stellt die API bereit und liefert das statische Frontend. `backend/database.py` initialisiert eine langlebige SQLite-Datenbank im Benutzerverzeichnis. Das Frontend nutzt `fetch()`.
+FastAPI (Python) liefert eine lokale API unter `127.0.0.1` und stellt die statischen HTML/CSS/JS-Dateien bereit. SQLite hält Benutzerkonfiguration, Module, Verse sowie vorläufig die schon in 0.1 angelegten Tabellen für Token/Referenzmappings. Keine Online-Dienste, Loginserver oder KI.
 
-Datenmodell: `modules` (Editionen und Lizenzmetadaten), `verses` (kanonische Referenz **vorläufig**, Buchkürzel), `tokens` (Wortpositionen und morphologische Annotationen), `verse_mapping` (abweichende Verszählung, noch ohne Algorithmus) und `settings`.
+## API
 
-**Wichtig:** Die Tabellen sind ein bewusst kleiner Anfang und **noch kein endgültiges Bibelstellenmodell**. Vor 0.2 werden standardisierte Buch-IDs, deuterokanonische Bücher, versfreie Überschriften sowie Unterschiede der Verszählung detailliert spezifiziert.
+- `GET /api/status` Version und Modulanzahl
+- `GET/PATCH /api/settings` lokale Konfiguration
+- `GET /api/books` 66 kanonische Bücher
+- `GET /api/reference?q=Joh%201,1` Referenz parsen
+- `GET /api/chapter?book=Joh&chapter=1` parallele Kapitelansicht
+- `GET /api/verses?book=Joh&chapter=1&verse=1` einzelner Vers
+- `GET /api/modules` Modulübersicht
+- `POST /api/modules/import` multipart-Datei und Metadaten
+- `DELETE /api/modules/{module_id}` explizite Entfernung
 
-API: `GET /api/status`, `GET /api/settings`, `PATCH /api/settings`, `GET /api/modules`, `GET /api/verses?book=Joh&chapter=1&verse=1`.
+## Sicherheit und Grenzen
 
-Spätere modulare Adapter: OSIS/SWORD. Keine Fremdsoftware oder Texteditionen im Lieferumfang.
+Importprüfungen: Größe 12 MB, maximal 200.000 Verse, UTF-8, Spalten und Referenzen validiert, keine direkten SQL-Strings aus Texteingaben, eindeutige Modul-IDs. Die App ist ein lokales Einzelplatzwerkzeug, **nicht zur Veröffentlichung im Internet bestimmt**: keine Authentifizierung und keine CSRF-Abwehr für Schreibendpunkte. Nur an 127.0.0.1 binden.
+
+Ab Version 0.3 tokenbasierte Indizes und Volltextzugriff auf importierte Module. Versifikationsmappings und OSIS/SWORD sind noch nicht implementiert.

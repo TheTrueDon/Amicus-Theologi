@@ -4,7 +4,7 @@ import os
 import sqlite3
 from pathlib import Path
 
-APP_VERSION = '0.1.0'
+APP_VERSION = '0.2.1'
 DEFAULT_SETTINGS = {
     'theme': 'dark', 'font_size': 17, 'search_width': 25,
     'analysis_width': 27, 'active_reference': 'Joh 1,1',
@@ -12,8 +12,14 @@ DEFAULT_SETTINGS = {
 }
 
 def data_dir():
-    if os.getenv('BIBLEWOERKS_DATA_DIR'):
-        root = Path(os.environ['BIBLEWOERKS_DATA_DIR']).expanduser()
+    """Maintain the original v0.1 data path to avoid losing settings and modules.
+
+    AMICUS_THEOLOGI_DATA_DIR overrides; old BIBLEWOERKS_DATA_DIR stays supported.
+    A future explicit data migration can change this, but not silently.
+    """
+    custom = os.getenv('AMICUS_THEOLOGI_DATA_DIR') or os.getenv('BIBLEWOERKS_DATA_DIR')
+    if custom:
+        root = Path(custom).expanduser()
     elif os.name == 'nt':
         root = Path(os.getenv('LOCALAPPDATA', Path.home())) / 'Biblewoerks'
     else:
@@ -22,7 +28,7 @@ def data_dir():
     return root
 
 def connect():
-    con = sqlite3.connect(data_dir() / 'biblewoerks.sqlite3', timeout=10)
+    con = sqlite3.connect(data_dir() / 'amicus_theologi.sqlite3', timeout=10)
     con.row_factory = sqlite3.Row
     con.execute('PRAGMA foreign_keys=ON')
     return con

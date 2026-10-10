@@ -1,14 +1,18 @@
-# Roadmap (gemäß Projektkonzept)
+# Roadmap · Amicus Theologi
 
-- [x] **0.1** Grundgerüst: startbare lokale Anwendung, dreigeteilte Oberfläche, Konfiguration.
-- [ ] **0.2** Bibeltexte: Navigation und parallele Textanzeige aus lizenzklaren Modulen.
-- [ ] **0.3** Volltextsuche, Suchbereiche und Suchbefehle.
-- [ ] **0.4** Lemmata und Morphologie.
-- [ ] **0.5** Wörterbücher, Strong-Nummern und Wortstudien.
-- [ ] **0.6** Erweiterte grammatische und positionsbasierte Suche.
-- [ ] **0.7** Notizen, Markierungen, Studienprojekte, Export.
-- [ ] **0.8** Textkritik, Varianten und Synopsen.
-- [ ] **0.9** Kompatibilitätsdetails, Tastenkürzel, Nutzertests.
-- [ ] **1.0** Dokumentation, Tests, Installer und stabile Veröffentlichung.
+Dieses Projekt orientiert sich am hinterlegten Projektkonzept vom 10.10.2026.
 
-Die frühen Texte und morphologischen Analysen in der Oberfläche sind **statische Demonstratoren**, keine installierte wissenschaftliche Datenbasis.
+- [x] 0.1 – dreigeteilte Oberfläche, Konfiguration, SQLite-Grundgerüst
+- [x] 0.2 – Bibelstellen-Navigation, parallele Kapiteltexte, lokale CSV-/TSV-Importfunktion
+- [ ] 0.3 – Volltextsuche, Suchbereiche und erste Suchbefehle
+- [ ] 0.4 – Lemmata und Morphologie für Griechisch/Hebräisch
+- [ ] 0.5 – Lexika, Wortstudien und Strong-Verknüpfungen
+- [ ] 0.6 – erweiterte morphologische Suche
+- [ ] 0.7 – Notizen, Projekte, Export
+- [ ] 0.8 – Varianten und Textkritik
+- [ ] 0.9 – kompatible Arbeitsabläufe und Tastenkürzel
+- [ ] 1.0 – Stabile Veröffentlichung, Dokumentation und Installer
+
+## Weiterhin offen in 0.2
+
+Vollständige rechtmäßig lizenzierte Bibelmodule, SWORD/OSIS-Unterstützung, unterschiedliche Verszählungen, deuterokanonische Bücher, Buch-Navigation nach einzelnen Versen, Installer und End-to-End-UI-Tests.

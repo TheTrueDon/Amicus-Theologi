@@ -1,8 +1,16 @@
-# Amicus Theologi 0.4.1
+# Amicus Theologi 0.6.0
+
+## Neu in 0.5: Lexika
+
+Unter **Textmodule → Lexikon / Wörterbuch importieren** können griechische und hebräische TSV-/CSV-Lexika installiert werden. Nach dem Klick auf ein annotiertes Wort zeigt die Analyseleiste passende Einträge mit Quellen- und Lizenzangaben. Zwei kurze, selbst erstellte Testlexika liegen in `modules/examples/` (`demo_lexikon_grc.tsv` und `demo_lexikon_he.tsv`). Einzelheiten: [docs/LEXIKA.md](docs/LEXIKA.md).
+
+**Achtung:** Für Wortanalyse weiterhin zuerst Bibeltext **und** Morphologiedaten importieren. Die Beispieldaten sind kein vollständiges Lexikon. Version 0.5 ergänzt zwei SQLite-Tabellen und Suchindizes, ohne bestehende Tabellen zu verändern. Vor dem Upgrade eine Sicherung der Datenbank anlegen.
+
+
 
 **Neue Funktionen:** griechische/hebräische Wortannotation und Lemma-Konkordanz. Anleitung: [docs/MORPHOLOGIE.md](docs/MORPHOLOGIE.md).
 
-# Amicus Theologi 0.4.1
+# Amicus Theologi 0.6.0
 
 **Offlinefähige Bibel-Studienumgebung** mit parallelen Textmodulen und indizierter Volltextsuche.
 
@@ -68,7 +76,7 @@ Das Programm behält den vorhandenen Datenordner aus 0.1/0.2 bei, um installiert
 - Windows: `%LOCALAPPDATA%\Biblewoerks\amicus_theologi.sqlite3`
 - Eigenes Verzeichnis: über `AMICUS_THEOLOGI_DATA_DIR` (oder den älteren Alias `BIBLEWOERKS_DATA_DIR`).
 
-**Datenbankänderung mit 0.4.1:** Die SQLite-Datenbank erhält einen Volltextindex (`verse_fts`) und drei Trigger. Bereits vorhandene Daten werden beim ersten Start in den Suchindex aufgenommen. Bitte vorher sichern. Ein Zurückwechseln auf 0.2 wird nach der Migration nicht als regulärer Downgrade unterstützt.
+**Datenbankänderung mit 0.5.0:** Die SQLite-Datenbank erhält einen Volltextindex (`verse_fts`) und drei Trigger. Bereits vorhandene Daten werden beim ersten Start in den Suchindex aufgenommen. Bitte vorher sichern. Ein Zurückwechseln auf 0.2 wird nach der Migration nicht als regulärer Downgrade unterstützt.
 
 ## Projektstruktur und Rechte
 
@@ -79,3 +87,11 @@ Das Programm behält den vorhandenen Datenordner aus 0.1/0.2 bei, um installiert
 - `tests/` automatische Tests
 
 Vor einer öffentlichen Veröffentlichung ist die endgültige Open-Source-Lizenz festzulegen. Die Textrechte sind pro Modul zu prüfen.
+
+## Neu in Version 0.6.0
+
+Unter **Suche → Erweiterte Suche** können importierte morphologische Wortannotationen nach Lemma, Oberflächenform, Strong-Nummer und einem Teilstring des Morphologie-Feldes gefiltert werden. Optional zwei Wortbedingungen innerhalb eines Verses kombinieren, maximale Anzahl dazwischenliegender Wörter (0 = unmittelbar benachbart) und Reihenfolge wählen. Alle Filter arbeiten ohne externe API und ohne KI.
+
+**Datenbank:** Keine neuen Tabellen oder Indizes in Version 0.6. Bereits installierte Module und Lexika bleiben bestehen. Vor Updates dennoch eine Sicherung von `amicus_theologi.sqlite3` empfehlen.
+
+**Datenquellen:** Siehe `docs/DATENQUELLEN.md` für konkrete offene Projekte, Lizenzhinweise und die Datenimport-Roadmap. Vollständige STEPBible- oder OSHB-Korpora werden noch nicht automatisch installiert oder importiert.

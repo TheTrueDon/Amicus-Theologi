@@ -4,7 +4,7 @@ import os
 import sqlite3
 from pathlib import Path
 
-APP_VERSION = '0.4.1'
+APP_VERSION = '0.6.0'
 DEFAULT_SETTINGS = {
     'theme': 'dark', 'font_size': 17, 'search_width': 25,
     'analysis_width': 27, 'active_reference': 'Joh 1,1',
@@ -61,6 +61,25 @@ def init_db():
             target_module TEXT NOT NULL, target_ref TEXT NOT NULL,
             PRIMARY KEY(source_module, source_ref, target_module)
         );""")
+        # v0.5 additive migration: independent lexicon modules and their entries.
+        # No existing user tables are rewritten, and old verse/token data are retained.
+        db.executescript("""
+        CREATE TABLE IF NOT EXISTS lexicon_modules (
+            id TEXT PRIMARY KEY, title TEXT NOT NULL, language TEXT NOT NULL,
+            license TEXT NOT NULL, provenance TEXT NOT NULL, version TEXT NOT NULL,
+            installed_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE TABLE IF NOT EXISTS lexicon_entries (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            module_id TEXT NOT NULL REFERENCES lexicon_modules(id) ON DELETE CASCADE,
+            lemma TEXT NOT NULL, lemma_key TEXT NOT NULL,
+            strong TEXT NOT NULL DEFAULT '', gloss TEXT NOT NULL DEFAULT '',
+            definition TEXT NOT NULL, reference TEXT NOT NULL DEFAULT '',
+            UNIQUE(module_id,lemma_key,strong)
+        );
+        CREATE INDEX IF NOT EXISTS idx_lexicon_lookup ON lexicon_entries(lemma_key);
+        CREATE INDEX IF NOT EXISTS idx_lexicon_strong ON lexicon_entries(strong);
+        """)
         # v0.3 migration: add an FTS5 virtual table plus maintenance triggers.
         # Existing module IDs, verses and user settings are preserved.
         db.executescript("""

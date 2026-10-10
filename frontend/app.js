@@ -1,6 +1,6 @@
 "use strict";
 const $=x=>document.querySelector(x), $$=x=>document.querySelectorAll(x);
-let settings={},saving=Promise.resolve(),modules=[],view=null,activeVerse=1,books=[],searchState={offset:0,total:0,limit:50};
+let settings={},saving=Promise.resolve(),modules=[],view=null,activeVerse=1,books=[],searchState={offset:0,total:0,limit:50},activeSearch='normal';
 async function api(path,opts={}){const r=await fetch(path,opts);if(!r.ok){let j;try{j=await r.json()}catch{};throw new Error(typeof j?.detail==='string'?j.detail:`HTTP ${r.status}`)}return r.json()}
 function save(p){Object.assign(settings,p);saving=saving.then(()=>api('/api/settings',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)})).catch(e=>message(e.message))}
 function message(text){$('#error-msg').textContent=text;$('#error-msg').hidden=!text}
@@ -49,6 +49,7 @@ function refreshSearchFilters(){
  if([...select.options].some(o=>o.value===old))select.value=old;
 }
 async function runSearch(offset=0){
+ activeSearch='normal';
  const term=$('#search').value.trim();if(!term){$('#search-error').hidden=true;$('#search-results').replaceChildren(el('p','hint','Bitte einen Suchausdruck eingeben.'));return}
  const params=new URLSearchParams({q:term,mode:$('#search-mode').value,limit:'50',offset:String(offset)});
  if($('#search-module').value)params.set('module_id',$('#search-module').value);
@@ -65,18 +66,79 @@ async function runSearch(offset=0){
  }catch(e){$('#search-error').textContent=e.message;$('#search-error').hidden=false}
  finally{button.disabled=false}
 }
+async function runAdvancedSearch(offset=0){
+ activeSearch='advanced';
+ const params=new URLSearchParams({limit:'50',offset:String(offset),distance:$('#adv-distance').value,order:$('#adv-order').value});
+ for(const name of ['lemma','surface','morph','strong','second-lemma','second-surface','second-morph','second-strong']){
+ const value=$('#adv-'+name).value.trim();if(value)params.set(name.replace(/-/g,'_'),value);
+ }
+ if($('#search-module').value)params.set('module_id',$('#search-module').value);
+ if($('#search-book').value)params.set('book',$('#search-book').value);
+ const button=$('#adv-search-btn');button.disabled=true;$('#search-error').hidden=true;
+ try{const result=await api('/api/search/advanced?'+params);searchState=result;
+ const list=$('#search-results');list.replaceChildren();$('#search-total').textContent=result.total+' Treffer';
+ if(!result.results.length)list.append(el('p','hint','Keine passenden annotierten Verse gefunden. Bitte Module und Morphologie prüfen.'));
+ for(const hit of result.results){const btn=el('button','search-hit');btn.type='button';
+ btn.append(el('strong','',`${hit.book} ${hit.chapter},${hit.verse}`),el('small','',`${hit.module_title} · ${hit.language}`),el('span','hit-text',hit.text));
+ btn.onclick=()=>go(hit.book,hit.chapter,hit.verse);list.append(btn)}
+ $('#search-prev').hidden=offset===0;$('#search-next').hidden=offset+result.results.length>=result.total;
+ $('#search-page').textContent=result.total?`${offset+1}–${offset+result.results.length} / ${result.total}`:'';
+ $('#adv-note').textContent=result.note;
+ }catch(e){$('#search-error').textContent=e.message;$('#search-error').hidden=false}
+ finally{button.disabled=false}
+}
+function pageSearch(offset){return activeSearch==='advanced'?runAdvancedSearch(offset):runSearch(offset)}
+$('#adv-search-btn').addEventListener('click',()=>runAdvancedSearch(0));
 $('#search-btn').addEventListener('click',()=>runSearch(0));
 $('#search').addEventListener('keydown',e=>{if(e.key==='Enter')runSearch(0)});
-$('#search-prev').addEventListener('click',()=>runSearch(Math.max(0,searchState.offset-50)));
-$('#search-next').addEventListener('click',()=>runSearch(searchState.offset+50));
+$('#search-prev').addEventListener('click',()=>pageSearch(Math.max(0,searchState.offset-50)));
+$('#search-next').addEventListener('click',()=>pageSearch(searchState.offset+50));
 for(const id of ['#search-mode','#search-module','#search-book'])$(id).addEventListener('change',()=>{if($('#search').value.trim())runSearch(0)});
 
 async function showWord(word,mod){
  const box=$('#word-analysis');box.replaceChildren();box.append(el('h3','',word.surface));
  for(const [key,value] of [['Lemma',word.lemma],['Morphologie',word.morph],['Strong',word.strong||'Nicht angegeben'],['Edition',mod.title],['Quelle',mod.provenance]]){
  const row=el('p','analysis-field');row.append(el('b','',key+': '),document.createTextNode(value));box.append(row)}
+ const lex=$('#lexicon-results');lex.replaceChildren(el('p','hint','Lexika werden abgefragt …'));
+ try{
+  const params=new URLSearchParams({language:mod.language,lemma:word.lemma});if(word.strong)params.set('strong',word.strong);
+  const results=await api('/api/lexicon/lookup?'+params);
+  lex.replaceChildren();
+  if(!results.results.length)lex.append(el('p','hint','Kein Lexikoneintrag vorhanden. Importiere unter Textmodule ein passendes Wörterbuch.'));
+  for(const item of results.results){const article=el('article','lexicon-card');
+   article.append(el('b','',item.lemma+' · '+item.title));
+   if(item.gloss)article.append(el('p','',item.gloss));
+   article.append(el('p','lexicon-definition',item.definition));
+   if(item.strong)article.append(el('small','',`Strong: ${item.strong}`));
+   article.append(el('small','',`Quelle: ${item.provenance} · Lizenz: ${item.license}${item.reference?' · '+item.reference:''}`));
+   lex.append(article)}
+ }catch(e){lex.replaceChildren(el('p','hint','Lexikonabfrage fehlgeschlagen: '+e.message))}
  const btn=el('button','btn primary','Alle Vorkommen dieses Lemmas');box.append(btn);
  btn.onclick=async()=>{try{const data=await api('/api/morphology/lemma?module_id='+encodeURIComponent(mod.id)+'&lemma='+encodeURIComponent(word.lemma));const target=$('#lemma-results');target.replaceChildren(el('p','hint',data.results.length+' Treffer im annotierten Bestand'));for(const hit of data.results){const row=el('button','lemma-hit',`${hit.book} ${hit.chapter},${hit.verse} · ${hit.surface} · ${hit.morph}`);row.onclick=()=>go(hit.book,hit.chapter,hit.verse);target.append(row)}}catch(e){message(e.message)}};
 }
 $('#morph-import-form').onsubmit=async e=>{e.preventDefault();const form=e.target,status=$('#morph-import-status');status.textContent='Wortdatei wird geprüft…';try{const result=await api('/api/morphology/import',{method:'POST',body:new FormData(form)});status.textContent=`Erfolgreich: ${result.tokens} Wörter in ${result.annotated_verses} Versen. Die markierten Wörter sind jetzt anklickbar.`;await go(view.book,view.chapter,activeVerse)}catch(err){status.textContent='Fehler: '+err.message}};
+async function refreshLexica(){
+ const target=$('#lexicon-manage-list');target.replaceChildren();
+ try{const data=await api('/api/lexica');if(!data.length)target.append(el('p','hint','Noch keine Wörterbücher installiert.'));
+ for(const m of data){const row=el('div','manage-row'),detail=el('div');detail.append(el('b','',m.title),el('small','',`${m.language} · ${m.entry_count} Einträge · ${m.license}`));
+ const btn=el('button','btn','Entfernen');btn.type='button';btn.onclick=async()=>{if(!confirm(`Lexikon „${m.title}“ löschen?`))return;
+ try{await api('/api/lexica/'+encodeURIComponent(m.id),{method:'DELETE'});await refreshLexica()}catch(e){alert(e.message)}};
+ row.append(detail,btn);target.append(row)}}catch(e){target.append(el('p','hint',e.message))}
+}
+$('#module-btn').addEventListener('click',refreshLexica);
+$('#add-module-left').addEventListener('click',refreshLexica);
+$('#lexicon-import-form').elements.namedItem('file').addEventListener('change',e=>{
+ const file=e.target.files?.[0];if(!file)return;
+ const form=$('#lexicon-import-form'),name=file.name.replace(/\.(csv|tsv|txt)$/i,'');
+ form.elements.namedItem('module_id').value=(name.replace(/[^a-zA-Z0-9_-]/g,'-').slice(0,48)||'lexicon');
+ form.elements.namedItem('title').value=name.replace(/[_-]/g,' ');
+ const demo={demo_lexikon_grc:{id:'demo-lex-grc',title:'Griechisches Mini-Lexikon (Demo)',lang:'grc'},demo_lexikon_he:{id:'demo-lex-he',title:'Hebräisches Mini-Lexikon (Demo)',lang:'he'}}[name];
+ if(demo){form.elements.namedItem('module_id').value=demo.id;form.elements.namedItem('title').value=demo.title;form.elements.namedItem('language').value=demo.lang;
+ form.elements.namedItem('license_name').value='CC0 – selbst erstellte Demonstrationsdefinitionen';form.elements.namedItem('provenance').value='Amicus Theologi Demonstrationsmaterial, 2026';}
+});
+$('#lexicon-import-form').onsubmit=async e=>{e.preventDefault();const form=e.target,status=$('#lexicon-import-status'),button=form.querySelector('button[type=submit]');
+ status.textContent='Lexikon wird geprüft …';button.disabled=true;
+ try{const result=await api('/api/lexica/import',{method:'POST',body:new FormData(form)});status.textContent=`Lexikon importiert: ${result.entries} Einträge.`;form.reset();await refreshLexica()}
+ catch(err){status.textContent='Fehler: '+err.message}finally{button.disabled=false}
+};
 start();

@@ -10,6 +10,8 @@ from pydantic import BaseModel, ConfigDict, Field
 from .database import APP_VERSION, data_dir, init_db, get_settings, set_settings, connect
 from .library import BOOKS, NAMES, parse_reference, installed, chapter_view, chapter_refs, neighbor, read_import, install_module
 from .search import search_verses
+from .advanced_search import advanced_search
+from .lexicon import read_lexicon, install_lexicon, installed_lexica, lookup, remove_lexicon
 from .morphology import parse_annotation_file, import_annotations, chapter_tokens, get_word, lemma_concordance
 ROOT=Path(__file__).resolve().parent.parent; WEB=ROOT/'frontend'
 @asynccontextmanager
@@ -82,7 +84,7 @@ def search(q:str, module_id:str|None=None, book:str|None=None, mode:Literal['all
  try:return search_verses(q,module_id,book,mode,limit,offset)
  except ValueError as e:raise HTTPException(422,str(e))
 @app.get('/api/info')
-def info():return {'message':'Version 0.4: importierbare Wortannotation, interaktive Wortanalyse und Lemma-Konkordanz.','data_dir':str(data_dir())}
+def info():return {'message':'Version 0.6: morphologische und positionsbezogene Suche nach importierten Annotationen.','data_dir':str(data_dir())}
 
 @app.post('/api/morphology/import')
 async def morphology_import(file:UploadFile=File(...),module_id:str=Form(...)):
@@ -106,3 +108,33 @@ def morphology_lemma(module_id:str,lemma:str,limit:int=100):
   raise HTTPException(422,'Ungültige Abfrage.')
  try:return {'module_id':module_id,'lemma':lemma,'results':lemma_concordance(module_id,lemma,limit)}
  except ValueError as e:raise HTTPException(422,str(e))
+
+@app.get('/api/lexica')
+def lexica():return installed_lexica()
+
+@app.get('/api/lexicon/lookup')
+def lexicon_lookup(language:Literal['grc','he'],lemma:str='',strong:str=''):
+ try:return {'language':language,'lemma':lemma,'strong':strong,'results':lookup(language,lemma,strong)}
+ except ValueError as e:raise HTTPException(422,str(e))
+
+@app.post('/api/lexica/import')
+async def lexicon_import(file:UploadFile=File(...),module_id:str=Form(...),title:str=Form(...),language:str=Form(...),license_name:str=Form(...),provenance:str=Form(...),version:str=Form('1')):
+ try:
+  raw=await file.read(12_000_001)
+  return install_lexicon(module_id.strip(),title.strip(),language.strip(),license_name.strip(),provenance.strip(),version.strip(),read_lexicon(raw))
+ except ValueError as e:raise HTTPException(422,str(e))
+
+@app.delete('/api/lexica/{module_id}')
+def lexicon_delete(module_id:str):
+ if not remove_lexicon(module_id):raise HTTPException(404,'Lexikon nicht gefunden.')
+ return {'deleted':module_id}
+
+@app.get('/api/search/advanced')
+def morphological_search(module_id:str='',book:str='',lemma:str='',surface:str='',strong:str='',morph:str='',
+                         second_lemma:str='',second_surface:str='',second_strong:str='',second_morph:str='',
+                         distance:int=5,order:Literal['any','before','after']='any',limit:int=50,offset:int=0):
+ try:
+  return advanced_search(module_id=module_id,book=book,lemma=lemma,surface=surface,strong=strong,morph=morph,
+   second_lemma=second_lemma,second_surface=second_surface,second_strong=second_strong,
+   second_morph=second_morph,distance=distance,order=order,limit=limit,offset=offset)
+ except ValueError as e: raise HTTPException(422,str(e))

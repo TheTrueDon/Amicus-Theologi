@@ -18,3 +18,16 @@
 .verse-line[lang="he"] .morph-word{direction:rtl;unicode-bidi:isolate;font-family:"Noto Sans Hebrew","SBL Hebrew","Ezra SIL",serif;}
 .annotation-warning{display:block;margin-top:5px;font-family:system-ui,sans-serif;font-size:11px;line-height:1.5;color:var(--gold);font-style:normal;direction:ltr;text-align:left;}
 .verse-line.unannotated{cursor:default;}
+
+/* v0.5 lexicon results */
+.lexicon-card{padding:12px;margin:9px 0;border:1px solid var(--border, #7775);border-radius:8px;overflow-wrap:anywhere}
+.lexicon-card p{margin:8px 0;white-space:pre-wrap}
+.lexicon-card small{display:block;opacity:.75;margin-top:5px}
+.lexicon-definition{line-height:1.55}
+
+/* Wissenschaftliche Suchmaske 0.6 */
+.advanced-box{border:1px solid var(--border, #485768);border-radius:8px;padding:10px;margin:12px 0;background:rgba(115,133,155,.07)}
+.advanced-box summary{cursor:pointer;font-weight:650;font-size:13px;margin-bottom:8px}
+.advanced-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:10px 0}
+.advanced-grid label{font-size:11px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.advanced-grid input,.advanced-grid select{box-sizing:border-box;width:100%;min-width:0;padding:7px;border:1px solid #758293;border-radius:5px;background:var(--surface,#202a35);color:inherit}

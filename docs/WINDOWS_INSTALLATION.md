@@ -1,8 +1,8 @@
-# Windows-Installation (Version 1.0.1)
+# Windows-Installation (Version 1.0.4)
 
 ## Für Anwenderinnen und Anwender – einmal installieren, danach nur noch klicken
 
-Die komfortable Installation erfolgt mit **`Amicus-Theologi-Setup-1.0.1.exe`**. Das ist eine **separat gebaute Windows-Datei**. Das veröffentlichte Quellcode-ZIP ist **nicht bereits diese Setup-Datei**. Ein Windows-Setup wird auf Windows oder über den beiliegenden GitHub-Actions-Build erzeugt.
+Die komfortable Installation erfolgt mit **`Amicus-Theologi-Setup-1.0.4.exe`**. Das ist eine **separat gebaute Windows-Datei**. Das veröffentlichte Quellcode-ZIP ist **nicht bereits diese Setup-Datei**. Ein Windows-Setup wird auf Windows oder über den beiliegenden GitHub-Actions-Build erzeugt.
 
 1. Setup-EXE von einer vertrauenswürdigen Projektveröffentlichung herunterladen.
 2. Doppelklicken, die Installation im Assistenten bestätigen und optional „Desktopverknüpfung erstellen“ aktivieren.
@@ -25,8 +25,8 @@ Selbst erstellte oder über GitHub Actions gebaute EXE-Dateien sind zunächst **
 1. Das komplette Projekt einschließlich `.github/workflows/windows-installer.yml` in das Repository hochladen.
 2. Repository → **Actions** → **Windows installation package** → **Run workflow**.
 3. Auf den erfolgreichen Durchlauf warten. Er startet zuerst die Unit-Tests, baut unter Windows eine eigenständige Anwendung, führt eine Prüfung der eingebetteten EXE durch und erzeugt mit Inno Setup einen üblichen Windows-Installer.
-4. Unter **Artifacts** die Datei `Amicus-Theologi-1.0.1-Windows-Installer` herunterladen.
-5. Darin liegen `Amicus-Theologi-Setup-1.0.1.exe` sowie ein portables Windows-Archiv. Die Setup-EXE in der GitHub-Release-Veröffentlichung bereitstellen.
+4. Unter **Artifacts** die Datei `Amicus-Theologi-1.0.4-Windows-Installer` herunterladen.
+5. Darin liegen `Amicus-Theologi-Setup-1.0.4.exe` sowie ein portables Windows-Archiv. Die Setup-EXE in der GitHub-Release-Veröffentlichung bereitstellen.
 
 ### Variante B: Eigener Windows-PC (Entwickler)
 
@@ -36,7 +36,7 @@ Benötigt: Python 3.12, Inno Setup 6, Internet für die Build-Abhängigkeiten. I
 ./windows/build_windows.ps1
 ```
 
-Das Skript installiert die Python-Buildpakete in der aktuellen Python-Umgebung, baut mit PyInstaller die Anwendung, prüft die eingefrorene EXE und erstellt anschließend `dist_installer/Amicus-Theologi-Setup-1.0.1.exe`. Für produktive Release-Builds besser eine eigens angelegte virtuelle Build-Umgebung verwenden.
+Das Skript installiert die Python-Buildpakete in der aktuellen Python-Umgebung, baut mit PyInstaller die Anwendung, prüft die eingefrorene EXE und erstellt anschließend `dist_installer/Amicus-Theologi-Setup-1.0.4.exe`. Für produktive Release-Builds besser eine eigens angelegte virtuelle Build-Umgebung verwenden.
 
 ### Verifikation
 

@@ -144,7 +144,8 @@ def parse_sword(raw, selected=None):
  try:
   sm=SwordModules(path);found=sm.parse_modules()
   if not found:raise ValueError('SWORD-Archiv enthält keine erkannten Textmodule.')
-  ident=selected if selected in found else next(iter(found))
+  ident = selected if selected is not None else next(iter(found))
+  if ident not in found:raise ValueError('Angefordertes SWORD-Modul ist in diesem Archiv nicht enthalten.')
   bible=sm.get_bible_from_module(ident)
   verses={}
   for b,english in SWORD_BOOKS.items():

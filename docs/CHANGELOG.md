@@ -1,3 +1,33 @@
+## 1.0.5 – Bibelausgabenkatalog und flexible Parallelansicht (11.10.2026)
+- Kuratierter CrossWire/SWORD-Katalog: Elberfelder 1905/1871, Menge 1939, Textbibel 1906, Luther 1912 (Beta) mit Quellen- und Lizenzinformationen.
+- Ein-Klick-Installationsweg für offizielle Raw-ZIP-Module, feste Downloadziele, Größenbegrenzung, explizite Modul-ID und transaktionale Speicherung.
+- PySword 0.2.8 gehört jetzt zu den installierten Python-Abhängigkeiten und wird beim Windows-Build mitgebündelt.
+- Oberhalb des Bibeltexts: Ausgaben an- und abwählen, aktive Chips, Mehrfachauswahl, Suche in installierten Ausgaben, Reihenfolge per Pfeilen ändern.
+- Schnellfilter „Alle“, „Keine“, „Nur Deutsch“, „Nur Originalsprachen“; Auswahl und Reihenfolge als lokale Einstellungen gespeichert.
+- Alle bisherigen Inhalte, Suche, Studiennotizen und Lexika bleiben erhalten. **Keine Datenbankschemamigration.**
+- Automatisierte Tests und Chromium-Interaktionstest mit lokalen Testdaten bestanden; Live-ZIP-Import aller fünf Originalarchive steht noch aus.
+
+## 1.0.4 – Lesbarkeit der Studiennotizen (11.10.2026)
+- Fehler im rechten Notiz-Eingabefeld behoben: keine dunkle Schrift auf schwarzem Hintergrund mehr.
+- Eingabefeld erhält für helles und dunkles Theme jeweils explizit Hintergrund-, Text- und Cursorfarbe aus den vorhandenen Designvariablen.
+- Projektformularfelder ebenfalls angepasst; Platzhalter und Fokus-Rahmen verbessert.
+- Ausschließlich Frontend-CSS und Versionskennzeichnung geändert; keine Datenbankmigration.
+
+## 1.0.3 – Tooltip-Übersetzungen und Konkordanzsortierung (11.10.2026)
+- Fehler bei STEPBible-Lexika korrigiert: Transliteration/Aussprache nicht mehr als Wortbedeutung in Tooltips. Vorhandene Lexikon-Datensätze werden dynamisch richtig ausgewertet; keine Neuinstallation nötig.
+- Kurzglossen werden aus markierten Gloss-Feldern bevorzugt. Deutsch, sofern durch die Quelle erkennbar, ansonsten Englisch. Falls keine sichere Bedeutung vorhanden ist, erscheint ein ehrlicher Hinweis.
+- Auch in der rechten Lexikonspalte zeigt „Kurzglosse“ nun die aufbereitete Bedeutung; vollständige Lexikon-Einträge und Originaldaten bleiben unverändert.
+- Konkordanz: Sortierung der gesamten Treffermenge nach Bibelstelle (kanonische Reihenfolge) oder Wortform sowie auf-/absteigend; korrekt paginiert.
+- Keine Änderung des Datenbankschemas. Regressionstests für existierende STEPBible-Importe, neue Quellfelder, Pagination und sichere Eingaben.
+- Original-STEPBible-Gesamtarchive weiterhin noch nicht vollständig mit allen Dateivarianten live getestet.
+
+## 1.0.2 – Lexikondarstellung, Lemma-Konkordanz und Wortvorschau (11.10.2026)
+- STEPBible-Lexika werden aus den gespeicherten Markup-Daten sicher formatiert; Rohtext bleibt bei Bedarf aufklappbar.
+- Lemma-Konkordanz in eigenem Dialog mit Trefferanzahl, 50 Treffern je Seite und Navigation.
+- Tooltip bei Hover und Tastaturfokus: Lemma, installierte Lexikonglosse, grammatische Formen (rot hervorgehoben).
+- Neue lokale API für Vorschau und paginierte Konkordanz. Keine neuen Datenbanktabellen.
+- Quelle, Edition und Originalcodes bleiben sichtbar; fehlende Übersetzungen werden nicht erfunden.
+
 ## 1.0.1 – Benutzerhandbuch & Windows-Installationsprojekt (10.10.2026)
 - Ausführliches, offline lesbares HTML/JavaScript-Handbuch mit Suche und Praxisbeispielen. F1 / Handbuch öffnet die Anleitung.
 - Eigenes Anwendungssymbol als ICO/PNG/SVG, auch im Browser.

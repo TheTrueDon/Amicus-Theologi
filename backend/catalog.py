@@ -5,6 +5,7 @@ import zipfile
 from .database import connect
 from .source_import import download_source, install_scientific, MAX_STEP_FILE
 from .lexicon import install_lexicon, clean_key
+from .lexical_text import best_gloss
 
 SOURCE='https://github.com/STEPBible/STEPBible-Data'
 CATALOG={
@@ -31,11 +32,18 @@ def parse_step_lexicon(raw,code):
     data=stream.read(85_000_001)
    if len(data)>85_000_000:raise ValueError('Lexikondatei zu groß.')
    content=data.decode('utf-8-sig')
+   header={}
    for rawline in content.splitlines():
     line=rawline.strip()
     if not line or line[0] in '#$/':continue
     cols=[v.strip() for v in rawline.split('\t')]
     if len(cols)<3:continue
+    # STEPBible documents separate transliteration and Gloss columns.
+    # Preserve the header positions when supplied; never guess that the
+    # first post-lemma field is an English translation.
+    if ('estrong' in cols[0].casefold() or 'extended strong' in cols[0].casefold()):
+     header={re.sub(r'[^a-z]','',x.casefold()):i for i,x in enumerate(cols)}
+     continue
     # STEPBible files use extended Strong IDs in the first column(s).
     m=STRONG.search(cols[0])
     if not m:continue
@@ -56,7 +64,17 @@ def parse_step_lexicon(raw,code):
     key=(clean_key(lemma),strong)
     # Multiple dStrong subentries can share a plain Strong number. Keep unique keys only.
     if key in records:continue
-    records[key]=(lemma,clean_key(lemma),strong,tail[0][:500],definition,info.filename.rsplit('/',1)[-1][:400])
+    header_gloss=''
+    for label in ('gloss','shortgloss','shortmeaning'):
+     index=header.get(label)
+     if index is not None and index<len(cols) and cols[index]:
+      header_gloss=cols[index]
+      break
+    # Fallback also repairs the old STEPBible data layout, by skipping
+    # transliteration/morph fields and selecting only a true meaning.
+    safe_gloss=header_gloss or best_gloss({'module_id':'step-'+code.lower(),
+        'gloss':tail[0], 'definition':definition})
+    records[key]=(lemma,clean_key(lemma),strong,safe_gloss[:500],definition,info.filename.rsplit('/',1)[-1][:400])
     if len(records)>100000:raise ValueError('Zu viele Lexikoneinträge.')
   if len(records)<1:raise ValueError('Keine gültigen Lexikoneinträge erkannt. Das Originalformat muss geprüft werden; es wurden keine Daten gespeichert.')
   return list(records.values())

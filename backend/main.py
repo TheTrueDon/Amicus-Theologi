@@ -18,8 +18,9 @@ from .search import search_verses
 from .advanced_search import advanced_search
 from .source_import import install_scientific, download_source, MAX_UPLOAD
 from .lexicon import read_lexicon, install_lexicon, installed_lexica, lookup, remove_lexicon
-from .morphology import parse_annotation_file, import_annotations, chapter_tokens, get_word, lemma_concordance
+from .morphology import parse_annotation_file, import_annotations, chapter_tokens, get_word, lemma_concordance, lemma_concordance_page
 from .catalog import catalog_list, install_catalog_item
+from .bible_catalog import bible_catalog, install_bible_from_catalog
 ROOT=Path(__file__).resolve().parent.parent; WEB=ROOT/'frontend'
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -61,6 +62,8 @@ class SettingsUpdate(BaseModel):
  show_german:bool|None=None
  show_latin:bool|None=None
  welcome_completed:bool|None=None
+ display_module_ids:list[str]|None=Field(default=None,max_length=150)
+ display_module_order:list[str]|None=Field(default=None,max_length=150)
 @app.get('/')
 def home():return FileResponse(WEB/'index.html')
 @app.get('/ANLEITUNG.html', include_in_schema=False)
@@ -80,11 +83,25 @@ def patch_settings(change:SettingsUpdate):
  if 'active_reference' in data:
   try:parse_reference(data['active_reference'])
   except ValueError as e:raise HTTPException(422,str(e))
+ for key in ('display_module_ids', 'display_module_order'):
+  if key in data:
+   allowed={m['id'] for m in installed()}
+   if key=='display_module_ids':allowed.add('*')
+   if any(i not in allowed for i in data[key]) or len(set(data[key]))!=len(data[key]):
+    raise HTTPException(422,'Auswahlliste enthält unbekannte oder doppelte Module.')
  return set_settings(data)
 @app.get('/api/books')
 def books():return [{'id':b[0],'name':b[1]} for b in BOOKS]
 @app.get('/api/modules')
 def modules():return installed()
+@app.get('/api/bible-catalog')
+def available_bible_editions():
+ return bible_catalog()
+@app.post('/api/bible-catalog/{edition_id}/install')
+def install_bible_edition(edition_id:str):
+ try:return install_bible_from_catalog(edition_id)
+ except ValueError as exc:raise HTTPException(422,str(exc))
+
 @app.get('/api/chapter')
 def chapter(book:str,chapter:int=1):
  if book not in NAMES or not 1<=chapter<=200:raise HTTPException(422,'Ungültiges Bibelbuch oder Kapitel.')
@@ -141,18 +158,44 @@ def morphology_word(module_id:str,book:str,chapter:int,verse:int,position:int):
  return result
 
 @app.get('/api/morphology/lemma')
-def morphology_lemma(module_id:str,lemma:str,limit:int=100):
- if not re.fullmatch(r'[a-zA-Z0-9_-]{2,48}',module_id) or not 1<=limit<=100:
-  raise HTTPException(422,'Ungültige Abfrage.')
- try:return {'module_id':module_id,'lemma':lemma,'results':lemma_concordance(module_id,lemma,limit)}
+def morphology_lemma(module_id:str,lemma:str,limit:int=50,offset:int=0,sort_by:Literal['reference','surface']='reference',direction:Literal['asc','desc']='asc'):
+ if not re.fullmatch(r'[a-zA-Z0-9_-]{2,48}',module_id):
+  raise HTTPException(422,'Ungültige Modul-ID.')
+ try:return lemma_concordance_page(module_id,lemma,limit,offset,sort_by,direction)
  except ValueError as e:raise HTTPException(422,str(e))
+
+@app.get('/api/morphology/preview')
+def morphology_preview(module_id:str,book:str,chapter:int,verse:int,position:int):
+ """Short, source-based hover preview. Never invent a translation or grammar."""
+ if not re.fullmatch(r'[a-zA-Z0-9_-]{2,48}',module_id) or book not in NAMES or not(1<=chapter<=200 and 1<=verse<=200 and 1<=position<=500):
+  raise HTTPException(422,'Ungültiger Wortverweis.')
+ word=get_word(module_id,book,chapter,verse,position)
+ if word is None:raise HTTPException(404,'Zu diesem Wort liegen keine Annotationen vor.')
+ from .morph_display import decode
+ from .lexical_text import best_gloss, gloss_priority
+ grammar=decode(word['morph'],word['language'])
+ entries=lookup(word['language'],word['lemma'],word['strong'] or '')
+ from .lexicon import clean_key
+ # Prefer the exact lemma and a real German/English meaning; never phonetics.
+ entries.sort(key=lambda entry: (clean_key(entry['lemma']) != clean_key(word['lemma']), gloss_priority(entry)))
+ gloss=''; source=''
+ for entry in entries:
+  candidate=best_gloss(entry)
+  if candidate:
+   gloss=candidate[:180];source=entry['title'];break
+ return {'surface':word['surface'],'lemma':word['lemma'],'strong':word['strong'],
+         'morph':word['morph'],'grammar':grammar,'gloss':gloss,'gloss_source':source}
 
 @app.get('/api/lexica')
 def lexica():return installed_lexica()
 
 @app.get('/api/lexicon/lookup')
 def lexicon_lookup(language:Literal['grc','he'],lemma:str='',strong:str=''):
- try:return {'language':language,'lemma':lemma,'strong':strong,'results':lookup(language,lemma,strong)}
+ try:
+  from .lexical_text import best_gloss
+  rows=lookup(language,lemma,strong)
+  return {'language':language,'lemma':lemma,'strong':strong,
+          'results':[{**entry, 'display_gloss':best_gloss(entry)} for entry in rows]}
  except ValueError as e:raise HTTPException(422,str(e))
 
 @app.post('/api/lexica/import')

@@ -43,7 +43,7 @@
 .highlight-blue{background:rgba(66,140,221,.19)!important;border-left:3px solid #428cdd}
 .highlight-pink{background:rgba(214,100,153,.18)!important;border-left:3px solid #d66499}
 .highlight-orange{background:rgba(242,139,56,.19)!important;border-left:3px solid #f28b38}
-#study-pane{padding:8px 0 16px}.study-note-form textarea{width:100%;box-sizing:border-box;min-height:95px;padding:10px;border:1px solid var(--line,#555);border-radius:6px;background:var(--panel,#252a33);color:inherit;display:block;margin-bottom:8px}
+#study-pane{padding:8px 0 16px}.study-note-form textarea{width:100%;box-sizing:border-box;min-height:95px;padding:10px;border:1px solid var(--line);border-radius:6px;background:var(--surface2);color:var(--txt);caret-color:var(--txt);display:block;margin-bottom:8px}
 .study-note{margin:12px 0;padding:12px;border:1px solid #7775;border-radius:8px;white-space:pre-wrap;overflow-wrap:anywhere}
 .study-note button{margin-right:5px}.highlight-tools{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin:10px 0}.highlight-tools .btn{padding:5px 8px}
 .study-project-layout{display:grid;grid-template-columns:1fr 1fr;gap:24px}.study-project-layout textarea,.study-project-layout input{width:100%;box-sizing:border-box}.study-project-layout section{min-width:0}.study-project-layout label{display:block;margin:8px 0}.row-actions{display:flex;flex-wrap:wrap;gap:6px}.chosen{outline:2px solid #639fca}.grammar-box{margin:10px 0}.technical-codes{margin:12px 0;font-size:.87em;overflow-wrap:anywhere}
@@ -105,3 +105,103 @@
 .top-actions .btn{white-space:nowrap}
 @media(max-width:1250px){.top-actions .pill{display:none}.top-actions .btn{font-size:12px;padding:7px 9px}}
 @media(max-width:800px){.top{align-items:flex-start;padding:10px}.brand{margin-top:4px}.top-actions{justify-content:flex-start}.toolbar{overflow-x:auto;flex-wrap:nowrap}.toolbar input,.toolbar select{min-width:80px}}
+
+/* 1.0.2: scientific lexical formatting, usable concordance and word hover preview */
+.morph-word.selected-word{outline:2px solid var(--gold);outline-offset:2px;background:rgba(206,155,66,.17)}
+.lexicon-card h5{font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:13px 0 5px}
+.lexical-richtext{line-height:1.65;overflow-wrap:anywhere;white-space:normal}
+.lexical-richtext .lexical-section{padding:5px 0;white-space:pre-wrap;border-bottom:1px solid var(--line)}
+.lexical-richtext .lexical-section:last-child{border:0}
+.lexical-richtext p{margin:6px 0}
+.lexical-richtext .lex-ref{text-decoration:underline dotted;text-underline-offset:3px}
+.lexicon-original{font-size:.8rem;margin:10px 0;color:var(--muted)}
+.lexicon-original summary{cursor:pointer}
+.lexicon-original pre{white-space:pre-wrap;word-break:break-word;max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:5px;padding:10px}
+.concordance-button{margin:9px 0 12px;width:100%;text-align:center}
+.word-tooltip{position:fixed;z-index:9000;pointer-events:none;width:min(340px,calc(100vw - 24px));max-height:min(55vh,380px);overflow:hidden;color:var(--txt);background:var(--surface);border:1px solid var(--blue);box-shadow:0 12px 36px #0008;border-radius:10px;padding:13px 15px;font-size:13px;line-height:1.4}
+.word-tooltip[hidden]{display:none!important}
+.word-preview-title{font-family:Georgia,serif;font-size:21px;font-weight:700;margin-bottom:8px}
+.word-preview-field{display:grid;grid-template-columns:78px minmax(0,1fr);column-gap:9px;align-items:start;margin:6px 0;overflow-wrap:anywhere}
+.word-preview-label{font-weight:600;color:var(--muted);font-size:11px}
+.word-preview-red{color:#e87171;font-weight:650}
+.word-preview-grammar{margin:2px 0 6px 87px;line-height:1.5}
+.word-preview-source{font-size:11px;color:var(--muted);margin-top:5px;overflow-wrap:anywhere}
+body[data-theme=light] .word-preview-red{color:#ab2339}
+.lemma-dialog{width:min(880px,95vw);max-height:90vh;overflow:hidden;background:var(--surface);color:var(--txt);border:1px solid var(--line);border-radius:12px;padding:20px;box-shadow:0 16px 50px #0005}
+.lemma-dialog::backdrop{background:#07121cb0}
+.lemma-dialog-results{display:flex;flex-direction:column;gap:5px;overflow:auto;max-height:58vh;padding:8px 2px}
+.lemma-result{display:grid;grid-template-columns:98px 100px minmax(0,1fr);gap:12px;align-items:center;text-align:left;background:var(--surface2);border:1px solid var(--line);padding:10px;color:var(--txt);border-radius:6px}
+.lemma-result:hover,.lemma-result:focus-visible{border-color:var(--blue);outline:1px solid var(--blue)}
+.lemma-result-form{color:var(--gold);font-weight:700}
+.lemma-result-context{font-size:12px;line-height:1.45;overflow-wrap:anywhere;max-height:3em;overflow:hidden}
+.lemma-dialog-navigation{display:flex;align-items:center;gap:12px;justify-content:center;padding:12px 0}
+@media(max-width:650px){.lemma-result{grid-template-columns:85px minmax(0,1fr)}.lemma-result-context{grid-column:1/-1}}
+
+/* 1.0.3: sorted lemma concordance, with accessible column labels */
+.lemma-sort-bar{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:12px 0 10px;font-size:13px}
+.lemma-sort-bar label{font-weight:600}
+.lemma-sort-bar select{background:var(--surface2);color:var(--txt);border:1px solid var(--line);border-radius:5px;padding:7px 10px;min-width:190px}
+.lemma-result-head{display:grid;grid-template-columns:98px 100px minmax(0,1fr);gap:12px;align-items:center;padding:0 12px 5px;font-size:12px;color:var(--muted);font-weight:700}
+@media(max-width:650px){.lemma-result-head{grid-template-columns:85px 1fr}.lemma-result-head span:last-child{display:none}}
+
+/* 1.0.4: Accessible study note and project text inputs in both color themes.
+   Explicit semantic colors instead of inheriting browser textarea defaults. */
+body[data-theme="dark"] { color-scheme: dark; }
+body[data-theme="light"] { color-scheme: light; }
+body[data-theme] .study-note-form textarea,
+body[data-theme] .study-project-layout textarea,
+body[data-theme] .study-project-layout input {
+  background-color: var(--surface2);
+  color: var(--txt);
+  caret-color: var(--txt);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font: inherit;
+  line-height: 1.55;
+}
+body[data-theme] .study-note-form textarea::placeholder,
+body[data-theme] .study-project-layout textarea::placeholder,
+body[data-theme] .study-project-layout input::placeholder { color: var(--muted); opacity: 1; }
+body[data-theme] .study-note-form textarea:focus-visible,
+body[data-theme] .study-project-layout textarea:focus-visible,
+body[data-theme] .study-project-layout input:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+/* 1.0.5: text-edition selection and curated CrossWire catalogue */
+.edition-strip{border:1px solid var(--line);border-radius:8px;padding:12px 13px;margin:0 0 16px;background:var(--surface2)}
+.edition-strip-top{display:flex;flex-wrap:wrap;gap:9px;align-items:center;margin-bottom:9px}
+.edition-strip-top .btn{margin-left:auto;padding:7px 10px;font-size:12px}
+.edition-count{font-size:12px;color:var(--muted)}
+.edition-chips{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.edition-chip{font-size:12px;line-height:1.3;border:1px solid var(--line);border-radius:16px;padding:6px 10px;color:var(--txt);background:var(--surface);cursor:pointer;max-width:100%;overflow-wrap:anywhere}
+.edition-chip:hover,.edition-chip:focus-visible{border-color:var(--blue);outline:1px solid var(--blue)}
+.edition-chip.edition-add{border-style:dashed;color:var(--blue)}
+.edition-dialog{width:min(720px,96vw)}
+.edition-quick-actions{display:flex;flex-wrap:wrap;gap:7px;margin:16px 0}
+.edition-filter{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--muted)}
+.edition-filter input{padding:10px;border:1px solid var(--line);border-radius:6px;background:var(--surface2);color:var(--txt);font-size:15px}
+.edition-choices{border:1px solid var(--line);border-radius:8px;margin:14px 0;max-height:45vh;overflow-y:auto}
+.edition-choice{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px;border-bottom:1px solid var(--line)}
+.edition-choice:last-child{border-bottom:0}
+.edition-choice-label{display:flex;align-items:center;gap:12px;min-width:0;flex:1;cursor:pointer}
+.edition-choice-label input{width:19px;height:19px;flex:0 0 auto;accent-color:var(--blue)}
+.edition-choice-label span{min-width:0;overflow-wrap:anywhere}
+.edition-choice-label strong{display:block;font-size:14px;letter-spacing:0}
+.edition-choice-label small{display:block;margin-top:4px;color:var(--muted);font-size:11px}
+.edition-order-buttons{display:flex;gap:4px;flex:0 0 auto}
+.edition-order-buttons .btn{padding:7px 10px}
+.edition-order-buttons button:disabled{opacity:.35;cursor:default}
+.edition-actions{display:flex;justify-content:space-between;flex-wrap:wrap;gap:9px;margin-top:17px}
+.bible-catalog-section{padding:15px 17px;margin:14px 0;background:var(--surface2);border:1px solid var(--line);border-radius:9px}
+.bible-catalog-section h3{margin-top:0}
+.bible-catalog-list{display:grid;grid-template-columns:1fr;gap:8px;margin-top:16px}
+.bible-edition-card{padding:13px 12px;border:1px solid var(--line);border-radius:7px;display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--surface)}
+.bible-edition-info{min-width:0;flex:1;overflow-wrap:anywhere}
+.bible-edition-info strong{display:block;font-size:14px}
+.bible-edition-info span{display:block;font-size:12px;margin:4px 0;color:var(--muted)}
+.bible-edition-info small{display:block;color:var(--muted);font-size:11px}
+.edition-source-link{display:inline-block;margin-top:6px;color:var(--blue);font-size:12px}
+.bible-edition-card .btn{flex-shrink:0}
+@media(max-width:560px){.bible-edition-card{align-items:stretch;flex-direction:column}.edition-strip-top .btn{margin-left:0}.bible-edition-card .btn{align-self:flex-start}}

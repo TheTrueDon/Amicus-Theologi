@@ -8,7 +8,7 @@ import io
 import re
 import unicodedata
 from .database import connect
-from .library import book_id
+from .library import book_id, BOOKS
 
 MAX_BYTES = 12_000_000
 REQUIRED = {'book', 'chapter', 'verse', 'position', 'surface', 'lemma', 'morph'}
@@ -91,3 +91,35 @@ def lemma_concordance(module_id, lemma, limit=100):
             FROM tokens t JOIN verses v ON (v.module_id=t.module_id AND v.book=t.book AND v.chapter=t.chapter AND v.verse=t.verse)
             WHERE t.module_id=? AND t.lemma=? ORDER BY t.book,t.chapter,t.verse,t.position LIMIT ?""",(module_id,lemma,limit)).fetchall()
     return [dict(x) for x in rows]
+
+
+def lemma_concordance_page(module_id, lemma, limit=50, offset=0,
+                            sort_by='reference', direction='asc'):
+    """Paginated results sorted across the WHOLE edition before LIMIT.
+
+    Reference order is biblical canon, not lexicographic book abbreviations.
+    Sorting by word form uses SQLite text collation, with canonical reference
+    order as a deterministic tie-breaker.
+    """
+    if not lemma or len(lemma)>200 or not (1<=limit<=100) or not (0<=offset<=1_000_000):
+        raise ValueError('Ungültiges Lemma oder Seitenlimit.')
+    if sort_by not in ('reference', 'surface') or direction not in ('asc', 'desc'):
+        raise ValueError('Unbekannte Sortierung.')
+    book_cases=' '.join(f"WHEN '{record[0]}' THEN {index}" for index,record in enumerate(BOOKS))
+    book_sort=f'(CASE t.book {book_cases} ELSE 999 END)'
+    ref_order=f'{book_sort} ASC,t.chapter ASC,t.verse ASC,t.position ASC'
+    if sort_by=='reference':
+        sort_sql=ref_order if direction=='asc' else f'{book_sort} DESC,t.chapter DESC,t.verse DESC,t.position DESC'
+    else:
+        # Deterministic order even when two tokens have identical spellings.
+        sort_sql=f't.surface COLLATE NOCASE {direction.upper()},{ref_order}'
+    with connect() as db:
+        total=db.execute('SELECT COUNT(*) FROM tokens WHERE module_id=? AND lemma=?',
+                         (module_id,lemma)).fetchone()[0]
+        rows=db.execute(f"""SELECT t.book,t.chapter,t.verse,t.position,t.surface,t.lemma,t.morph,v.text
+            FROM tokens t JOIN verses v ON (v.module_id=t.module_id AND v.book=t.book AND v.chapter=t.chapter AND v.verse=t.verse)
+            WHERE t.module_id=? AND t.lemma=?
+            ORDER BY {sort_sql} LIMIT ? OFFSET ?""",
+            (module_id,lemma,limit,offset)).fetchall()
+    return {'module_id':module_id,'lemma':lemma,'total':total,'limit':limit,'offset':offset,
+            'sort_by':sort_by,'direction':direction,'results':[dict(x) for x in rows]}

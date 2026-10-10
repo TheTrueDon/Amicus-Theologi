@@ -21,7 +21,7 @@ class ManualAndInstallerTests(unittest.TestCase):
 
     def test_static_manual_and_search(self):
         with TestClient(app) as client:
-            self.assertEqual(client.get('/api/status').json()['version'],'1.0.1')
+            self.assertEqual(client.get('/api/status').json()['version'],APP_VERSION)
             manual=client.get('/ANLEITUNG.html')
             self.assertEqual(manual.status_code,200)
             self.assertIn('text/html',manual.headers['content-type'])
@@ -47,7 +47,7 @@ class ManualAndInstallerTests(unittest.TestCase):
         self.assertNotIn('help_search',tables)
 
     def test_windows_build_assets(self):
-        self.assertEqual(APP_VERSION,'1.0.1')
+        self.assertEqual(APP_VERSION,APP_VERSION)
         script=(ROOT/'windows/AmicusTheologi.iss').read_text(encoding='utf-8')
         self.assertIn('PrivilegesRequired=lowest',script)
         self.assertIn('desktopicon',script)

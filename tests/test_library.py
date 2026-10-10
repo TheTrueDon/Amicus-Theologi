@@ -2,7 +2,7 @@ import os
 import tempfile
 import unittest
 from fastapi.testclient import TestClient
-from backend.database import init_db, get_settings, set_settings
+from backend.database import APP_VERSION, init_db, get_settings, set_settings
 from backend.library import parse_reference, read_import, install_module, chapter_view, neighbor
 from backend.main import app
 class LibraryTests(unittest.TestCase):
@@ -23,7 +23,7 @@ class LibraryTests(unittest.TestCase):
   with self.assertRaises(ValueError):read_import(b'book,chapter,verse,text\nJoh,1,1,a\nJoh,1,1,b\n')
  def test_api(self):
   with TestClient(app) as c:
-   self.assertEqual(c.get('/api/status').json()['version'],'1.0.1')
+   self.assertEqual(c.get('/api/status').json()['version'],APP_VERSION)
    r=c.post('/api/modules/import',files={'file':('sample.tsv',b'book\tchapter\tverse\ttext\nJoh\t1\t1\tTest\n','text/tab-separated-values')},data={'module_id':'t1','title':'Test','language':'de','license_name':'Demo','provenance':'Test','version':'1'})
    self.assertEqual(r.status_code,200,r.text)
    self.assertEqual(c.get('/api/chapter',params={'book':'Joh','chapter':1}).json()['modules'][0]['verses'][0]['text'],'Test')

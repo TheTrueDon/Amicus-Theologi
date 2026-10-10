@@ -5,12 +5,13 @@ import sqlite3
 from pathlib import Path
 from contextlib import contextmanager
 
-APP_VERSION = '1.0.1'
+APP_VERSION = '1.0.5'
 DEFAULT_SETTINGS = {
     'theme': 'dark', 'font_size': 17, 'search_width': 25,
     'analysis_width': 27, 'active_reference': 'Joh 1,1',
     'show_greek': True, 'show_german': True, 'show_latin': True,
     'welcome_completed': False,
+    'display_module_ids': ['*'], 'display_module_order': [],
 }
 
 def data_dir():

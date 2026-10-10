@@ -200,6 +200,7 @@ $('#factory-reset-btn').addEventListener('click',async()=>{
  if(entered!=='WERKSRESET'){ $('#factory-reset-status').textContent='Abgebrochen – keine Daten gelöscht.';return;}
  const btn=$('#factory-reset-btn');btn.disabled=true;
  try{await api('/api/factory-reset',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({confirmation:entered})});
+   try{localStorage.removeItem('amicus-workflow-recent-v1')}catch{}
    $('#factory-reset-status').textContent='Werkseinstellungen wiederhergestellt.';location.reload();
  }catch(error){$('#factory-reset-status').textContent='Reset fehlgeschlagen: '+error.message;btn.disabled=false;}
 });

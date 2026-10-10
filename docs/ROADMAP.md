@@ -8,7 +8,7 @@
 - [x] 0.6 – Erweiterte morphologische und positionsbezogene Suche (Suchfilter + Wortabstand auf annotierten Versen)
 - [x] 0.7 – Notizen, Markierungen, Studienprojekte, Export
 - [x] 0.8 – Ausgabenvergleich, ausgewählte synoptische Perikopen, importierbare dokumentierte Lesarten (Grundfunktionen)
-- [ ] 0.9 – BibleWorks-inspirierte Arbeitsabläufe und Tastenkürzel
+- [x] 0.9 – Befehlssuche, Verlaufsnavigation, zuletzt besuchte Bibelstellen und Tastenkürzel (Grundfunktionen)
 - [ ] 1.0 – Stabile Veröffentlichung, Installer, Dokumentation
 
 ## Noch nicht vorhanden

@@ -23,7 +23,7 @@ class LibraryTests(unittest.TestCase):
   with self.assertRaises(ValueError):read_import(b'book,chapter,verse,text\nJoh,1,1,a\nJoh,1,1,b\n')
  def test_api(self):
   with TestClient(app) as c:
-   self.assertEqual(c.get('/api/status').json()['version'],'0.8.0')
+   self.assertEqual(c.get('/api/status').json()['version'],'0.9.0')
    r=c.post('/api/modules/import',files={'file':('sample.tsv',b'book\tchapter\tverse\ttext\nJoh\t1\t1\tTest\n','text/tab-separated-values')},data={'module_id':'t1','title':'Test','language':'de','license_name':'Demo','provenance':'Test','version':'1'})
    self.assertEqual(r.status_code,200,r.text)
    self.assertEqual(c.get('/api/chapter',params={'book':'Joh','chapter':1}).json()['modules'][0]['verses'][0]['text'],'Test')

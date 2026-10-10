@@ -114,3 +114,22 @@ Unter **Suche → Erweiterte Suche** können importierte morphologische Wortanno
 ## Neu in 0.8.0: Textkritik und Synopsen
 
 Öffne **Textkritik & Synopse** oben im Hauptfenster. Dort kannst du installierte Textausgaben nebeneinander vergleichen, ausgewählte parallele Evangelienabschnitte lesen und dokumentierte textkritische Lesarten mit Quelle und Zeuge importieren. Näheres in `docs/VERSION_0.8.md`.
+
+
+## Neu in 0.9.0: Schnellbedienung und Tastenkombinationen
+
+Der neue Knopf **Befehle** oder **Strg+K** (auf macOS auch **Cmd+K**) öffnet eine durchsuchbare Befehlsliste. Besuche zuletzt verwendete Bibelstellen direkt links über der Trefferliste; die Pfeile in der Werkzeugleiste navigieren durch die im aktuellen Tab besuchten Bibelstellen.
+
+| Taste | Funktion |
+| --- | --- |
+| Strg+K / Cmd+K | Befehlssuche |
+| Alt+R | Bibelstelleneingabe |
+| / | Suchfeld (sofern nicht in einem Eingabefeld) |
+| Alt+S | Erweiterte Suche |
+| Alt+Links / Alt+Rechts | Zurück / vor im Verlauf |
+| Alt+Hoch / Alt+Runter | Vorheriges / nächstes Kapitel |
+| Alt+1 / Alt+2 / Alt+3 | Suche / Bibeltext / Analyse fokussieren |
+| Strg+Shift+P | Studienprojekte öffnen |
+| F1 | Hilfe |
+
+**Datenschutz:** Die zuletzt geöffneten Referenzen werden im lokalen Browser-Speicher gespeichert, nicht übertragen. Beim Löschen der Browser-Website-Daten werden sie entfernt. Die Verlaufstasten gelten für den aktuellen Tab. Manche Kombinationen können in einigen Browsern vom Betriebssystem reserviert sein. Details: [docs/VERSION_0.9.md](docs/VERSION_0.9.md).

@@ -1,3 +1,12 @@
+## 0.9.0 – Bedienung und Arbeitsabläufe
+- Befehlssuche per Strg+K/Cmd+K und Schaltfläche in der Kopfzeile.
+- Tastenkürzel für Bibelstellennavigation, Suche, Kapitel, Studienprojekte und Bereichsfokus.
+- Verlauf mit Vorwärts-/Zurücknavigation sowie lokal gespeicherte Liste zuletzt besuchter Bibelstellen.
+- Hilfe und eigene Kurzreferenz zu den Tastenkombinationen.
+- Keine Änderung am Datenbankschema. Die kleine Besuchsliste wird im Browser-localStorage abgelegt.
+- Browser-Titel weiterhin nur „Amicus Theologi“.
+- Die genannten Befehle sind Amicus-Funktionen; keine vollständige BibleWorks-Befehlskompatibilität.
+
 ## 0.6.3
 - Klick-Katalog mit STEPBible TBESG, TBESH, TFLSJ, TAGNT, TAHOT und Open Scriptures.
 - Transaktionaler Werksreset mit doppelter Bestätigung.

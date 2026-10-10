@@ -63,3 +63,16 @@
 .tc-ref{font-weight:700;opacity:.75}
 .tc-variant-card{padding:12px;border:1px solid #7777;border-radius:8px;margin:10px 0}
 .tc-variant-card strong{display:block;margin:6px 0}
+
+/* v0.9 – Command palette, readable keyboard workflow and recent references */
+.command-dialog{width:min(600px,95vw);max-height:80vh;overflow-y:auto}
+.command-dialog label{display:block;color:var(--muted);margin:10px 0}
+.command-dialog input{box-sizing:border-box;width:100%;padding:13px;border:1px solid var(--line);border-radius:7px;background:var(--surface2);color:var(--txt);font-size:15px}
+.command-results{max-height:47vh;overflow:auto;margin-top:12px;border-top:1px solid var(--line)}
+.command-item{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;padding:12px;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--txt);cursor:pointer}
+.command-item:hover,.command-item.selected{background:var(--surface2);outline:1px solid var(--blue)}
+.command-item kbd{font-size:11px;color:var(--muted);white-space:nowrap}
+.workflow-recents{display:flex;gap:6px;flex-wrap:wrap;padding:10px 0}
+.workflow-recent{background:var(--surface2);border:1px solid var(--line);border-radius:5px;padding:7px 9px;color:var(--txt);cursor:pointer;font-size:12px}
+.workflow-recent:hover,.workflow-recent:focus-visible{outline:1px solid var(--blue)}
+#history-back:disabled,#history-forward:disabled{opacity:.4;cursor:not-allowed}

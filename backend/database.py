@@ -4,7 +4,7 @@ import os
 import sqlite3
 from pathlib import Path
 
-APP_VERSION = '0.3.0'
+APP_VERSION = '0.4.0'
 DEFAULT_SETTINGS = {
     'theme': 'dark', 'font_size': 17, 'search_width': 25,
     'analysis_width': 27, 'active_reference': 'Joh 1,1',
@@ -55,6 +55,7 @@ def init_db():
             FOREIGN KEY(module_id,book,chapter,verse) REFERENCES verses(module_id,book,chapter,verse) ON DELETE CASCADE
         );
         CREATE INDEX IF NOT EXISTS idx_token_lemma ON tokens(module_id, lemma);
+        CREATE INDEX IF NOT EXISTS idx_token_reference ON tokens(module_id,book,chapter,verse);
         CREATE TABLE IF NOT EXISTS verse_mapping (
             source_module TEXT NOT NULL, source_ref TEXT NOT NULL,
             target_module TEXT NOT NULL, target_ref TEXT NOT NULL,

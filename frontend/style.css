@@ -5,3 +5,10 @@
 
 /* v0.3 search */
 .search-controls{display:grid;grid-template-columns:1fr;gap:9px;margin:12px 0}.search-controls label{font-size:12px;color:var(--muted);display:flex;align-items:center;justify-content:space-between;gap:8px}.search-controls select{max-width:62%;width:62%;background:var(--bg);color:var(--txt);padding:8px;border:1px solid var(--line);border-radius:5px}.search-hit{width:100%;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--txt);padding:12px 4px;text-align:left;display:block}.search-hit:hover,.search-hit:focus{background:var(--surface2);outline:1px solid var(--blue)}.search-hit strong{color:var(--gold);font-size:13px}.search-hit small{color:var(--muted);font-size:11px;display:block;padding-top:4px}.search-hit .hit-text{font:14px/1.65 Georgia,serif;display:block;padding-top:7px;overflow-wrap:anywhere}.search-pagination{display:flex;justify-content:space-between;align-items:center;gap:5px;margin-top:12px}.search-pagination .btn{font-size:12px;padding:7px}.search-pagination span{font-size:11px;color:var(--muted)}.search-panel code{color:var(--gold)}
+
+/* v0.4: annotated words, selectable without disrupting the verse selection */
+.morph-word{background:none;border:0;color:inherit;font:inherit;padding:0 2px;cursor:pointer;display:inline;line-height:inherit}
+.morph-word:hover,.morph-word:focus-visible{background:rgba(107,166,207,.22);text-decoration:underline;outline:1px solid #76a9ca;border-radius:3px}
+.analysis-field{overflow-wrap:anywhere;margin:9px 0}
+.lemma-hit{display:block;width:100%;margin:5px 0;padding:8px;text-align:left;background:var(--surface,#202b35);color:inherit;border:1px solid #697888;border-radius:5px;cursor:pointer}
+.lemma-hit:hover{border-color:#9ebbd3}

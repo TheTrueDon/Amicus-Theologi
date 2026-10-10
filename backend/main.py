@@ -10,6 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from .database import APP_VERSION, data_dir, init_db, get_settings, set_settings, connect
 from .library import BOOKS, NAMES, parse_reference, installed, chapter_view, chapter_refs, neighbor, read_import, install_module
 from .search import search_verses
+from .morphology import parse_annotation_file, import_annotations, chapter_tokens, get_word, lemma_concordance
 ROOT=Path(__file__).resolve().parent.parent; WEB=ROOT/'frontend'
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -48,7 +49,7 @@ def modules():return installed()
 def chapter(book:str,chapter:int=1):
  if book not in NAMES or not 1<=chapter<=200:raise HTTPException(422,'Ungültiges Bibelbuch oder Kapitel.')
  parts=chapter_view(book,chapter)
- return {'book':book,'book_name':NAMES[book],'chapter':chapter,'modules':parts,'available_verses':chapter_refs(book,chapter),'previous':neighbor(book,chapter,-1),'next':neighbor(book,chapter,1)}
+ return {'book':book,'book_name':NAMES[book],'chapter':chapter,'tokens':chapter_tokens(book,chapter),'modules':parts,'available_verses':chapter_refs(book,chapter),'previous':neighbor(book,chapter,-1),'next':neighbor(book,chapter,1)}
 @app.get('/api/reference')
 def reference(q:str):
  try:b,c,v=parse_reference(q)
@@ -81,4 +82,27 @@ def search(q:str, module_id:str|None=None, book:str|None=None, mode:Literal['all
  try:return search_verses(q,module_id,book,mode,limit,offset)
  except ValueError as e:raise HTTPException(422,str(e))
 @app.get('/api/info')
-def info():return {'message':'Version 0.3: indizierte Volltextsuche, Suchbereiche und Suchbefehle. Morphologie folgt in 0.4.','data_dir':str(data_dir())}
+def info():return {'message':'Version 0.4: importierbare Wortannotation, interaktive Wortanalyse und Lemma-Konkordanz.','data_dir':str(data_dir())}
+
+@app.post('/api/morphology/import')
+async def morphology_import(file:UploadFile=File(...),module_id:str=Form(...)):
+ if not re.fullmatch(r'[a-zA-Z0-9_-]{2,48}',module_id):raise HTTPException(422,'Ungültige Modul-ID.')
+ try:
+  raw=await file.read(12_000_001)
+  return import_annotations(module_id,parse_annotation_file(raw))
+ except ValueError as e:raise HTTPException(422,str(e))
+
+@app.get('/api/morphology/word')
+def morphology_word(module_id:str,book:str,chapter:int,verse:int,position:int):
+ if not re.fullmatch(r'[a-zA-Z0-9_-]{2,48}',module_id) or book not in NAMES or not(1<=chapter<=200 and 1<=verse<=200 and 1<=position<=500):
+  raise HTTPException(422,'Ungültiger Wortverweis.')
+ result=get_word(module_id,book,chapter,verse,position)
+ if result is None:raise HTTPException(404,'Zu diesem Wort liegen keine Annotationen vor.')
+ return result
+
+@app.get('/api/morphology/lemma')
+def morphology_lemma(module_id:str,lemma:str,limit:int=100):
+ if not re.fullmatch(r'[a-zA-Z0-9_-]{2,48}',module_id) or not 1<=limit<=100:
+  raise HTTPException(422,'Ungültige Abfrage.')
+ try:return {'module_id':module_id,'lemma':lemma,'results':lemma_concordance(module_id,lemma,limit)}
+ except ValueError as e:raise HTTPException(422,str(e))

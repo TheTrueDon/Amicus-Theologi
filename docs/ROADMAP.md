@@ -6,8 +6,8 @@
 - [x] 0.4 – Import morphologischer Wortannotationen, Wortauswahl, Lemma-Konkordanz
 - [x] 0.5 – Importierbare Lexika, Verknüpfung mit Lemma und Strong, Wortstudien-Grundlage
 - [x] 0.6 – Erweiterte morphologische und positionsbezogene Suche (Suchfilter + Wortabstand auf annotierten Versen)
-- [ ] 0.7 – Notizen, Markierungen, Studienprojekte, Export
-- [ ] 0.8 – Textkritik, Synopsen, Varianten
+- [x] 0.7 – Notizen, Markierungen, Studienprojekte, Export
+- [x] 0.8 – Ausgabenvergleich, ausgewählte synoptische Perikopen, importierbare dokumentierte Lesarten (Grundfunktionen)
 - [ ] 0.9 – BibleWorks-inspirierte Arbeitsabläufe und Tastenkürzel
 - [ ] 1.0 – Stabile Veröffentlichung, Installer, Dokumentation
 

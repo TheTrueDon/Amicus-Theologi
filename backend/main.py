@@ -240,3 +240,31 @@ from .morph_display import decode as decode_morph
 @app.get('/api/morphology/decode')
 def morph_decode(morph:str,language:Literal['grc','he']):
  return decode_morph(morph,language)
+
+
+# v0.8: edition comparison, synoptic passages and documented textual readings.
+from . import textcriticism as tc
+@app.get('/api/textcrit/compare')
+def compare_editions(book:str,chapter:int,modules:str):
+ try:return tc.compare(book,chapter,[m.strip() for m in modules.split(',') if m.strip()])
+ except ValueError as e:raise HTTPException(422,str(e))
+@app.get('/api/textcrit/synopsis')
+def synoptic_index():return tc.synopsis_list()
+@app.get('/api/textcrit/synopsis/{item_id}')
+def synoptic_passage(item_id:int,module_id:str):
+ try:return tc.synopsis_detail(item_id,module_id)
+ except ValueError as e:raise HTTPException(422,str(e))
+@app.get('/api/textcrit/variants')
+def textual_readings(book:str,chapter:int,verse:int):
+ try:return tc.variants_at(book,chapter,verse)
+ except ValueError as e:raise HTTPException(422,str(e))
+@app.get('/api/textcrit/collections')
+def textual_collections():return tc.collections()
+@app.post('/api/textcrit/variants/import')
+async def import_textual_readings(collection:str=Form(...),file:UploadFile=File(...)):
+ try:return tc.import_variants(collection,await file.read(5_000_001))
+ except ValueError as e:raise HTTPException(422,str(e))
+@app.delete('/api/textcrit/collections/{name}')
+def delete_textual_collection(name:str):
+ try:return tc.remove_collection(name)
+ except ValueError as e:raise HTTPException(404,str(e))

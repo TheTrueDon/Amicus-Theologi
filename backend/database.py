@@ -4,7 +4,7 @@ import os
 import sqlite3
 from pathlib import Path
 
-APP_VERSION = '0.7.0'
+APP_VERSION = '0.8.0'
 DEFAULT_SETTINGS = {
     'theme': 'dark', 'font_size': 17, 'search_width': 25,
     'analysis_width': 27, 'active_reference': 'Joh 1,1',
@@ -83,6 +83,8 @@ def init_db():
         # v0.7: additive, independent tables for user study data.
         from .studies import setup as setup_studies
         setup_studies(db)
+        from .textcriticism import setup as setup_textcriticism
+        setup_textcriticism(db)
         # v0.3 migration: add an FTS5 virtual table plus maintenance triggers.
         # Existing module IDs, verses and user settings are preserved.
         db.executescript("""
@@ -124,6 +126,7 @@ def factory_reset():
     """Transactional data reset. Retain schema/FTS triggers and recreate defaults."""
     with connect() as db:
         db.execute('DELETE FROM study_projects')
+        db.execute('DELETE FROM textual_variants')
         db.execute('DELETE FROM modules')
         db.execute('DELETE FROM lexicon_modules')
         db.execute('DELETE FROM verse_mapping')

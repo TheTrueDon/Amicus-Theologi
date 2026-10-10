@@ -109,3 +109,8 @@ Unter **Suche → Erweiterte Suche** können importierte morphologische Wortanno
 ## Neu in 0.7: Studienprojekte
 
 Über **Studienprojekte** können exegetische Projekte angelegt und ausgewählt werden. Notizen und Markierungen werden pro Bibelstelle im aktuell gewählten Projekt gespeichert. **JSON exportieren** erstellt eine transportable Sicherung (Import wird noch nicht angeboten). Mit importierten Morphologiedaten zeigt die Wortanalyse unterstützte Codes in deutschen Fachbegriffen an. Siehe [docs/VERSION_0.7.md](docs/VERSION_0.7.md).
+
+
+## Neu in 0.8.0: Textkritik und Synopsen
+
+Öffne **Textkritik & Synopse** oben im Hauptfenster. Dort kannst du installierte Textausgaben nebeneinander vergleichen, ausgewählte parallele Evangelienabschnitte lesen und dokumentierte textkritische Lesarten mit Quelle und Zeuge importieren. Näheres in `docs/VERSION_0.8.md`.

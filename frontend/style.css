@@ -48,3 +48,18 @@
 .study-note button{margin-right:5px}.highlight-tools{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin:10px 0}.highlight-tools .btn{padding:5px 8px}
 .study-project-layout{display:grid;grid-template-columns:1fr 1fr;gap:24px}.study-project-layout textarea,.study-project-layout input{width:100%;box-sizing:border-box}.study-project-layout section{min-width:0}.study-project-layout label{display:block;margin:8px 0}.row-actions{display:flex;flex-wrap:wrap;gap:6px}.chosen{outline:2px solid #639fca}.grammar-box{margin:10px 0}.technical-codes{margin:12px 0;font-size:.87em;overflow-wrap:anywhere}
 @media(max-width:680px){.study-project-layout{grid-template-columns:1fr}}
+
+/* v0.8 – Textkritik und Synopse */
+.textcrit-dialog{width:min(1150px,96vw);max-width:96vw}
+.tc-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}
+.tc-controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:12px 0}
+.tc-controls select{width:100%;margin-top:6px}
+.tc-results{margin:18px 0;overflow-x:auto;max-height:55vh;overflow-y:auto}
+.tc-grid{display:grid;grid-template-columns:repeat(var(--tc-count),minmax(190px,1fr));min-width:500px;border:1px solid var(--line,#777);border-radius:8px}
+.tc-cell{padding:11px 12px;border-bottom:1px solid #7774;border-right:1px solid #7774;overflow-wrap:anywhere;line-height:1.6}
+.tc-cell.tc-head{font-weight:700;position:sticky;top:0;background:var(--panel,#243140);z-index:1}
+.tc-cell.tc-hebrew{direction:rtl;text-align:right}
+.tc-missing{opacity:.65;font-style:italic}
+.tc-ref{font-weight:700;opacity:.75}
+.tc-variant-card{padding:12px;border:1px solid #7777;border-radius:8px;margin:10px 0}
+.tc-variant-card strong{display:block;margin:6px 0}

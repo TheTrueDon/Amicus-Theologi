@@ -250,3 +250,64 @@ $('#project-edit').onclick=async()=>{const p=allProjects.find(x=>x.id===currentP
 $('#project-delete').onclick=async()=>{const p=allProjects.find(x=>x.id===currentProjectId);if(!p||!confirm(`Projekt „${p.title}“ mit ALLEN zugehörigen Notizen und Markierungen endgültig löschen?`))return;await api(`/api/projects/${p.id}`,{method:'DELETE'});currentProjectId=null;await refreshProjects()};
 $('#project-export').onclick=async()=>{if(!currentProjectId)return;try{const data=await api(`/api/projects/${currentProjectId}/export`);const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=el('a');a.href=url;a.download=`amicus-projekt-${currentProjectId}.json`;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}catch(e){alert(e.message)}};
 refreshProjects().catch(e=>console.warn('Studienprojekte beim Start:',e));
+
+// v0.8: The UI keeps edition comparison separate from sourced textual variants.
+const tcDialog=$('#textcrit-dialog');
+$('#textcrit-btn').onclick=async()=>{await tcPrepare();show('#textcrit-dialog')};
+$('#textcrit-close').onclick=()=>tcDialog.close();
+$$('[data-tc-tab]').forEach(btn=>btn.onclick=()=>{
+  $$('[data-tc-tab]').forEach(b=>b.classList.toggle('primary',b===btn));
+  for(const key of ['compare','synopsis','variants'])$('#tc-'+key+'-pane').hidden=key!==btn.dataset.tcTab;
+});
+function tcStatus(text){$('#tc-status').textContent=text}
+function tcSetSelect(node,items,empty=false){node.replaceChildren();if(empty){const opt=el('option','','Keine');opt.value='';node.append(opt)}for(const item of items){const opt=el('option','',item.title);opt.value=item.id;node.append(opt)}}
+async function tcPrepare(){
+  await refreshModules();const a=$('#tc-module-a'),b=$('#tc-module-b');
+  for(const id of ['a','b','c','d'])tcSetSelect($('#tc-module-'+id),modules,['c','d'].includes(id));
+  if(modules.length>1)b.value=modules[1].id;
+  const syn=modules.filter(x=>['de','grc','en','la'].includes(x.language));tcSetSelect($('#tc-synoptic-module'),syn);
+  try{const items=await api('/api/textcrit/synopsis');const sel=$('#tc-synoptic-passage');sel.replaceChildren();for(const item of items){const opt=el('option','',item.title+' · '+item.references.join(' | '));opt.value=item.id;sel.append(opt)}}catch(e){tcStatus(e.message)}
+  await tcCollections();
+}
+function tcGrid(container,columns,rows){
+  container.replaceChildren();const grid=el('div','tc-grid');grid.style.setProperty('--tc-count',columns.length);
+  for(const c of columns)grid.append(el('div','tc-cell tc-head',c));
+  for(const row of rows)for(let i=0;i<columns.length;i++){const cell=el('div','tc-cell',row[i]??'—');if(row[i]===null||row[i]===undefined)cell.classList.add('tc-missing');grid.append(cell)}
+  container.append(grid);
+}
+$('#tc-compare-run').onclick=async()=>{
+  const selected=['a','b','c','d'].map(x=>$('#tc-module-'+x).value).filter(Boolean);
+  if(new Set(selected).size!==selected.length){tcStatus('Bitte unterschiedliche Ausgaben auswählen.');return}
+  try{const data=await api(`/api/textcrit/compare?book=${encodeURIComponent(view.book)}&chapter=${view.chapter}&modules=${encodeURIComponent(selected.join(','))}`);
+    tcGrid($('#tc-compare-result'),data.modules.map(m=>m.title),data.rows.map(r=>r.texts.map(t=>t===null?null:`${r.verse} · ${t}`)));
+    tcStatus(`${data.rows.length} Verse. ${data.notice}`)
+  }catch(e){tcStatus(e.message)}
+};
+$('#tc-synoptic-run').onclick=async()=>{
+  const id=$('#tc-synoptic-passage').value,mod=$('#tc-synoptic-module').value;
+  if(!mod){tcStatus('Bitte zuerst einen Bibeltext installieren.');return}
+  try{const data=await api(`/api/textcrit/synopsis/${id}?module_id=${encodeURIComponent(mod)}`);
+    const max=Math.max(...data.columns.map(c=>c.verses.length));const rows=[];
+    for(let i=0;i<max;i++)rows.push(data.columns.map(c=>c.verses[i]?`${c.verses[i].verse} · ${c.verses[i].text}`:null));
+    tcGrid($('#tc-synopsis-result'),data.columns.map(c=>`${c.book} ${c.chapter},${c.start}–${c.end}`),rows);
+    tcStatus(data.title+' · '+data.notice);
+  }catch(e){tcStatus(e.message)}
+};
+async function tcVariants(){
+  const out=$('#tc-variants-result');out.replaceChildren();
+  try{const rows=await api(`/api/textcrit/variants?book=${encodeURIComponent(view.book)}&chapter=${view.chapter}&verse=${activeVerse}`);
+    out.append(el('h3','',`${view.book} ${view.chapter},${activeVerse}`));
+    if(!rows.length)out.append(el('p','hint','Keine dokumentierten Lesarten für diese Stelle importiert. Das bedeutet nicht, dass es keine Varianten gibt.'));
+    for(const r of rows){const card=el('article','tc-variant-card');card.append(el('small','',r.collection),el('strong','',r.reading),el('p','',`Zeuge: ${r.witness}`),el('p','',`Quelle: ${r.source} · Lizenz: ${r.license}`));if(r.notes)card.append(el('p','',r.notes));out.append(card)}
+    tcStatus(`${rows.length} dokumentierte Lesarten`)
+  }catch(e){tcStatus(e.message)}
+}
+$('#tc-variant-refresh').onclick=tcVariants;
+$('#tc-variant-import').onsubmit=async e=>{
+  e.preventDefault();try{const out=await api('/api/textcrit/variants/import',{method:'POST',body:new FormData(e.target)});tcStatus(`${out.imported} Lesarten importiert.`);e.target.reset();await tcVariants();await tcCollections()}catch(err){tcStatus(err.message)}
+};
+async function tcCollections(){
+  try{const items=await api('/api/textcrit/collections');const root=$('#tc-collections');root.replaceChildren();
+    for(const item of items){const row=el('div','manage-row');row.append(el('span','',`${item.collection} · ${item.count} Lesarten`));const btn=el('button','btn','Entfernen');btn.onclick=async()=>{if(!confirm(`Gesamte Sammlung „${item.collection}“ löschen?`))return;try{await api('/api/textcrit/collections/'+encodeURIComponent(item.collection),{method:'DELETE'});await tcCollections();await tcVariants()}catch(e){tcStatus(e.message)}};row.append(btn);root.append(row)}
+  }catch(e){tcStatus(e.message)}
+}

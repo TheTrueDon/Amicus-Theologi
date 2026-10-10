@@ -48,3 +48,10 @@
 - Versnotizen, ausgabenübergreifende Farbmarkierungen und exegetische Studienprojekte mit lokalem JSON-Export.
 - Deutsche Erklärungen ausgewählter griechischer und hebräischer Morphologiecodes; Originalcodes weiterhin sichtbar.
 - Additive SQLite-Tabellen für Studienobjekte; Werksreset berücksichtigt diese.
+
+## 0.8.0
+- Ausgabenvergleich (2–4 installierte Ausgaben, kapitelweise, fehlende Verse markiert)
+- Auswahl synoptischer Parallelperikopen (Mt / Mk / Lk)
+- Quellengebundener Import dokumentierter Textvarianten (TSV / CSV), Anzeige und Sammlungsverwaltung
+- Additive Tabelle `textual_variants`, automatisches Datenbankupdate und Werksresetunterstützung
+- Wichtige Unterscheidung zwischen Editionsunterschieden und eigentlichen Handschriftenvarianten

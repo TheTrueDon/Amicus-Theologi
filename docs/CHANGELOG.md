@@ -1,3 +1,21 @@
+## 0.6.3
+- Klick-Katalog mit STEPBible TBESG, TBESH, TFLSJ, TAGNT, TAHOT und Open Scriptures.
+- Transaktionaler Werksreset mit doppelter Bestätigung.
+- Browser-Titel ohne Versionsnummer.
+- Keine neue Datenbanktabelle; Module und Lexika weiterhin getrennt.
+- STEPBible-Lexikontabellen-Import in Praxistests mit aktuellen Originaldateien noch zu validieren.
+
+## 0.6.2
+- STEPBible-Archivprüfung auf ausgewähltes TAGNT/TAHOT-Korpus eingegrenzt.
+- Sicherheitsgrenzen für ausgewählte Dateien erhalten.
+- Regressionstests gegen zu viele fremde Dateien ergänzt.
+- Keine Datenbankmigration.
+
+## 0.6.1
+- Wissenschaftlicher Importassistent: STEPBible (TAGNT/experimentell TAHOT), Open Scriptures OSHB, CrossWire SWORD (pysword optional).
+- Downloads nur auf Nutzeranforderung, ZIP-Upload, Lizenz- und Quellenangaben, Transaktionsimport.
+- Keine Datenbankschemamigration.
+
 # Änderungen
 
 ## 0.6.0 – Erweiterte morphologische Suche
@@ -25,3 +43,8 @@
 
 ## 0.3.0 – Suche
 - FTS5-Volltextindex und Suchfilter.
+
+## 0.7.0
+- Versnotizen, ausgabenübergreifende Farbmarkierungen und exegetische Studienprojekte mit lokalem JSON-Export.
+- Deutsche Erklärungen ausgewählter griechischer und hebräischer Morphologiecodes; Originalcodes weiterhin sichtbar.
+- Additive SQLite-Tabellen für Studienobjekte; Werksreset berücksichtigt diese.

@@ -1,5 +1,6 @@
 "use strict";
 const $=x=>document.querySelector(x), $$=x=>document.querySelectorAll(x);
+let currentProjectId=null,studyHighlights={},allProjects=[];
 let settings={},saving=Promise.resolve(),modules=[],view=null,activeVerse=1,books=[],searchState={offset:0,total:0,limit:50},activeSearch='normal';
 async function api(path,opts={}){const r=await fetch(path,opts);if(!r.ok){let j;try{j=await r.json()}catch{};throw new Error(typeof j?.detail==='string'?j.detail:`HTTP ${r.status}`)}return r.json()}
 function save(p){Object.assign(settings,p);saving=saving.then(()=>api('/api/settings',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)})).catch(e=>message(e.message))}
@@ -9,9 +10,10 @@ function apply(){document.body.dataset.theme=settings.theme;document.body.style.
 function isShown(l){return l==='grc'?settings.show_greek:l==='de'?settings.show_german:l==='la'?settings.show_latin:true}
 function filterLanguages(){for(const article of $$('.translation'))article.hidden=!isShown(article.dataset.language)}
 function el(tag,cls,text){let node=document.createElement(tag);if(cls)node.className=cls;if(text!==undefined)node.textContent=text;return node}
-function selectVerse(v){activeVerse=v;for(const row of $$('.verse-line'))row.classList.toggle('active',Number(row.dataset.verse)===v);$('#current-ref').textContent=`${view.book} ${view.chapter},${v}`;$('#reference').value=`${view.book} ${view.chapter},${v}`;save({active_reference:`${view.book} ${view.chapter},${v}`})}
+function selectVerse(v){activeVerse=v;for(const row of $$('.verse-line'))row.classList.toggle('active',Number(row.dataset.verse)===v);$('#current-ref').textContent=`${view.book} ${view.chapter},${v}`;$('#reference').value=`${view.book} ${view.chapter},${v}`;save({active_reference:`${view.book} ${view.chapter},${v}`});refreshStudyPane()}
 function render(){message('');const out=$('#translations');out.replaceChildren();$('#current-ref').textContent=`${view.book} ${view.chapter},${activeVerse}`;$('#reference').value=`${view.book} ${view.chapter},${activeVerse}`;$('#book-choice').value=view.book;$('#chapter-choice').value=view.chapter;$('#chapter-title').textContent=`${view.book_name} · Kapitel ${view.chapter}`;$('#chapter-badge').textContent=String(view.chapter).padStart(2,'0');$('#chapter-subtitle').textContent='Mehrere Ausgaben · annotierte Wörter anklickbar';$('#prev').disabled=!view.previous;$('#next').disabled=!view.next;$('#verse-foot').textContent=view.available_verses.length+' vorhandene Versnummern';$('#text-notice').hidden=!!view.modules.length;if(view.modules.length===0)$('#text-notice').innerHTML='<b>Für dieses Kapitel sind keine Texte installiert.</b><br>Installiere ein Modul oder rufe ein Kapitel auf, das ein bestehendes Modul enthält.';
 for(const mod of view.modules){const box=el('article','translation');box.dataset.language=mod.language;const head=el('div','translation-head'),title=el('span','',mod.title.toUpperCase()),tag=el('span','tag',mod.language+' · '+mod.id);head.append(title,tag);box.append(head);for(const v of mod.verses){let line=el('p','verse-line');line.dataset.verse=v.verse;line.lang=mod.language;if(mod.language==='he')line.dir='rtl';line.append(el('sup','',String(v.verse)));const words=(view.tokens||[]).filter(t=>t.module_id===mod.id&&t.verse===v.verse);if(words.length){for(const word of words){const btn=el('button','morph-word',word.surface);btn.type='button';btn.title='Wortanalyse: '+word.lemma;btn.onclick=(event)=>{event.stopPropagation();selectVerse(v.verse);showWord(word,mod)};line.append(btn,document.createTextNode(' '))}}else{line.append(document.createTextNode(v.text));if(['grc','he'].includes(mod.language)){const hint=el('span','annotation-warning','  ·  Keine Wortannotation importiert');hint.dir='ltr';hint.title='Textmodule öffnen und die passende *_morph.tsv-Datei für diese Ausgabe importieren';line.append(hint);line.classList.add('unannotated')}}line.onclick=()=>selectVerse(v.verse);box.append(line)}box.append(el('small','',`Quelle: ${mod.provenance} · Lizenz: ${mod.license}`));out.append(box)}filterLanguages();for(const row of $$('.verse-line'))row.classList.toggle('active',Number(row.dataset.verse)===activeVerse);
+paintHighlights();refreshStudyPane();
 const first=out.querySelector(`.verse-line[data-verse="${activeVerse}"]`);if(first)first.scrollIntoView({block:'nearest'});
 }
 async function go(b,c,v=1){try{const data=await api(`/api/chapter?book=${encodeURIComponent(b)}&chapter=${c}`);view=data;activeVerse=v;render();save({active_reference:`${b} ${c},${v}`})}catch(e){message(e.message)}}
@@ -97,8 +99,14 @@ for(const id of ['#search-mode','#search-module','#search-book'])$(id).addEventL
 
 async function showWord(word,mod){
  const box=$('#word-analysis');box.replaceChildren();box.append(el('h3','',word.surface));
- for(const [key,value] of [['Lemma',word.lemma],['Morphologie',word.morph],['Strong',word.strong||'Nicht angegeben'],['Edition',mod.title],['Quelle',mod.provenance]]){
+ for(const [key,value] of [['Lemma',word.lemma],['Edition',mod.title],['Quelle',mod.provenance]]){
  const row=el('p','analysis-field');row.append(el('b','',key+': '),document.createTextNode(value));box.append(row)}
+ const grammar=el('section','grammar-box');box.append(grammar);
+ try {const info=await api('/api/morphology/decode?'+new URLSearchParams({morph:word.morph||'',language:mod.language}));
+  if(info.recognized){grammar.append(el('h4','','Grammatische Analyse'));for(const f of info.features){const r=el('p','analysis-field');r.append(el('b','',f.name+': '),document.createTextNode(f.value));grammar.append(r)}}
+  else grammar.append(el('p','hint',info.notice));
+ }catch(e){grammar.append(el('p','hint','Grammatik-Code nicht übersetzt: '+e.message))}
+ const technical=el('details','technical-codes');technical.append(el('summary','','Originalcodes / technische Angaben'));technical.append(el('p','','Morphologie: '+(word.morph||'–')),el('p','','Strong: '+(word.strong||'–')));box.append(technical);
  const lex=$('#lexicon-results');lex.replaceChildren(el('p','hint','Lexika werden abgefragt …'));
  try{
   const params=new URLSearchParams({language:mod.language,lemma:word.lemma});if(word.strong)params.set('strong',word.strong);
@@ -142,3 +150,103 @@ $('#lexicon-import-form').onsubmit=async e=>{e.preventDefault();const form=e.tar
  catch(err){status.textContent='Fehler: '+err.message}finally{button.disabled=false}
 };
 start();
+
+// 0.6.1 Scientific sources: one guided workflow, no manual column entry.
+const scientificSource=$('#scientific-source'), scientificCorpus=$('#scientific-corpus');
+function updateScientificGuide(){
+ const source=scientificSource.value;
+ $('#scientific-corpus-wrap').hidden=source!=='step';
+ const guide={step:['STEPBible stellt annotierte Originalsprachen-Daten zur Verfügung. TAGNT verwendet hier bewusst nur Wörter der SBL-Edition; TAHOT ist zunächst experimentell.','https://github.com/STEPBible/STEPBible-Data'],oshb:['Open Scriptures enthält die hebräische Bibel mit Wortdaten und Morphologie. Dies ist der empfohlene hebräische Einstieg.','https://github.com/openscriptures/morphhb'],sword:['CrossWire/SWORD: Lade auf der Originalseite ein SWORD-Raw-ZIP herunter und wähle es hier aus. Nicht alle SWORD-Formate werden unterstützt; die Quelle bestimmt die Lizenz.','https://www.crosswire.org/sword/modules/ModDisp.jsp']}[source];
+ $('#scientific-description').textContent=guide[0];$('#scientific-site').href=guide[1];
+ $('#scientific-warning').textContent=source==='sword'?'SWORD benötigt ein heruntergeladenes Modul-ZIP und die optionale Python-Bibliothek pysword. Modul-Lizenz auf der Quellseite prüfen.':'Ohne ausgewählte Datei wird das offizielle Projektarchiv heruntergeladen. Internet erforderlich; später ist das installierte Modul offline nutzbar.';
+ $('#scientific-file').value='';
+}
+scientificSource.addEventListener('change',updateScientificGuide);updateScientificGuide();
+$('#scientific-form').addEventListener('submit',async e=>{
+ e.preventDefault();const btn=$('#scientific-import-button'),status=$('#scientific-status');btn.disabled=true;
+ status.textContent='Import läuft. Bitte diesen Dialog geöffnet lassen …';
+ try{const source=scientificSource.value,corpus=scientificCorpus.value,file=$('#scientific-file').files[0];let result;
+ if(file){const data=new FormData();data.set('source',source);data.set('corpus',corpus);data.set('file',file);result=await api('/api/scientific/import',{method:'POST',body:data});}
+ else{if(source==='sword')throw new Error('Bitte zuerst ein SWORD-ZIP von CrossWire auswählen.');result=await api('/api/scientific/download?source='+encodeURIComponent(source)+'&corpus='+encodeURIComponent(corpus),{method:'POST'});}
+ status.textContent=`Installiert: ${result.module_id} · ${result.verses} Verse · ${result.tokens} Wortannotationen. Die Ausgabe erscheint nun in der Bibelansicht.`;
+ await refreshModules();await go(view.book,view.chapter,activeVerse);
+ }catch(err){status.textContent='Import nicht abgeschlossen: '+err.message}finally{btn.disabled=false;}
+});
+
+
+// 0.6.3: curated one-click catalog; existing manual import remains available.
+async function refreshCatalog(){
+ const root=$('#catalog-items');root.replaceChildren();
+ try{const items=await api('/api/catalog');
+  for(const item of items){
+   const row=el('div','manage-row'),detail=el('div');
+   detail.append(el('b','',item.title),el('small','',item.kind+' · '+item.language+' · '+item.license));
+   const btn=el('button','btn',item.installed?'Installiert':'Installieren');btn.type='button';btn.disabled=item.installed;
+   btn.onclick=async()=>{btn.disabled=true;$('#catalog-status').textContent='Lade '+item.title+' von der Originalquelle und prüfe die Daten. Bitte den Dialog geöffnet lassen …';
+    try{const res=await api('/api/catalog/'+encodeURIComponent(item.id)+'/install',{method:'POST'});
+     $('#catalog-status').textContent=`Installiert: ${item.title} (${res.entries??res.tokens??0} ${res.entries!==undefined?'Lexikoneinträge':'Wortannotationen'}).`;
+     await refreshModules();await refreshLexica();await go(view.book,view.chapter,activeVerse);await refreshCatalog();
+    }catch(error){$('#catalog-status').textContent='Installation fehlgeschlagen: '+error.message;btn.disabled=false;}
+   };
+   row.append(detail,btn);root.append(row);
+  }
+ }catch(error){root.append(el('p','hint','Katalog nicht verfügbar: '+error.message))}
+}
+$('#module-btn').addEventListener('click',refreshCatalog);
+$('#add-module-left').addEventListener('click',refreshCatalog);
+$('#factory-reset-btn').addEventListener('click',async()=>{
+ if(!confirm('ACHTUNG: Alle Bibeltexte, Lexika, Annotationen und Einstellungen werden gelöscht. Fortfahren?'))return;
+ const entered=prompt('Zum endgültigen Löschen bitte WERKSRESET eingeben:');
+ if(entered!=='WERKSRESET'){ $('#factory-reset-status').textContent='Abgebrochen – keine Daten gelöscht.';return;}
+ const btn=$('#factory-reset-btn');btn.disabled=true;
+ try{await api('/api/factory-reset',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({confirmation:entered})});
+   $('#factory-reset-status').textContent='Werkseinstellungen wiederhergestellt.';location.reload();
+ }catch(error){$('#factory-reset-status').textContent='Reset fehlgeschlagen: '+error.message;btn.disabled=false;}
+});
+
+// Studies and verse highlights (v0.7)
+const refNow=()=>({book:view?.book,chapter:view?.chapter,verse:activeVerse});
+const studyKey=(b,c,v)=>`${b}:${c}:${v}`;
+async function refreshProjects(){
+ allProjects=await api('/api/projects');
+ if(currentProjectId&&!allProjects.some(p=>p.id===currentProjectId))currentProjectId=null;
+ if(!currentProjectId&&allProjects.length)currentProjectId=allProjects[0].id;
+ const list=$('#projects-list');list.replaceChildren();
+ for(const project of allProjects){const btn=el('button','search-hit'+(currentProjectId===project.id?' chosen':''));btn.type='button';btn.append(el('b','',project.title),el('small','',project.description||'Ohne Beschreibung'));btn.onclick=async()=>{currentProjectId=project.id;await refreshProjects()};list.append(btn)}
+ if(!allProjects.length)list.append(el('p','hint','Noch keine Studienprojekte angelegt.'));
+ const active=allProjects.find(p=>p.id===currentProjectId);
+ $('#current-project-name').textContent=active?`${active.title} · ${active.description||'Keine Beschreibung'}`:'Noch kein Projekt ausgewählt.';
+ await refreshStudyPane();await refreshProjectNotes();
+}
+async function refreshProjectNotes(){
+ const root=$('#project-notes-list');root.replaceChildren();if(!currentProjectId)return;
+ try {const data=await api(`/api/projects/${currentProjectId}/annotations`);
+ for(const note of data.notes){const wrap=el('div','module-entry');const jump=el('button','btn',`${note.book} ${note.chapter},${note.verse}`);jump.onclick=()=>{go(note.book,note.chapter,note.verse);$('#projects-dialog').close()};wrap.append(jump,el('p','',note.content));root.append(wrap)}
+ if(!data.notes.length)root.append(el('p','hint','Noch keine Notizen.'));
+ }catch(e){root.append(el('p','hint',e.message))}
+}
+async function refreshStudyPane(){
+ const root=$('#study-pane');if(!root||!view)return;root.replaceChildren();
+ if(!currentProjectId){root.append(el('p','hint','Lege über „Studienprojekte“ ein Projekt an.'));studyHighlights={};paintHighlights();return}
+ const ref=refNow();const key=studyKey(ref.book,ref.chapter,ref.verse);
+ const title=allProjects.find(p=>p.id===currentProjectId)?.title||'';
+ root.append(el('p','hint',`${title} · ${ref.book} ${ref.chapter},${ref.verse}`));
+ const form=el('form','study-note-form');const field=el('textarea');field.rows=4;field.maxLength=20000;field.placeholder='Eigene exegetische Beobachtung oder Notiz …';field.required=true;const add=el('button','btn primary','Notiz speichern');form.append(field,add);
+ form.onsubmit=async e=>{e.preventDefault();try{await api(`/api/projects/${currentProjectId}/notes`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...ref,content:field.value})});field.value='';await refreshStudyPane();await refreshProjectNotes()}catch(e){alert(e.message)}};root.append(form);
+ const colors=el('div','highlight-tools');colors.append(el('span','','Vers markieren: '));
+ for(const [code,label] of [['yellow','Gelb'],['green','Grün'],['blue','Blau'],['pink','Rosa'],['orange','Orange'],['','Entfernen']]){
+ const btn=el('button','btn mark-'+code,label);btn.type='button';btn.onclick=async()=>{try{await api(`/api/projects/${currentProjectId}/highlight`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({...ref,color:code||null})});await refreshStudyPane()}catch(e){alert(e.message)}};colors.append(btn)}root.append(colors);
+ try{const data=await api(`/api/projects/${currentProjectId}/annotations?book=${encodeURIComponent(ref.book)}&chapter=${ref.chapter}`);
+ studyHighlights=Object.fromEntries(data.highlights.map(h=>[studyKey(h.book,h.chapter,h.verse),h.color]));paintHighlights();
+ const current=data.notes.filter(n=>n.verse===ref.verse);
+ for(const note of current){const card=el('article','study-note');card.append(el('p','',note.content));const edit=el('button','btn','Bearbeiten'),del=el('button','btn','Löschen');edit.type=del.type='button';edit.onclick=async()=>{const value=prompt('Notiz bearbeiten:',note.content);if(value===null)return;try{await api(`/api/projects/${currentProjectId}/notes/${note.id}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({content:value})});await refreshStudyPane();await refreshProjectNotes()}catch(e){alert(e.message)}};del.onclick=async()=>{if(!confirm('Diese Notiz wirklich löschen?'))return;await api(`/api/projects/${currentProjectId}/notes/${note.id}`,{method:'DELETE'});await refreshStudyPane();await refreshProjectNotes()};card.append(edit,del);root.append(card)}
+ }catch(e){root.append(el('p','hint','Notizen konnten nicht geladen werden: '+e.message))}
+}
+function paintHighlights(){if(!view)return;for(const row of $$('.verse-line')){for(const c of ['yellow','green','blue','pink','orange'])row.classList.remove('highlight-'+c);const c=studyHighlights[studyKey(view.book,view.chapter,Number(row.dataset.verse))];if(c)row.classList.add('highlight-'+c)}}
+$('#projects-btn').onclick=async()=>{await refreshProjects();show('#projects-dialog')};
+$('#projects-close').onclick=()=>$('#projects-dialog').close();
+$('#project-create-form').onsubmit=async e=>{e.preventDefault();const f=e.target;try{const result=await api('/api/projects',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:f.elements.title.value,description:f.elements.description.value})});currentProjectId=result.id;f.reset();await refreshProjects()}catch(e){$('#project-status').textContent=e.message}};
+$('#project-edit').onclick=async()=>{const p=allProjects.find(x=>x.id===currentProjectId);if(!p)return;const title=prompt('Projekttitel:',p.title);if(title===null)return;const description=prompt('Beschreibung:',p.description);if(description===null)return;try{await api(`/api/projects/${p.id}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({title,description})});await refreshProjects()}catch(e){alert(e.message)}};
+$('#project-delete').onclick=async()=>{const p=allProjects.find(x=>x.id===currentProjectId);if(!p||!confirm(`Projekt „${p.title}“ mit ALLEN zugehörigen Notizen und Markierungen endgültig löschen?`))return;await api(`/api/projects/${p.id}`,{method:'DELETE'});currentProjectId=null;await refreshProjects()};
+$('#project-export').onclick=async()=>{if(!currentProjectId)return;try{const data=await api(`/api/projects/${currentProjectId}/export`);const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=el('a');a.href=url;a.download=`amicus-projekt-${currentProjectId}.json`;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}catch(e){alert(e.message)}};
+refreshProjects().catch(e=>console.warn('Studienprojekte beim Start:',e));

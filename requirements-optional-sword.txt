@@ -1,0 +1,2 @@
+# Optional for importing CrossWire/SWORD binary Bible archives.
+pysword>=0.2.8,<1

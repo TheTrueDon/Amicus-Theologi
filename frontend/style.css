@@ -31,3 +31,20 @@
 .advanced-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:10px 0}
 .advanced-grid label{font-size:11px;display:flex;flex-direction:column;gap:4px;min-width:0}
 .advanced-grid input,.advanced-grid select{box-sizing:border-box;width:100%;min-width:0;padding:7px;border:1px solid #758293;border-radius:5px;background:var(--surface,#202a35);color:inherit}
+
+/* 0.6.1 guided library importer */
+.source-wizard{padding:18px;margin:12px 0 20px;border:1px solid var(--border, #64748b);border-radius:12px;background:rgba(127,140,160,.07)}
+.source-wizard label{display:block;margin:10px 0}.source-wizard select,.source-wizard input[type=file]{display:block;width:100%;margin-top:5px;max-width:100%}
+.source-actions{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:16px}.source-actions a{color:inherit;text-decoration:underline}.source-wizard .notice{padding:12px;margin-top:12px;white-space:pre-wrap;overflow-wrap:anywhere}
+
+/* 0.7: annotations and project management */
+.highlight-yellow{background:rgba(243,198,54,.22)!important;border-left:3px solid #e8bd33}
+.highlight-green{background:rgba(66,185,119,.2)!important;border-left:3px solid #42b977}
+.highlight-blue{background:rgba(66,140,221,.19)!important;border-left:3px solid #428cdd}
+.highlight-pink{background:rgba(214,100,153,.18)!important;border-left:3px solid #d66499}
+.highlight-orange{background:rgba(242,139,56,.19)!important;border-left:3px solid #f28b38}
+#study-pane{padding:8px 0 16px}.study-note-form textarea{width:100%;box-sizing:border-box;min-height:95px;padding:10px;border:1px solid var(--line,#555);border-radius:6px;background:var(--panel,#252a33);color:inherit;display:block;margin-bottom:8px}
+.study-note{margin:12px 0;padding:12px;border:1px solid #7775;border-radius:8px;white-space:pre-wrap;overflow-wrap:anywhere}
+.study-note button{margin-right:5px}.highlight-tools{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin:10px 0}.highlight-tools .btn{padding:5px 8px}
+.study-project-layout{display:grid;grid-template-columns:1fr 1fr;gap:24px}.study-project-layout textarea,.study-project-layout input{width:100%;box-sizing:border-box}.study-project-layout section{min-width:0}.study-project-layout label{display:block;margin:8px 0}.row-actions{display:flex;flex-wrap:wrap;gap:6px}.chosen{outline:2px solid #639fca}.grammar-box{margin:10px 0}.technical-codes{margin:12px 0;font-size:.87em;overflow-wrap:anywhere}
+@media(max-width:680px){.study-project-layout{grid-template-columns:1fr}}

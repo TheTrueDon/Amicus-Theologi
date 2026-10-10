@@ -3,16 +3,18 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Literal
 import re
-from fastapi import FastAPI, HTTPException, UploadFile, File, Form
+from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Request
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, Field
-from .database import APP_VERSION, data_dir, init_db, get_settings, set_settings, connect
+from .database import APP_VERSION, data_dir, init_db, get_settings, set_settings, connect, factory_reset
 from .library import BOOKS, NAMES, parse_reference, installed, chapter_view, chapter_refs, neighbor, read_import, install_module
 from .search import search_verses
 from .advanced_search import advanced_search
+from .source_import import install_scientific, download_source, MAX_UPLOAD
 from .lexicon import read_lexicon, install_lexicon, installed_lexica, lookup, remove_lexicon
 from .morphology import parse_annotation_file, import_annotations, chapter_tokens, get_word, lemma_concordance
+from .catalog import catalog_list, install_catalog_item
 ROOT=Path(__file__).resolve().parent.parent; WEB=ROOT/'frontend'
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -138,3 +140,103 @@ def morphological_search(module_id:str='',book:str='',lemma:str='',surface:str='
    second_lemma=second_lemma,second_surface=second_surface,second_strong=second_strong,
    second_morph=second_morph,distance=distance,order=order,limit=limit,offset=offset)
  except ValueError as e: raise HTTPException(422,str(e))
+
+@app.post('/api/scientific/import')
+async def scientific_import(source:Literal['step','oshb','sword']=Form(...),corpus:str=Form(''),file:UploadFile=File(...)):
+ try:
+  raw=await file.read(MAX_UPLOAD+1)
+  return install_scientific(source,raw,corpus)
+ except ValueError as e:raise HTTPException(422,str(e))
+
+@app.post('/api/scientific/download')
+def scientific_download(source:Literal['step','oshb'],corpus:str=''):
+ try:return install_scientific(source,download_source(source),corpus)
+ except ValueError as e:raise HTTPException(422,str(e))
+
+
+@app.get('/api/catalog')
+def available_catalog():return catalog_list()
+
+@app.post('/api/catalog/{item}/install')
+def catalog_install(item:str):
+ try:return install_catalog_item(item)
+ except ValueError as e:raise HTTPException(422,str(e))
+
+class ResetRequest(BaseModel):
+ confirmation:Literal['WERKSRESET']
+
+@app.post('/api/factory-reset')
+def reset_everything(payload:ResetRequest,request:Request):
+ # The app is bound to loopback. Also require a same-origin browser request.
+ origin=request.headers.get('origin','')
+ host=request.headers.get('host','')
+ if not (host.startswith(('127.0.0.1:','localhost:')) and origin == 'http://' + host):
+  raise HTTPException(403,'Werksreset nur aus der lokalen Programmoberfläche erlaubt.')
+ return factory_reset()
+
+# Version 0.7: personal projects, notes and color highlights.
+from . import studies
+from fastapi.responses import JSONResponse
+
+class ProjectPayload(BaseModel):
+ title:str=Field(min_length=1,max_length=160)
+ description:str=Field(default='',max_length=3000)
+class NotePayload(BaseModel):
+ book:str
+ chapter:int
+ verse:int
+ content:str=Field(min_length=1,max_length=20000)
+class NoteEdit(BaseModel):
+ content:str=Field(min_length=1,max_length=20000)
+class HighlightPayload(BaseModel):
+ book:str
+ chapter:int
+ verse:int
+ color:Literal['yellow','green','blue','pink','orange']|None=None
+
+def study_error(e):
+ raise HTTPException(422,str(e))
+
+@app.get('/api/projects')
+def projects_list():return studies.projects()
+@app.post('/api/projects',status_code=201)
+def projects_create(data:ProjectPayload):
+ try:return studies.create_project(data.title,data.description)
+ except ValueError as e:study_error(e)
+@app.patch('/api/projects/{pid}')
+def projects_update(pid:int,data:ProjectPayload):
+ try:return studies.update_project(pid,data.title,data.description)
+ except ValueError as e:study_error(e)
+@app.delete('/api/projects/{pid}')
+def projects_delete(pid:int):
+ try:return studies.delete_project(pid)
+ except ValueError as e:study_error(e)
+@app.get('/api/projects/{pid}/annotations')
+def projects_annotations(pid:int,book:str|None=None,chapter:int|None=None,verse:int|None=None):
+ try:return studies.annotations(pid,book,chapter,verse)
+ except ValueError as e:study_error(e)
+@app.post('/api/projects/{pid}/notes',status_code=201)
+def projects_add_note(pid:int,data:NotePayload):
+ try:return studies.add_note(pid,data.book,data.chapter,data.verse,data.content)
+ except ValueError as e:study_error(e)
+@app.patch('/api/projects/{pid}/notes/{nid}')
+def projects_edit_note(pid:int,nid:int,data:NoteEdit):
+ try:return studies.edit_note(pid,nid,data.content)
+ except ValueError as e:study_error(e)
+@app.delete('/api/projects/{pid}/notes/{nid}')
+def projects_delete_note(pid:int,nid:int):
+ try:return studies.delete_note(pid,nid)
+ except ValueError as e:study_error(e)
+@app.put('/api/projects/{pid}/highlight')
+def projects_highlight(pid:int,data:HighlightPayload):
+ try:return studies.highlight(pid,data.book,data.chapter,data.verse,data.color)
+ except ValueError as e:study_error(e)
+@app.get('/api/projects/{pid}/export')
+def projects_export(pid:int):
+ try:return JSONResponse(studies.export_project(pid),headers={'Content-Disposition':f'attachment; filename="amicus-projekt-{pid}.json"'})
+ except ValueError as e:study_error(e)
+
+from .morph_display import decode as decode_morph
+@app.get('/api/morphology/decode')
+def morph_decode(morph:str,language:Literal['grc','he']):
+ return decode_morph(morph,language)

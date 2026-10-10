@@ -1,3 +1,13 @@
+# Amicus Theologi 0.6.3
+
+**Neue Funktionen:** Modulkatalog zur Direktinstallation von STEPBible-Lexika und Korpora; Werksreset; Browser-Titel ohne Versionsnummer. Details unter `docs/PATCH_0.6.3.md`.
+
+## Neu in 0.6.1 – Wissenschaftliche Bibliothek
+
+Unter **Textmodule → Wissenschaftliche Bibliothek** lassen sich STEPBible, Open Scriptures und CrossWire/SWORD auswählen. Anleitung und Grenzen: [`docs/WISSENSCHAFTLICHE_DATEN.md`](docs/WISSENSCHAFTLICHE_DATEN.md).
+
+**Datenbank:** keine neuen Tabellen, keine manuelle Migration. Vor Update sicherheitshalber Backup anlegen.
+
 # Amicus Theologi 0.6.0
 
 ## Neu in 0.5: Lexika
@@ -95,3 +105,7 @@ Unter **Suche → Erweiterte Suche** können importierte morphologische Wortanno
 **Datenbank:** Keine neuen Tabellen oder Indizes in Version 0.6. Bereits installierte Module und Lexika bleiben bestehen. Vor Updates dennoch eine Sicherung von `amicus_theologi.sqlite3` empfehlen.
 
 **Datenquellen:** Siehe `docs/DATENQUELLEN.md` für konkrete offene Projekte, Lizenzhinweise und die Datenimport-Roadmap. Vollständige STEPBible- oder OSHB-Korpora werden noch nicht automatisch installiert oder importiert.
+
+## Neu in 0.7: Studienprojekte
+
+Über **Studienprojekte** können exegetische Projekte angelegt und ausgewählt werden. Notizen und Markierungen werden pro Bibelstelle im aktuell gewählten Projekt gespeichert. **JSON exportieren** erstellt eine transportable Sicherung (Import wird noch nicht angeboten). Mit importierten Morphologiedaten zeigt die Wortanalyse unterstützte Codes in deutschen Fachbegriffen an. Siehe [docs/VERSION_0.7.md](docs/VERSION_0.7.md).

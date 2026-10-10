@@ -10,7 +10,7 @@ def main():
         s.bind(('127.0.0.1',0))
         port=s.getsockname()[1]
     url=f'http://127.0.0.1:{port}'
-    print(f'Amicus Theologi 0.2 läuft lokal auf {url} (Beenden mit Strg+C)')
+    print(f'Amicus Theologi läuft lokal auf {url} (Beenden mit Strg+C)')
     def open_browser():
         time.sleep(1.3)
         webbrowser.open(url)

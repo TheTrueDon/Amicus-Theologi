@@ -3,3 +3,6 @@
 fastapi==0.128.2
 uvicorn==0.48.0
 python-multipart==0.0.29
+
+# Für CrossWire-SWORD-Textausgaben (auch in der gebündelten Windows-EXE)
+pysword==0.2.8

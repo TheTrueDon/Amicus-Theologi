@@ -1,6 +1,6 @@
 # Amicus Theologi 📖
 
-**Freie, offlinefähige Studienumgebung für wissenschaftliche Bibelarbeit – Version 1.0.1.**
+**Freie, offlinefähige Studienumgebung für wissenschaftliche Bibelarbeit – Version 1.0.5.**
 
 Amicus Theologi bietet eine dreigeteilte Oberfläche aus **Suche · Bibeltext · Analyse**, griechisch/hebräische Wortinformationen, importierbare Bibelausgaben und Lexika, exegetische Studienprojekte, eine begrenzte Synopse und textkritische Vergleiche. Eine aktive Internetverbindung ist **nur zum erstmaligen Installieren von Python-Abhängigkeiten und zum Nachladen von Datenmodulen** erforderlich.
 
@@ -18,7 +18,23 @@ Im Browser erscheint beim ersten Start die **dreiteilige Einführung**. Mit „M
 
 📗 Eine verständliche Schritt-für-Schritt-Anleitung: [docs/SCHNELLSTART.md](docs/SCHNELLSTART.md). Auch die Datei `ANLEITUNG.html` lässt sich direkt im Browser öffnen; für die Suche werden `ANLEITUNG.js` und `ANLEITUNG.css` aus demselben Ordner geladen.
 
-## Neu in 1.0.1: Ausführliche Suche im Handbuch und Windows-Setup
+## Neu in 1.0.5: Bibelübersetzungen mit einem Klick
+
+Über **Bibelausgaben** können historische deutsche Textausgaben aus dem offiziellen CrossWire-Katalog heruntergeladen werden, beispielsweise die **Elberfelder 1905** oder **Menge 1939**. Über **Ausgaben auswählen** direkt oberhalb des Bibeltextes lassen sich einzelne oder mehrere Übersetzungen ein- und ausblenden und die Reihenfolge festlegen. Die Auswahl wird lokal gespeichert und gilt nicht für den unabhängigen Suchfilter. Technische Angaben und Grenzen stehen in [docs/BIBELAUSGABEN.md](docs/BIBELAUSGABEN.md).
+
+Der Windows-Build bündelt die zusätzliche SWORD-Lesebibliothek **PySword**. **Datenbankschema unverändert.** Für die Original-SWORD-Dateien steht noch ein Live-Integrationstest aus.
+
+## Neu in 1.0.4: Echte Lexikonübersetzungen und sortierbare Konkordanz
+
+STEPBible-Transliterationen werden in der Wortvorschau nicht mehr als Bedeutungen ausgegeben. Die Anwendung sucht echte Kurzglossen in bereits installierten Lexika, nach Möglichkeit auf Deutsch, sonst Englisch. Ein Lexikoneintrag ohne zuverlässig extrahierbare Bedeutung wird als fehlend gekennzeichnet. Bereits installierte Lexikonmodule müssen dafür **nicht** erneut geladen werden. Im Dialog „Alle Vorkommen dieses Lemmas“ kann die komplette Liste nach kanonischer Bibelstelle oder Wortform, aufsteigend/absteigend sortiert werden; Seitenwechsel respektieren die Sortierung.
+
+**Keine Datenbankänderung:** Die Analyse der Lexikoneinträge erfolgt beim Anzeigen; die Originaldaten bleiben erhalten.
+
+## Seit 1.0.2: Wortvorschau, lesbare Lexika, Lemma-Konkordanz
+
+Beim Darüberfahren über ein annotiertes Wort erscheint eine Vorschau mit Grundform, vorhandener Kurzglosse und grammatischen Angaben. Die Wortanalyse zeigt STEPBible-Lexika formatiert an; unter „Originaldaten anzeigen“ bleibt die Quelle unverändert einsehbar. „Alle Vorkommen dieses Lemmas“ öffnet eine eigene, seitenweise durchsuchbare Konkordanz.
+
+## Bereits ab 1.0.1: Ausführliche Suche im Handbuch und Windows-Setup
 
 - **`ANLEITUNG.html`**: großes, offline nutzbares Benutzerhandbuch mit JavaScript-Volltextsuche, kopierbaren Suchbeispielen, FAQ, Grammatik, Lexika, Textkritik und Datensicherung. Im Programm öffnet **F1** oder **Handbuch** die Anleitung.
 - **Windows-Setup als Build**: Inno Setup erstellt einen normalen Installationsassistenten mit Startmenü-Verknüpfung, optionalem Desktop-Icon und Deinstallation. Die Python-Laufzeit wird durch PyInstaller eingebettet – Anwender müssen Python nicht installieren.

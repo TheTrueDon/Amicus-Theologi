@@ -5,7 +5,7 @@ if not exist ".venv\Scripts\python.exe" (
     echo Erster Start: Python-Umgebung wird eingerichtet ...
     py -3 -m venv .venv || goto :error
 )
-".venv\Scripts\python.exe" -c "import fastapi,uvicorn,multipart" >nul 2>nul
+".venv\Scripts\python.exe" -c "import fastapi,uvicorn,multipart,pysword" >nul 2>nul
 if errorlevel 1 (
     echo Installiere benoetigte Pakete. Beim ersten Start ist Internet notwendig ...
     ".venv\Scripts\python.exe" -m pip install -r requirements.txt || goto :error

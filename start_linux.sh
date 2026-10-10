@@ -17,7 +17,7 @@ if [[ ! -x .venv/bin/python ]]; then
     exit 1
   fi
 fi
-if ! .venv/bin/python -c 'import fastapi,uvicorn,multipart' >/dev/null 2>&1; then
+if ! .venv/bin/python -c 'import fastapi,uvicorn,multipart,pysword' >/dev/null 2>&1; then
   echo 'Installiere benötigte Programmbausteine (nur beim ersten Start; Internet erforderlich) …'
   if ! .venv/bin/python -m pip install -r requirements.txt; then
     echo 'Installation fehlgeschlagen. Prüfe die Internetverbindung und starte erneut.' >&2

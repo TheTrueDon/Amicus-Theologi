@@ -1,8 +1,8 @@
-# Amicus Theologi 0.4.0
+# Amicus Theologi 0.4.1
 
 **Neue Funktionen:** griechische/hebräische Wortannotation und Lemma-Konkordanz. Anleitung: [docs/MORPHOLOGIE.md](docs/MORPHOLOGIE.md).
 
-# Amicus Theologi 0.4.0
+# Amicus Theologi 0.4.1
 
 **Offlinefähige Bibel-Studienumgebung** mit parallelen Textmodulen und indizierter Volltextsuche.
 
@@ -68,7 +68,7 @@ Das Programm behält den vorhandenen Datenordner aus 0.1/0.2 bei, um installiert
 - Windows: `%LOCALAPPDATA%\Biblewoerks\amicus_theologi.sqlite3`
 - Eigenes Verzeichnis: über `AMICUS_THEOLOGI_DATA_DIR` (oder den älteren Alias `BIBLEWOERKS_DATA_DIR`).
 
-**Datenbankänderung mit 0.4.0:** Die SQLite-Datenbank erhält einen Volltextindex (`verse_fts`) und drei Trigger. Bereits vorhandene Daten werden beim ersten Start in den Suchindex aufgenommen. Bitte vorher sichern. Ein Zurückwechseln auf 0.2 wird nach der Migration nicht als regulärer Downgrade unterstützt.
+**Datenbankänderung mit 0.4.1:** Die SQLite-Datenbank erhält einen Volltextindex (`verse_fts`) und drei Trigger. Bereits vorhandene Daten werden beim ersten Start in den Suchindex aufgenommen. Bitte vorher sichern. Ein Zurückwechseln auf 0.2 wird nach der Migration nicht als regulärer Downgrade unterstützt.
 
 ## Projektstruktur und Rechte
 

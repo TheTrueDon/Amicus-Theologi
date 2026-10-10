@@ -26,6 +26,16 @@ class MorphologyTests(unittest.TestCase):
   self.assertEqual(len(lemma_concordance('m-grc','λόγος')),3)
  def test_hebrew_example(self):
   raw=self.example('he');self.assertEqual(import_annotations('m-he',parse_annotation_file(raw))['tokens'],7)
+ def test_hebrew_chapter_api_exposes_clickable_tokens(self):
+  raw=self.example('he');import_annotations('m-he',parse_annotation_file(raw))
+  with TestClient(app) as c:
+   chapter=c.get('/api/chapter',params={'book':'Gen','chapter':1})
+   self.assertEqual(chapter.status_code,200)
+   obj=chapter.json()
+   hebrew=[t for t in obj['tokens'] if t['module_id']=='m-he' and t['verse']==1]
+   self.assertEqual(len(hebrew),7)
+   self.assertEqual(hebrew[1]['surface'],'בָּרָא')
+   self.assertEqual(hebrew[1]['lemma'],'ברא')
  def test_rollback_wrong_text(self):
   raw=self.example('grc');import_annotations('m-grc',parse_annotation_file(raw))
   corrupt=raw.replace('λόγος'.encode(),'λανθ'.encode(),1)

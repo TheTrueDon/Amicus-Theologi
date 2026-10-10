@@ -12,3 +12,9 @@
 .analysis-field{overflow-wrap:anywhere;margin:9px 0}
 .lemma-hit{display:block;width:100%;margin:5px 0;padding:8px;text-align:left;background:var(--surface,#202b35);color:inherit;border:1px solid #697888;border-radius:5px;cursor:pointer}
 .lemma-hit:hover{border-color:#9ebbd3}
+
+/* 0.4.1: Hebrew runs right-to-left without reversing the rest of the interface. */
+.verse-line[lang="he"]{direction:rtl;text-align:right;unicode-bidi:isolate;}
+.verse-line[lang="he"] .morph-word{direction:rtl;unicode-bidi:isolate;font-family:"Noto Sans Hebrew","SBL Hebrew","Ezra SIL",serif;}
+.annotation-warning{display:block;margin-top:5px;font-family:system-ui,sans-serif;font-size:11px;line-height:1.5;color:var(--gold);font-style:normal;direction:ltr;text-align:left;}
+.verse-line.unannotated{cursor:default;}

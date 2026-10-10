@@ -4,7 +4,7 @@ import os
 import sqlite3
 from pathlib import Path
 
-APP_VERSION = '0.4.0'
+APP_VERSION = '0.4.1'
 DEFAULT_SETTINGS = {
     'theme': 'dark', 'font_size': 17, 'search_width': 25,
     'analysis_width': 27, 'active_reference': 'Joh 1,1',

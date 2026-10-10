@@ -1,135 +1,75 @@
-# Amicus Theologi 0.6.3
+# Amicus Theologi 📖
 
-**Neue Funktionen:** Modulkatalog zur Direktinstallation von STEPBible-Lexika und Korpora; Werksreset; Browser-Titel ohne Versionsnummer. Details unter `docs/PATCH_0.6.3.md`.
+**Freie, offlinefähige Studienumgebung für wissenschaftliche Bibelarbeit – Version 1.0.0.**
 
-## Neu in 0.6.1 – Wissenschaftliche Bibliothek
+Amicus Theologi bietet eine dreigeteilte Oberfläche aus **Suche · Bibeltext · Analyse**, griechisch/hebräische Wortinformationen, importierbare Bibelausgaben und Lexika, exegetische Studienprojekte, eine begrenzte Synopse und textkritische Vergleiche. Eine aktive Internetverbindung ist **nur zum erstmaligen Installieren von Python-Abhängigkeiten und zum Nachladen von Datenmodulen** erforderlich.
 
-Unter **Textmodule → Wissenschaftliche Bibliothek** lassen sich STEPBible, Open Scriptures und CrossWire/SWORD auswählen. Anleitung und Grenzen: [`docs/WISSENSCHAFTLICHE_DATEN.md`](docs/WISSENSCHAFTLICHE_DATEN.md).
+> **Wissenschaftliche Einordnung:** 1.0 ist die erste zusammengeführte, getestete *Anwendungsbasis*, kein nachgewiesener vollständiger Ersatz für BibleWorks und keine vollständige kritische Textedition. Einige Quellformate (insbesondere STEPBible TAHOT und SWORD) sind noch experimentell. Angaben zu Morphologie und Wortbedeutung stammen aus den installierten Datensätzen; unbekannte Codes werden nicht geraten.
 
-**Datenbank:** keine neuen Tabellen, keine manuelle Migration. Vor Update sicherheitshalber Backup anlegen.
+## Loslegen – ohne Informatikkenntnisse
 
-# Amicus Theologi 0.6.0
+**Windows:** [Python 3.10 oder neuer](https://www.python.org/downloads/) installieren (bei der Installation „Add Python to PATH“ aktivieren), ZIP entpacken, `start_windows.bat` doppelklicken. Beim ersten Mal lädt das Programm die benötigten Komponenten. Danach öffnet sich Amicus Theologi im Browser.
 
-## Neu in 0.5: Lexika
+**Ubuntu / Linux:** ZIP entpacken, Terminal im entpackten Ordner öffnen und `bash start_linux.sh` ausführen. Unter Ubuntu müssen ggf. zuerst die Pakete `python3`, `python3-venv` und `python3-pip` installiert werden. Optional: `bash install_linux_desktop.sh` legt einen Menüeintrag an.
 
-Unter **Textmodule → Lexikon / Wörterbuch importieren** können griechische und hebräische TSV-/CSV-Lexika installiert werden. Nach dem Klick auf ein annotiertes Wort zeigt die Analyseleiste passende Einträge mit Quellen- und Lizenzangaben. Zwei kurze, selbst erstellte Testlexika liegen in `modules/examples/` (`demo_lexikon_grc.tsv` und `demo_lexikon_he.tsv`). Einzelheiten: [docs/LEXIKA.md](docs/LEXIKA.md).
+**Windows-Desktopverknüpfung (optional):** Die Datei `install_windows_shortcut.ps1` erstellt eine Desktopverknüpfung, wenn du sie über PowerShell ausführst. Die normalen Startskripte reichen ansonsten aus.
 
-**Achtung:** Für Wortanalyse weiterhin zuerst Bibeltext **und** Morphologiedaten importieren. Die Beispieldaten sind kein vollständiges Lexikon. Version 0.5 ergänzt zwei SQLite-Tabellen und Suchindizes, ohne bestehende Tabellen zu verändern. Vor dem Upgrade eine Sicherung der Datenbank anlegen.
+Im Browser erscheint beim ersten Start die **dreiteilige Einführung**. Mit „Mini-Beispiele installieren“ kannst du Johannes 1 und Genesis 1 mit Wortanalyse ganz ohne Download ausprobieren. Diese Auszüge sind absichtlich kurz, nicht zitierfähig und keine vollständige Bibel. Über „Textmodule“ → „Modulkatalog“ installierst du weitere Quellen, sofern eine Internetverbindung besteht.
 
+📗 Eine verständliche Schritt-für-Schritt-Anleitung: [docs/SCHNELLSTART.md](docs/SCHNELLSTART.md). Auch die Datei `ANLEITUNG.html` lässt sich direkt im Browser öffnen.
 
+## Was funktioniert?
 
-**Neue Funktionen:** griechische/hebräische Wortannotation und Lemma-Konkordanz. Anleitung: [docs/MORPHOLOGIE.md](docs/MORPHOLOGIE.md).
-
-# Amicus Theologi 0.6.0
-
-**Offlinefähige Bibel-Studienumgebung** mit parallelen Textmodulen und indizierter Volltextsuche.
-
-## Update von 0.2.1
-1. Anwendung beenden; Datenbank sichern (siehe unten).
-2. ZIP in einen neuen Ordner entpacken und normal starten.
-3. Die ursprüngliche lokale Datenbank wird weiterbenutzt und beim Start automatisch um einen FTS5-Index sowie Trigger ergänzt. **Dies ist eine Datenbankschemaänderung.** Bestehende Verse/Module/Einstellungen bleiben erhalten.
-4. Vor dem Update die Datei `amicus_theologi.sqlite3` aus dem Datenordner kopieren. Der Datenordner lässt sich über `/api/info` prüfen; standardmäßig unter Linux `~/.local/share/biblewoerks`, unter Windows `%LOCALAPPDATA%\Biblewoerks`. Die alten Ordnernamen bleiben aus Gründen der Abwärtskompatibilität vorerst bestehen.
-
-## Suchbeispiele (nach Import der mitgelieferten Demomodule)
-- `Anfang` – alle Verse mit diesem Wort
-- `=im Anfang` – genaue Wortfolge
-- `+Anfang Wort` – beide Wörter im Vers
-- `?Anfang Wort` – mindestens eines der Wörter
-- `Anfang*` – Wortanfang
-- Buchfilter `Joh` und Modulauswahl zur Eingrenzung
-- Klick auf einen Treffer öffnet das Kapitel und markiert den Vers.
-
-**Hinweis:** Diese Befehle sind eine erste Amicus-Syntax, noch keine direkte BibleWorks-Suchsprachenkompatibilität. FTS5 sucht nach Wörtern, nicht nach beliebigen Zeichenfolgen. Für Morphologie sind annotierte Quellen nötig (Roadmap 0.4).
-
-## Start
-
-- **Windows:** `start_windows.bat` doppelklicken.
-- **Ubuntu/Linux:** Terminal im Verzeichnis öffnen, `bash start_linux.sh` ausführen.
-- **Alternative:** `python -m venv .venv`, virtuelle Umgebung aktivieren, `pip install -r requirements.txt`, dann `python start.py`.
-- Python **3.10+** erforderlich. Beim ersten Start Internet für Python-Pakete; die eigentliche Anwendung funktioniert danach offline.
-- Das Programm lauscht ausschließlich auf `127.0.0.1` und öffnet einen Browser. Mit Strg+C beenden.
-
-## Was neu ist
-
-1. Echte Kapitelanzeige aus installierten Textmodulen (kein Fake-Vorschautext).
-2. Bibelstellennavigation mit `Joh 1,1`, `Gen 1`, Buchauswahl sowie Pfeilen zwischen vorhandenen Kapiteln.
-3. Parallelanzeige mehrerer Ausgaben samt synchroner Versmarkierung.
-4. Modulmanager zum Hinzufügen und Entfernen von UTF-8-CSV/TSV-Bibelausgaben mit Metadaten (Lizenz, Herkunft, Edition).
-5. Dauerhafte Übernahme der alten 0.1-Einstellungen und Texte aus derselben Datenbank.
-6. Sämtliche sichtbaren Namen wurden zu **Amicus Theologi** geändert.
-
-## So probierst du zwei Texte parallel aus
-
-Klicke **Textmodule**, wähle die Demo-TSV-Datei aus und prüfe die automatisch eingetragenen Angaben. Importiere zunächst `modules/examples/johannes_demo_de.tsv`, ID `joh-demo-de`, Titel `Luther 1912 – Johannes 1,1–5 (Demonstration)`, Sprache `de`, Lizenz `Public Domain (historischer Text; Provenienz selbst prüfen)`, Quelle `Kurzer Demonstrationsauszug nach Luther 1912`.
-
-Importiere anschließend `modules/examples/johannes_demo_la.tsv`, ID `joh-demo-la`, Titel `Vulgata – Johannes 1,1–5 (Demonstration)`, Sprache `la`, Lizenz `Public Domain (historischer Text; Provenienz selbst prüfen)`, Quelle `Kurzer Demonstrationsauszug aus lateinischer Vulgata`.
-
-Rufe `Joh 1,1` auf. Klicke Vers 3: beide Ausgaben markieren Vers 3.
-
-**Wichtig:** Die zwei mitgelieferten Dateien enthalten jeweils nur **fünf Verse**, keine vollständige Edition. Sie dienen zur Erprobung des Imports und sind keine wissenschaftlich kollationierten Referenztexte. Für echte Forschungsarbeit bitte überprüfte Volltexteditionen mit Editions- und Lizenznachweis importieren.
-
-## Texte importieren
-
-- Datei muss UTF-8 sein, CSV oder TSV mit Kopfzeile `book,chapter,verse,text`.
-- Beispiel: `Joh,1,1,"Im Anfang ..."`.
-- Bibelbuchnamen und Kurzformen werden vereinheitlicht (z. B. `1 Mose` → `Gen`). Unterstützt sind derzeit die 66 üblichen Buchkennungen; deuterokanonische Erweiterungen stehen auf der Roadmap.
-- Alle Zeilen werden vor dem Schreiben validiert und als ein Modul gespeichert. Doppelte Referenzen, unbekannte Bücher und unvollständige Zeilen werden zurückgewiesen.
-- Maximal 12 MB und 200.000 Verse pro Modul.
-- **Keine automatische Rechteprüfung:** die importierende Person verantwortet die Zulässigkeit der Texte.
-- Import ist lokal und benötigt keinen Internetzugriff.
-
-## Aktualisierung und bisherige Einstellungen
-
-Das Programm behält den vorhandenen Datenordner aus 0.1/0.2 bei, um installierte Module und Einstellungen zu erhalten. Die Datenbankdatei heißt `amicus_theologi.sqlite3` (die vorherige README erwähnte hier irrtümlich `biblewoerks.sqlite3`).
-
-- Linux: `${XDG_DATA_HOME:-~/.local/share}/biblewoerks/amicus_theologi.sqlite3`
-- Windows: `%LOCALAPPDATA%\Biblewoerks\amicus_theologi.sqlite3`
-- Eigenes Verzeichnis: über `AMICUS_THEOLOGI_DATA_DIR` (oder den älteren Alias `BIBLEWOERKS_DATA_DIR`).
-
-**Datenbankänderung mit 0.5.0:** Die SQLite-Datenbank erhält einen Volltextindex (`verse_fts`) und drei Trigger. Bereits vorhandene Daten werden beim ersten Start in den Suchindex aufgenommen. Bitte vorher sichern. Ein Zurückwechseln auf 0.2 wird nach der Migration nicht als regulärer Downgrade unterstützt.
-
-## Projektstruktur und Rechte
-
-- `backend/` FastAPI, SQLite und Suchlogik
-- `frontend/` HTML/CSS/JavaScript
-- `modules/examples/` Mini-Demos (jeweils nur fünf Verse)
-- `docs/` Architektur, Roadmap, Änderungen
-- `tests/` automatische Tests
-
-Vor einer öffentlichen Veröffentlichung ist die endgültige Open-Source-Lizenz festzulegen. Die Textrechte sind pro Modul zu prüfen.
-
-## Neu in Version 0.6.0
-
-Unter **Suche → Erweiterte Suche** können importierte morphologische Wortannotationen nach Lemma, Oberflächenform, Strong-Nummer und einem Teilstring des Morphologie-Feldes gefiltert werden. Optional zwei Wortbedingungen innerhalb eines Verses kombinieren, maximale Anzahl dazwischenliegender Wörter (0 = unmittelbar benachbart) und Reihenfolge wählen. Alle Filter arbeiten ohne externe API und ohne KI.
-
-**Datenbank:** Keine neuen Tabellen oder Indizes in Version 0.6. Bereits installierte Module und Lexika bleiben bestehen. Vor Updates dennoch eine Sicherung von `amicus_theologi.sqlite3` empfehlen.
-
-**Datenquellen:** Siehe `docs/DATENQUELLEN.md` für konkrete offene Projekte, Lizenzhinweise und die Datenimport-Roadmap. Vollständige STEPBible- oder OSHB-Korpora werden noch nicht automatisch installiert oder importiert.
-
-## Neu in 0.7: Studienprojekte
-
-Über **Studienprojekte** können exegetische Projekte angelegt und ausgewählt werden. Notizen und Markierungen werden pro Bibelstelle im aktuell gewählten Projekt gespeichert. **JSON exportieren** erstellt eine transportable Sicherung (Import wird noch nicht angeboten). Mit importierten Morphologiedaten zeigt die Wortanalyse unterstützte Codes in deutschen Fachbegriffen an. Siehe [docs/VERSION_0.7.md](docs/VERSION_0.7.md).
-
-
-## Neu in 0.8.0: Textkritik und Synopsen
-
-Öffne **Textkritik & Synopse** oben im Hauptfenster. Dort kannst du installierte Textausgaben nebeneinander vergleichen, ausgewählte parallele Evangelienabschnitte lesen und dokumentierte textkritische Lesarten mit Quelle und Zeuge importieren. Näheres in `docs/VERSION_0.8.md`.
-
-
-## Neu in 0.9.0: Schnellbedienung und Tastenkombinationen
-
-Der neue Knopf **Befehle** oder **Strg+K** (auf macOS auch **Cmd+K**) öffnet eine durchsuchbare Befehlsliste. Besuche zuletzt verwendete Bibelstellen direkt links über der Trefferliste; die Pfeile in der Werkzeugleiste navigieren durch die im aktuellen Tab besuchten Bibelstellen.
-
-| Taste | Funktion |
+| Bereich | Stand |
 | --- | --- |
-| Strg+K / Cmd+K | Befehlssuche |
-| Alt+R | Bibelstelleneingabe |
-| / | Suchfeld (sofern nicht in einem Eingabefeld) |
-| Alt+S | Erweiterte Suche |
-| Alt+Links / Alt+Rechts | Zurück / vor im Verlauf |
-| Alt+Hoch / Alt+Runter | Vorheriges / nächstes Kapitel |
-| Alt+1 / Alt+2 / Alt+3 | Suche / Bibeltext / Analyse fokussieren |
-| Strg+Shift+P | Studienprojekte öffnen |
-| F1 | Hilfe |
+| Mehrere Texte / Navigation | lokal installierte Ausgaben, kapitelweise synchron |
+| Volltextsuche | SQLite FTS5, Filter und einfache Suchsyntax |
+| Wortanalyse | importierte griechische/hebräische Annotationen, Lemma-Konkordanz, übersetzte Standard-Codes |
+| Morphologische Suche | zwei Wortbedingungen, Abstand / Reihenfolge, Stringfilter in Morph-Codes |
+| Wörterbücher | TSV/CSV-Import, experimentelle Direktinstallation ausgewählter STEPBible-Lexika |
+| Persönliche Studien | Projekte, Notizen, Markierungen, JSON-Export einzelner Projekte |
+| Ausgabenvergleich / Synopse | 2–4 Ausgaben, neun beispielhafte Parallelperikopen, importierte dokumentierte Varianten |
+| Bedienung | Befehlssuche Strg+K, Referenz-Verlauf, Tastenkürzel |
+| Neu in 1.0 | Erststart-Einführung, vollständige Sicherung, geführte Rücksicherung, Gesundheitscheck, Startskripte |
 
-**Datenschutz:** Die zuletzt geöffneten Referenzen werden im lokalen Browser-Speicher gespeichert, nicht übertragen. Beim Löschen der Browser-Website-Daten werden sie entfernt. Die Verlaufstasten gelten für den aktuellen Tab. Manche Kombinationen können in einigen Browsern vom Betriebssystem reserviert sein. Details: [docs/VERSION_0.9.md](docs/VERSION_0.9.md).
+## Vollständige Sicherung und Wiederherstellung
+
+Oben auf **Datensicherung** klicken → **„Vollständige Sicherung herunterladen“**. Das ZIP enthält **alle lokal gespeicherten Texte, Wortdaten, Lexika, Projekte und Einstellungen**. Bewahre eine Kopie außerhalb dieses Computers auf.
+
+Für die Rücksicherung: **Datensicherung → gesichertes ZIP auswählen → Wiederherstellung vorbereiten**. Amicus kontrolliert Dateiformat, Prüfsumme und Datenbankintegrität. **Erst nach vollständigem Beenden und Neustarten** ersetzt es den aktuellen Stand. Vor dem Ersetzen erstellt es automatisch eine zusätzliche Sicherheitskopie.
+
+**Update von 0.9:** Entpacke 1.0 in einen neuen Ordner und starte das Programm. Es verwendet den bestehenden Datenordner weiterhin. Beim ersten Start von 1.0 wird vor einer eventuell notwendigen Migration automatisch eine vollständige Sicherung unter `backups/` erstellt. Eine manuelle Migration ist nicht nötig und **das bestehende Datenbankschema wird für die 1.0-Funktionen nicht erweitert** (lediglich eine Versionseinstellung wird gespeichert).
+
+Der Datenordner heißt aus Gründen der Rückwärtskompatibilität unverändert:
+- Linux: `~/.local/share/biblewoerks/` (bzw. `$XDG_DATA_HOME/biblewoerks`)
+- Windows: `%LOCALAPPDATA%\Biblewoerks\`
+- Alternative: Umgebungsvariable `AMICUS_THEOLOGI_DATA_DIR`
+
+Dieser alte Ordnername ist **keine Rückbenennung des Produkts**. Beachte: Der Browser speichert die Liste zuletzt besuchter Stellen getrennt im jeweiligen Browser-Profil; die ZIP-Sicherung erfasst die lokalen SQLite-Daten, **nicht** den Browser-Verlauf.
+
+## Datenquellen und Grenzen
+
+- **STEPBible:** https://github.com/STEPBible/STEPBible-Data – viele Daten CC BY 4.0, mit Quellenattribution und teils getrennten Bedingungen.
+- **Open Scriptures Hebrew Bible:** https://github.com/openscriptures/morphhb – WLC-Text gemeinfrei, Lemma/Morphologie CC BY 4.0.
+- **CrossWire/SWORD:** https://www.crosswire.org/sword/ – jedes Modul hat eine eigene Lizenz. Der Import benötigt derzeit ggf. die optionale Bibliothek `pysword` und unterstützt nicht jedes Format.
+
+Amicus lädt **keine unrechtmäßig kopierten kommerziellen Editionen** mit. Die aktuell verfügbaren Quellen und Editionen sind vor wissenschaftlichen Publikationen auf Vollständigkeit, Textstand, Verszählung, Rechte und Annotationen zu prüfen. Weitere Hinweise: [docs/WISSENSCHAFTLICHE_DATEN.md](docs/WISSENSCHAFTLICHE_DATEN.md).
+
+## Entwicklung / Tests
+
+```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements-dev.txt
+.venv/bin/python -m unittest discover -s tests -v
+node --check frontend/app.js
+node --check frontend/workflow.js
+node --check frontend/release1.js
+```
+
+Die API ist auf `127.0.0.1` gebunden, blockiert fremde HTTP-Hosts und Cross-Origin-Schreibzugriffe. Es gibt keine Nutzerkonten, Telemetrie oder KI-Pflicht. **Nicht als öffentlich erreichbaren Webserver betreiben:** Für einen Mehrbenutzerbetrieb bräuchte die Anwendung gesonderte Authentifizierung und Rechteverwaltung.
+
+[Architektur](docs/ARCHITEKTUR.md) · [Roadmap](docs/ROADMAP.md) · [Changelog](docs/CHANGELOG.md) · [Hinweise für Mitwirkende](CONTRIBUTING.md) · [Sicherheit](SECURITY.md)
+
+## Lizenz
+
+Amicus-Theologi-Quellcode: **GNU GPL-3.0-only** (siehe [LICENSE](LICENSE)). **Datenmodule besitzen eigene Lizenzbedingungen**; das GPL-Label auf dem Code erteilt keine Rechte an fremden Bibeltexten. Bei einer Veröffentlichung des Repositories sollten Projektverantwortliche Copyright- und Lizenzangaben nochmals prüfen.

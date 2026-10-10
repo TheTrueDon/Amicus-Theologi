@@ -312,3 +312,6 @@ async function tcCollections(){
     for(const item of items){const row=el('div','manage-row');row.append(el('span','',`${item.collection} · ${item.count} Lesarten`));const btn=el('button','btn','Entfernen');btn.onclick=async()=>{if(!confirm(`Gesamte Sammlung „${item.collection}“ löschen?`))return;try{await api('/api/textcrit/collections/'+encodeURIComponent(item.collection),{method:'DELETE'});await tcCollections();await tcVariants()}catch(e){tcStatus(e.message)}};row.append(btn);root.append(row)}
   }catch(e){tcStatus(e.message)}
 }
+
+// v1.0: refresh the visible text modules after the guided offline demo installation.
+window.amicusReloadAfterDemo = async function(){await refreshModules();await go('Joh',1,1);};

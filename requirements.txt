@@ -1,3 +1,5 @@
-fastapi>=0.110,<1
-uvicorn>=0.29,<1
-python-multipart>=0.0.9,<1
+# Getestete direkte Abhängigkeiten für Amicus Theologi 1.0.0
+# Bei Sicherheitsupdates bewusst prüfen, Tests ausführen und erst dann aktualisieren.
+fastapi==0.128.2
+uvicorn==0.48.0
+python-multipart==0.0.29

@@ -1,5 +1,9 @@
-"""Amicus Theologi 0.3 – loopback-only API."""
+"""Amicus Theologi – offline-first study API, local loopback only."""
 from contextlib import asynccontextmanager
+import os
+import tempfile
+from starlette.background import BackgroundTask
+from fastapi.responses import JSONResponse
 from pathlib import Path
 from typing import Literal
 import re
@@ -8,6 +12,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, Field
 from .database import APP_VERSION, data_dir, init_db, get_settings, set_settings, connect, factory_reset
+from . import maintenance
 from .library import BOOKS, NAMES, parse_reference, installed, chapter_view, chapter_refs, neighbor, read_import, install_module
 from .search import search_verses
 from .advanced_search import advanced_search
@@ -18,9 +23,33 @@ from .catalog import catalog_list, install_catalog_item
 ROOT=Path(__file__).resolve().parent.parent; WEB=ROOT/'frontend'
 @asynccontextmanager
 async def lifespan(app: FastAPI):
- init_db();yield
+ maintenance.apply_staged_restore()
+ maintenance.automatic_upgrade_backup()
+ init_db()
+ maintenance.record_release_version()
+ yield
 app=FastAPI(title='Amicus Theologi',version=APP_VERSION,docs_url=None,redoc_url=None,lifespan=lifespan)
 app.mount('/assets',StaticFiles(directory=str(WEB)),name='assets')
+
+@app.middleware('http')
+async def local_only_and_guard_writes(request: Request, call_next):
+    """Prevent DNS rebinding and cross-origin POSTs against local study data."""
+    host = request.headers.get('host','').split(':',1)[0].lower()
+    if host not in ('127.0.0.1','localhost','testserver'):
+        return JSONResponse({'detail':'Nur lokale Zugriffe sind zulässig.'},status_code=403)
+    if request.url.path.startswith('/api/') and request.method not in ('GET','HEAD','OPTIONS'):
+        origin = request.headers.get('origin','')
+        actual_host = request.headers.get('host','')
+        fetch_site = request.headers.get('sec-fetch-site','')
+        if (origin and origin != 'http://' + actual_host) or fetch_site == 'cross-site':
+            return JSONResponse({'detail':'Schreibzugriff nur aus Amicus Theologi selbst.'},status_code=403)
+    if maintenance.pending_restore() and request.url.path.startswith('/api/') and request.url.path not in ('/api/status','/api/diagnostics','/api/backup/restore/cancel'):
+        return JSONResponse({'detail':'Eine Wiederherstellung ist vorbereitet. Bitte Amicus Theologi beenden und neu starten.'},status_code=409)
+    response = await call_next(request)
+    response.headers['X-Content-Type-Options']='nosniff'
+    response.headers['X-Frame-Options']='DENY'
+    response.headers['Referrer-Policy']='no-referrer'
+    return response
 class SettingsUpdate(BaseModel):
  model_config=ConfigDict(extra='forbid')
  theme:Literal['dark','light']|None=None
@@ -31,10 +60,11 @@ class SettingsUpdate(BaseModel):
  show_greek:bool|None=None
  show_german:bool|None=None
  show_latin:bool|None=None
+ welcome_completed:bool|None=None
 @app.get('/')
 def home():return FileResponse(WEB/'index.html')
 @app.get('/api/status')
-def status():return {'name':'Amicus Theologi','version':APP_VERSION,'offline':True,'installed_modules':len(installed()),'mode':'local'}
+def status():return {'name':'Amicus Theologi','version':APP_VERSION,'offline':True,'installed_modules':len(installed()),'mode':'local','pending_restore':maintenance.pending_restore()}
 @app.get('/api/settings')
 def settings():return get_settings()
 @app.patch('/api/settings')
@@ -86,7 +116,7 @@ def search(q:str, module_id:str|None=None, book:str|None=None, mode:Literal['all
  try:return search_verses(q,module_id,book,mode,limit,offset)
  except ValueError as e:raise HTTPException(422,str(e))
 @app.get('/api/info')
-def info():return {'message':'Version 0.6: morphologische und positionsbezogene Suche nach importierten Annotationen.','data_dir':str(data_dir())}
+def info():return {'message':'Morphologische und positionsbezogene Suche in importierten Annotationen.','data_dir':str(data_dir())}
 
 @app.post('/api/morphology/import')
 async def morphology_import(file:UploadFile=File(...),module_id:str=Form(...)):
@@ -161,6 +191,47 @@ def available_catalog():return catalog_list()
 def catalog_install(item:str):
  try:return install_catalog_item(item)
  except ValueError as e:raise HTTPException(422,str(e))
+
+# Version 1.0: self-check, portable complete backups, staged recovery and offline demo setup.
+@app.get('/api/diagnostics')
+def get_diagnostics():
+    try: return maintenance.diagnostics()
+    except Exception as exc: raise HTTPException(500, f'Diagnose konnte nicht ausgeführt werden: {exc}')
+
+@app.get('/api/backup/download')
+def backup_download():
+    try: path = maintenance.make_backup()
+    except ValueError as exc: raise HTTPException(422,str(exc))
+    return FileResponse(path, media_type='application/zip',
+                        filename='Amicus-Theologi-Sicherung.zip',
+                        background=BackgroundTask(path.unlink, missing_ok=True))
+
+@app.post('/api/backup/restore')
+async def backup_restore(file:UploadFile=File(...)):
+    # A staged restore intentionally requires manual app restart.
+    fd, pathname = tempfile.mkstemp(prefix='amicus-upload-',suffix='.zip',dir=data_dir())
+    os.close(fd)
+    path = Path(pathname)
+    try:
+        received = 0
+        with path.open('wb') as dest:
+            while chunk := await file.read(1024*1024):
+                received += len(chunk)
+                if received > maintenance.MAX_ZIP_BYTES:
+                    raise HTTPException(413,'Sicherungsarchiv ist zu groß.')
+                dest.write(chunk)
+        try: return maintenance.stage_restore(path)
+        except ValueError as exc: raise HTTPException(422,str(exc))
+    finally: path.unlink(missing_ok=True)
+
+@app.post('/api/backup/restore/cancel')
+def backup_restore_cancel():
+    return maintenance.cancel_pending_restore()
+
+@app.post('/api/demo/install')
+def demo_install():
+    try:return maintenance.install_demo_bundle()
+    except ValueError as exc:raise HTTPException(422,str(exc))
 
 class ResetRequest(BaseModel):
  confirmation:Literal['WERKSRESET']

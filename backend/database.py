@@ -3,12 +3,14 @@ import json
 import os
 import sqlite3
 from pathlib import Path
+from contextlib import contextmanager
 
-APP_VERSION = '0.9.0'
+APP_VERSION = '1.0.0'
 DEFAULT_SETTINGS = {
     'theme': 'dark', 'font_size': 17, 'search_width': 25,
     'analysis_width': 27, 'active_reference': 'Joh 1,1',
     'show_greek': True, 'show_german': True, 'show_latin': True,
+    'welcome_completed': False,
 }
 
 def data_dir():
@@ -27,11 +29,22 @@ def data_dir():
     root.mkdir(parents=True, exist_ok=True)
     return root
 
+@contextmanager
 def connect():
-    con = sqlite3.connect(data_dir() / 'amicus_theologi.sqlite3', timeout=10)
+    """Commit/rollback AND close the connection after every `with connect()` use.
+
+    sqlite3.Connection.__exit__ alone does not close a connection; older
+    versions therefore left open handles after routine API calls.
+    """
+    con = sqlite3.connect(data_dir() / 'amicus_theologi.sqlite3', timeout=30)
     con.row_factory = sqlite3.Row
     con.execute('PRAGMA foreign_keys=ON')
-    return con
+    con.execute('PRAGMA busy_timeout=30000')
+    try:
+        with con:
+            yield con
+    finally:
+        con.close()
 
 def init_db():
     with connect() as db:

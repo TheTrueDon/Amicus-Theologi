@@ -89,42 +89,41 @@ def parse_step(raw, corpus):
   if not names:raise ValueError('Keine passenden TAGNT/TAHOT-Textdateien im STEPBible-Archiv gefunden.')
   verses=defaultdict(list)
   for name in names:
-   # The selected entry is size-limited above; unrelated ZIP members are never unpacked.
-   text=z.read(name).decode('utf-8-sig',errors='replace')
-   header=[]
-   for line in text.splitlines():
-    if not line or line.startswith(('#','//')):continue
-    cols=line.split('\t')
-    lower=[c.lower().strip() for c in cols]
-    if any('word & type' in x for x in lower) or ('greek' in lower and 'editions' in lower) or ('hebrew' in lower and 'english' in lower):
-     header=lower;continue
-    refmatch=REF.search(cols[0]) if cols else None
-    if not refmatch:continue
-    cod,ch,v=refmatch.groups();book=STEP_CODES.get(cod,book_id(cod))
-    if not book or int(ch)>200 or int(v)>200:continue
-    key=(book,int(ch),int(v))
-    if corpus=='tagnt':
-     # TAGNT: ref; Greek (surface + transliteration); English; dStrong=Grammar; lemma=Gloss; editions ...
-     # Reject if SBL edition absent. Never merge textual variants into a false reading.
-     editions=' '.join(cols[5:]) if len(cols)>5 else ''
-     if not re.search(r'(?<![A-Za-z])SBL(?![A-Za-z])',editions):continue
-     surface=cols[1].split(' (')[0].strip() if len(cols)>1 else ''
-     dstrong=cols[3].strip() if len(cols)>3 else ''
-     morphology=dstrong.split('=',1)[-1] if '=' in dstrong else 'unannotiert'
-     strong=re.search(r'G0*(\d+)',dstrong)
-     strong='G'+str(int(strong[1])) if strong else ''
-     lemma=cols[4].split('=',1)[0].strip() if len(cols)>4 else ''
-    else:
-     # The TAHOT column format varies between releases; require an explicit Hebrew word column.
-     # Skip metadata and non-word rows; do not invent a morphology interpretation.
-     surface=cols[1].split(' (')[0].strip() if len(cols)>1 else ''
-     if not re.search(r'[\u0590-\u05ff]',surface):continue
-     lemma=cols[4].split('=',1)[0].strip() if len(cols)>4 else ''
-     morph=next((x for x in cols[2:7] if re.search(r'\bH[A-Z][A-Za-z0-9/]+',x)), '')
-     morphology=morph or 'unannotiert'
-     sm=re.search(r'H0*(\d+)', ' '.join(cols[2:7]));strong='H'+str(int(sm[1])) if sm else ''
-    if not surface or len(surface)>150:continue
-    verses[key].append((surface,lemma or '–',morphology[:180],strong))
+   # Stream selected text files instead of unpacking hundreds of MB at once.
+   # Never replace invalid UTF-8 silently in scientific text data.
+   with z.open(name) as binary:
+    reader=io.TextIOWrapper(binary,encoding='utf-8-sig',errors='strict')
+    for line in reader:
+     line=line.rstrip('\r\n')
+     if not line or line.startswith(('#','//')):continue
+     cols=line.split('\t')
+     lower=[c.lower().strip() for c in cols]
+     if any('word & type' in x for x in lower) or ('greek' in lower and 'editions' in lower) or ('hebrew' in lower and 'english' in lower):
+      continue
+     refmatch=REF.search(cols[0]) if cols else None
+     if not refmatch:continue
+     cod,ch,v=refmatch.groups();book=STEP_CODES.get(cod,book_id(cod))
+     if not book or int(ch)>200 or int(v)>200:continue
+     key=(book,int(ch),int(v))
+     if corpus=='tagnt':
+      editions=' '.join(cols[5:]) if len(cols)>5 else ''
+      if not re.search(r'(?<![A-Za-z])SBL(?![A-Za-z])',editions):continue
+      surface=cols[1].split(' (')[0].strip() if len(cols)>1 else ''
+      dstrong=cols[3].strip() if len(cols)>3 else ''
+      morphology=dstrong.split('=',1)[-1] if '=' in dstrong else 'unannotiert'
+      strong=re.search(r'G0*(\d+)',dstrong)
+      strong='G'+str(int(strong[1])) if strong else ''
+      lemma=cols[4].split('=',1)[0].strip() if len(cols)>4 else ''
+     else:
+      surface=cols[1].split(' (')[0].strip() if len(cols)>1 else ''
+      if not re.search(r'[\u0590-\u05ff]',surface):continue
+      lemma=cols[4].split('=',1)[0].strip() if len(cols)>4 else ''
+      morph=next((x for x in cols[2:7] if re.search(r'\bH[A-Z][A-Za-z0-9/]+',x)), '')
+      morphology=morph or 'unannotiert'
+      sm=re.search(r'H0*(\d+)', ' '.join(cols[2:7]));strong='H'+str(int(sm[1])) if sm else ''
+     if not surface or len(surface)>150:continue
+     verses[key].append((surface,lemma or '–',morphology[:180],strong))
+     if len(verses)>200000:raise ValueError('Zu viele Verse im Korpus. Die wissenschaftlichen Daten wurden nicht verändert.')
   if not verses:raise ValueError('Keine kompatiblen Wortzeilen erkannt. STEPBible hat ggf. das Tabellenformat geändert; bitte Datei und Format prüfen.')
   output={k:' '.join(w[0] for w in ws) for k,ws in verses.items()}
   tokens=[(*k,i,*w) for k,ws in verses.items() for i,w in enumerate(ws,1)]

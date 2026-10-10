@@ -64,3 +64,15 @@
 - Quellengebundener Import dokumentierter Textvarianten (TSV / CSV), Anzeige und Sammlungsverwaltung
 - Additive Tabelle `textual_variants`, automatisches Datenbankupdate und Werksresetunterstützung
 - Wichtige Unterscheidung zwischen Editionsunterschieden und eigentlichen Handschriftenvarianten
+
+## 1.0.0 – Erste konsolidierte Einzelplatzversion (10.10.2026)
+
+- **Erststart-Assistent** mit einem einzigen Knopf für installierbare Offline-Mini-Beispiele (griechisch/hebräisch/deutsch/lateinisch samt kleinen Morphologie- und Lexikondaten).
+- **Komplette ZIP-Datensicherung** via SQLite-Online-Backup einschließlich aller Module, Studienprojekte, Lexika und Einstellungen.
+- **Geprüfte Wiederherstellung**: genau zwei ZIP-Dateien, Formatversion, SHA256, SQLite-Integritätscheck, FK-Prüfung, gestaffelte Datenbankübernahme nach Neustart, Sicherheitskopie des bisherigen Standes.
+- **Automatische Sicherung** vor dem ersten 1.0-Start mit bestehender Datenbank und persistente Kennzeichnung des Release-Standes.
+- **Diagnose-Übersicht** über Texte, Wortannotation, Lexika, eigene Studien und Datenbankzustand.
+- Datenbankverbindungen nach jedem Zugriff zuverlässig geschlossen; lokale schreibende APIs gegen Cross-Origin-Aufrufe geschützt und Hosts validiert.
+- Optimierte Startskripte installieren Python-Pakete nur bei Bedarf, Linux-Menüintegration optional; ausführliche verständliche Dokumentation und GitHub-CI-Vorbereitung.
+- **Keine neue Datenbanktabelle** und keine Änderung bestehender Tabellenspalten in 1.0; lediglich neue Anwendungseinstellungen.
+- Grenzen der Bibliotheksimporte und der wissenschaftlichen Textdaten ausdrücklich dokumentiert. Große STEPBible-Textdateien werden jetzt zeilenweise gelesen; defektes UTF-8 wird nicht mehr stillschweigend ersetzt.

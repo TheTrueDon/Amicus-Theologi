@@ -76,3 +76,32 @@
 .workflow-recent{background:var(--surface2);border:1px solid var(--line);border-radius:5px;padding:7px 9px;color:var(--txt);cursor:pointer;font-size:12px}
 .workflow-recent:hover,.workflow-recent:focus-visible{outline:1px solid var(--blue)}
 #history-back:disabled,#history-forward:disabled{opacity:.4;cursor:not-allowed}
+
+/* v1.0: first-run guide and nontechnical backup & data-check workflow */
+.welcome-dialog{width:min(1080px,96vw);max-width:96vw;max-height:92vh;overflow:auto}
+.welcome-lead{font-size:17px;line-height:1.65;max-width:780px}
+.welcome-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:22px 0}
+.welcome-cards article{padding:20px;border:1px solid var(--line);border-radius:10px;background:var(--surface2)}
+.welcome-cards article>span{font-weight:bold;color:var(--gold);letter-spacing:1.3px}
+.welcome-cards article h3{font-size:18px;margin:12px 0}
+.welcome-cards article p{font-size:14px;line-height:1.65;min-height:104px}
+.welcome-cards article button{margin:5px 5px 0 0}
+.welcome-actions{text-align:right;margin-top:20px}
+.backup-dialog{width:min(810px,96vw);max-width:96vw;max-height:90vh;overflow-y:auto}
+.backup-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:18px 0}
+.backup-actions a.btn{display:inline-block;text-decoration:none}
+.diagnostic-results{padding:16px;border:1px solid var(--line);border-radius:9px;margin:14px 0;background:var(--surface2)}
+.diagnostic-counts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:16px 0}
+.diagnostic-count{border:1px solid var(--line);border-radius:7px;padding:9px}
+.diagnostic-count strong{display:block;font-size:19px;color:var(--gold)}
+.diagnostic-count small{display:block;font-size:12px;color:var(--muted)}
+.backup-dialog input[type=file]{display:block;width:100%;margin:9px 0 14px}
+.btn.danger{border-color:#a44c52;color:var(--txt)}
+.backup-dialog hr{margin:24px 0}
+@media(max-width:740px){.welcome-cards{grid-template-columns:1fr}.welcome-cards article p{min-height:0}.diagnostic-counts{grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* 1.0: navigation remains usable on laptops and narrow screens. */
+.top{height:auto;min-height:76px;gap:12px;flex-wrap:wrap}
+.top-actions{flex:1 1 640px;justify-content:flex-end;flex-wrap:wrap;padding:8px 0;gap:7px}
+.top-actions .btn{white-space:nowrap}
+@media(max-width:1250px){.top-actions .pill{display:none}.top-actions .btn{font-size:12px;padding:7px 9px}}
+@media(max-width:800px){.top{align-items:flex-start;padding:10px}.brand{margin-top:4px}.top-actions{justify-content:flex-start}.toolbar{overflow-x:auto;flex-wrap:nowrap}.toolbar input,.toolbar select{min-width:80px}}

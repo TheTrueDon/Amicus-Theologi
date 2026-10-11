@@ -21,7 +21,7 @@ class EditionInstallationTests(unittest.TestCase):
         self.temp.cleanup()
 
     def test_version_and_curated_records(self):
-        self.assertEqual(APP_VERSION, '1.0.8')
+        self.assertEqual(APP_VERSION, '1.0.9')
         self.assertEqual(len(BIBLES), 5)
         self.assertTrue(all(x['base'].startswith('https://www.crosswire.org/') for x in BIBLES.values()))
         self.assertIn('GerElb1905', BIBLES)

@@ -87,8 +87,8 @@ function field(label,value,cls){const p=elt('div','word-preview-field');p.append
 function drawPreview(btn,data){
  tooltip.replaceChildren();
  tooltip.append(elt('div','word-preview-title',data.surface||''));
- tooltip.append(field('Grundform',data.lemma||'–','word-preview-red'));
- tooltip.append(field('Bedeutung',data.gloss||'Keine Glosse in installierten Lexika'));
+ tooltip.append(field('Grundform',data.display_lemma|| (data.lemma_available===false?'Nicht im installierten Lexikon verfügbar':data.lemma||'–'),'word-preview-red'));
+ tooltip.append(field('Bedeutung',data.gloss||'Keine verlässliche Übersetzung im installierten Lexikon')); 
  if(data.gloss_source)tooltip.append(elt('div','word-preview-source',data.gloss_source));
  if(data.grammar?.recognized&&data.grammar.features?.length){
    const parts=data.grammar.features.filter(x=>x.name!=='Wortart').map(x=>x.value);
@@ -108,7 +108,7 @@ function showPreview(btn,word,mod){
  timer=setTimeout(async()=>{
   if(activeButton!==btn||!btn.isConnected)return;
   tooltip.hidden=false;
-  tooltip.replaceChildren(elt('div','word-preview-title',word.surface),field('Grundform',word.lemma,'word-preview-red'),elt('div','word-preview-source','Lade Wortinformationen …'));
+  tooltip.replaceChildren(elt('div','word-preview-title',word.surface),elt('div','word-preview-source','Lade Grundform, Bedeutung und Grammatik …')); 
   placeTooltip(btn);
   const key=[mod.id,word.book||'',word.chapter||'',word.verse,word.position].join('|');
   let data=previewCache.get(key);
@@ -121,7 +121,7 @@ function showPreview(btn,word,mod){
     if(previewCache.size>400)previewCache.clear();
     previewCache.set(key,data);
    }catch{
-    data={surface:word.surface,lemma:word.lemma,gloss:'Momentan nicht verfügbar',morph:word.morph||'',grammar:{recognized:false}};
+    data={surface:word.surface,lemma:word.lemma,display_lemma:mod.language==='he'?'':word.lemma,lemma_available:mod.language!=='he',gloss:'Momentan nicht verfügbar',morph:word.morph||'',grammar:{recognized:false}};
    }
   }
   if(activeButton!==btn||sequence!==requestSequence||!btn.isConnected)return;

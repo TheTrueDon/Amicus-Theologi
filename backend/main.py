@@ -64,6 +64,7 @@ class SettingsUpdate(BaseModel):
  welcome_completed:bool|None=None
  display_module_ids:list[str]|None=Field(default=None,max_length=150)
  display_module_order:list[str]|None=Field(default=None,max_length=150)
+ text_layout:Literal['verse','edition']|None=None
 @app.get('/')
 def home():return FileResponse(WEB/'index.html')
 @app.get('/ANLEITUNG.html', include_in_schema=False)
@@ -173,18 +174,23 @@ def morphology_preview(module_id:str,book:str,chapter:int,verse:int,position:int
  if word is None:raise HTTPException(404,'Zu diesem Wort liegen keine Annotationen vor.')
  from .morph_display import decode
  from .lexical_text import best_gloss, gloss_priority
+ from .hebrew_display import explain_word
  grammar=decode(word['morph'],word['language'])
+ if word['language']=='he':
+  reading=explain_word(word)
+  return {'surface':word['surface'],'lemma':word['lemma'],'strong':word['strong'],
+          'morph':word['morph'],'grammar':grammar,**reading}
  entries=lookup(word['language'],word['lemma'],word['strong'] or '')
  from .lexicon import clean_key
- # Prefer the exact lemma and a real German/English meaning; never phonetics.
  entries.sort(key=lambda entry: (clean_key(entry['lemma']) != clean_key(word['lemma']), gloss_priority(entry)))
  gloss=''; source=''
  for entry in entries:
   candidate=best_gloss(entry)
   if candidate:
    gloss=candidate[:180];source=entry['title'];break
- return {'surface':word['surface'],'lemma':word['lemma'],'strong':word['strong'],
-         'morph':word['morph'],'grammar':grammar,'gloss':gloss,'gloss_source':source}
+ return {'surface':word['surface'],'lemma':word['lemma'],'display_lemma':word['lemma'],
+         'strong':word['strong'],'morph':word['morph'],'grammar':grammar,
+         'gloss':gloss,'gloss_source':source}
 
 @app.get('/api/lexica')
 def lexica():return installed_lexica()
@@ -193,6 +199,9 @@ def lexica():return installed_lexica()
 def lexicon_lookup(language:Literal['grc','he'],lemma:str='',strong:str=''):
  try:
   from .lexical_text import best_gloss
+  if language=='he':
+   from .hebrew_display import strong_for_lemma
+   strong=strong_for_lemma({'lemma':lemma,'strong':strong}) or strong
   rows=lookup(language,lemma,strong)
   return {'language':language,'lemma':lemma,'strong':strong,
           'results':[{**entry, 'display_gloss':best_gloss(entry)} for entry in rows]}

@@ -57,10 +57,23 @@ def _is_meta(s):
                 or re.fullmatch(r'(?:noun|verb|adjective|adverb|preposition|particle|pronoun|proper noun|substantiv|adjektiv)', s, re.I))
 
 
+_GRAMMAR_LABELS = re.compile(
+    r'^(?:prefix(?:es)?|suffix(?:es)?|pref\.?|suff\.?|particle|preposition|'
+    r'conjunction|article|verb|noun|adjective|adverb|pronoun|'
+    r'proper\s+noun|grammatical\s+(?:prefix|suffix)|'
+    r'präfix|suffix|vorsilbe|nachsilbe|wortart|artikel|partikel|'
+    r'präposition|konjunktion|substantiv|verbform)$', re.I)
+
+
+def _is_grammar_label(value):
+    """Reject a bare word-class field, but never a real phrase translation."""
+    return bool(_GRAMMAR_LABELS.fullmatch(value.strip()))
+
+
 def _meaning_part(text):
     """Return human-readable words; explicitly labelled data wins."""
     s = concise_gloss(text)
-    if not s or _is_meta(s) or s in ('-', '–', '?'):
+    if not s or _is_meta(s) or s in ('-', '–', '?') or _is_grammar_label(s):
         return ''
     match = _LABEL.match(s)
     return match.group(1).strip() if match else s
@@ -83,6 +96,15 @@ def best_gloss(entry):
     if not is_step:
         return _meaning_part(raw_gloss)
 
+    # If the first stored field equals the legacy gloss column, it is
+    # frequently a transliteration OR a grammatical category ("prefix").
+    # Skip it and inspect later definition segments for a genuine meaning.
+    raw_segments=[concise_gloss(x) for x in re.split(r'\s+·\s+', definition)]
+    if raw_gloss and raw_segments and raw_segments[0].casefold()==raw_gloss.casefold():
+        for raw_part in raw_segments[1:]:
+            part=_meaning_part(raw_part)
+            if part:return part[:240]
+        return ''
     segments = [_meaning_part(x) for x in re.split(r'\s+·\s+', definition)]
     segments = [x for x in segments if x]
 

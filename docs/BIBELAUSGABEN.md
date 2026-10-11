@@ -1,4 +1,4 @@
-# Bibelausgaben auswählen und installieren (Amicus Theologi 1.0.5)
+# Bibelausgaben auswählen und installieren (Amicus Theologi 1.0.6)
 
 ## So einfach geht es
 
@@ -11,6 +11,14 @@
 Im Textfenster können aktive Ausgaben direkt durch Anklicken ihres kleinen Chips (×) ausgeblendet werden. **Ausgaben auswählen** bietet auch „Alle anzeigen“, „Alle abwählen“, „Nur Deutsch“ und „Nur Originalsprachen“.
 
 Die Auswahl und die Anzeigereihenfolge werden in den bestehenden lokalen **Einstellungen** gespeichert; sie verändern **keine** Bibeltextdaten und sind unabhängig vom Suchfilter links. Installierte Ausgaben können weiterhin im Modulmanager entfernt werden.
+
+## Verse direkt vergleichen (neu in 1.0.6)
+
+Die Mitte zeigt standardmäßig nach Vers gruppiert an: `Joh 1,1` Luther, `Joh 1,1` Elberfelder, `Joh 1,1` griechischer Text usw., anschließend alle Ausgaben zu `Joh 1,2`. Die Anzeige folgt den unter **Ausgaben auswählen** festgelegten Ausgaben und ihrer Reihenfolge.
+
+Über **Darstellung** oberhalb des Textes kann auf **Nach Ausgabe anzeigen** (wie bisher: ganzes Kapitel pro Ausgabe) umgeschaltet werden. Die Auswahl wird gespeichert. Klick auf eine einzelne Verszeile oder die gemeinsame Versüberschrift aktiviert die Stelle und die dazugehörigen Studiennotizen. Morphologisch annotierte Wörter bleiben anklickbar.
+
+**Fehlende Verse** werden für Editionsmodule mit vorhandenen Kapiteldaten mit einem neutralen Hinweis markiert. Ein Modul ohne Text für das gesamte Kapitel erscheint in einer gesonderten aufklappbaren Liste, nicht als leere Zeile bei jedem Vers. So ist z. B. eine Septuaginta-Ausgabe bei `Joh 1,1` nicht verfügbar, weil die Septuaginta eine Übersetzung des Alten Testaments ist. Das darf nicht mit einer textkritischen Variante verwechselt werden. Die Ausrichtung erfolgt derzeit nach der vorhandenen Kapitel- und Versnummer, nicht mit einem editionsübergreifenden Versmapping.
 
 ## Curatierte CrossWire-Bibelausgaben
 
@@ -43,4 +51,4 @@ Originalquellen:
 
 ## Update und Datenbank
 
-**Keine Änderung des Datenbankschemas.** Die zwei neuen Einstellungen `display_module_ids` und `display_module_order` werden automatisch in der vorhandenen `settings`-Tabelle verwaltet. Vorhandene Textmodule und persönliche Projekte bleiben unverändert.
+**Keine Änderung des Datenbankschemas.** Die Einstellungen `display_module_ids`, `display_module_order` und `text_layout` werden automatisch in der vorhandenen `settings`-Tabelle verwaltet. Vorhandene Textmodule und persönliche Projekte bleiben unverändert.

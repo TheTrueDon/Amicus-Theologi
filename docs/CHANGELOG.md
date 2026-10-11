@@ -1,3 +1,21 @@
+## 1.0.7 – Hebräische Wortvorschau repariert (11.10.2026)
+
+- Grundform aus hebräischen Lexikoneinträgen per Strong-Zuordnung anzeigen, statt Strong- oder Präfixcodes als Lemma auszugeben.
+- Quellbasierte Kurzglosse statt grammatischer Kategorien im Tooltip; falls keine überprüfbare Glosse gefunden wird, deutlicher Leerwert.
+- Open-Scriptures-Morphologie einschließlich zusammengesetzter Codes verständlich auflösen.
+- Rechte Analysespalte zeigt für hebräische Einträge ebenfalls die ermittelte Grundform an.
+- Bestehende Module und Annotationen bleiben unverändert. Keine Schemaänderung.
+- Vier neue Regressionstests mit OSHB-artigen Hebräischcodes.
+
+## 1.0.6 – Verse unmittelbar zwischen Bibelausgaben vergleichen (11.10.2026)
+
+- **Versweise Parallelansicht als Standard:** gleiche Versnummern aus allen aktivierten Bibelausgaben stehen direkt untereinander; bisherige Ansicht nach Ausgabe bleibt umschaltbar.
+- Ausgabenreihenfolge aus dem Auswahlmenü übernehmen; Ansichtsmodus dauerhaft in den bestehenden Einstellungen speichern.
+- Klick auf Versüberschrift/Verszeile aktiviert Bibelstelle und Studiennotizen; Wortanalyse, Hover, Markierungen und RTL-Hebräisch beibehalten.
+- Einzelne fehlende Verse markieren; Ausgaben ohne Text für das gesamte Kapitel getrennt auflisten; keine textkritischen Aussagen aus Datenlücken ableiten.
+- Integriertes und eigenständiges Offline-Handbuch auf denselben Dokumentationsstand gebracht.
+- Keine Änderung des Datenbankschemas oder installierter Textinhalte.
+
 ## 1.0.5 – Bibelausgabenkatalog und flexible Parallelansicht (11.10.2026)
 - Kuratierter CrossWire/SWORD-Katalog: Elberfelder 1905/1871, Menge 1939, Textbibel 1906, Luther 1912 (Beta) mit Quellen- und Lizenzinformationen.
 - Ein-Klick-Installationsweg für offizielle Raw-ZIP-Module, feste Downloadziele, Größenbegrenzung, explizite Modul-ID und transaktionale Speicherung.

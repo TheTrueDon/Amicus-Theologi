@@ -10,21 +10,119 @@ function apply(){document.body.dataset.theme=settings.theme;document.body.style.
 function isShown(l){return l==='grc'?settings.show_greek:l==='de'?settings.show_german:l==='la'?settings.show_latin:true}
 function filterLanguages(){for(const article of $$('.translation'))article.hidden=!isShown(article.dataset.language);window.amicusEditions?.refresh()}
 function el(tag,cls,text){let node=document.createElement(tag);if(cls)node.className=cls;if(text!==undefined)node.textContent=text;return node}
-function selectVerse(v){activeVerse=v;for(const row of $$('.verse-line'))row.classList.toggle('active',Number(row.dataset.verse)===v);$('#current-ref').textContent=`${view.book} ${view.chapter},${v}`;$('#reference').value=`${view.book} ${view.chapter},${v}`;save({active_reference:`${view.book} ${view.chapter},${v}`});refreshStudyPane()}
-function render(){window.amicusWordTools.hideTooltip();message('');const out=$('#translations');out.replaceChildren();$('#current-ref').textContent=`${view.book} ${view.chapter},${activeVerse}`;$('#reference').value=`${view.book} ${view.chapter},${activeVerse}`;$('#book-choice').value=view.book;$('#chapter-choice').value=view.chapter;$('#chapter-title').textContent=`${view.book_name} · Kapitel ${view.chapter}`;$('#chapter-badge').textContent=String(view.chapter).padStart(2,'0');$('#chapter-subtitle').textContent='Mehrere Ausgaben · annotierte Wörter anklickbar';$('#prev').disabled=!view.previous;$('#next').disabled=!view.next;$('#verse-foot').textContent=view.available_verses.length+' vorhandene Versnummern';const displayed=view.modules.filter(m=>window.amicusEditions?.isVisible(m.id)!==false && isShown(m.language));$('#text-notice').hidden=!!displayed.length;
-if(!view.modules.length)$('#text-notice').innerHTML='<b>Für dieses Kapitel sind keine Bibeltexte installiert.</b><br>Öffne den Bibelausgaben-Katalog oder rufe eine andere Bibelstelle auf.';
-else if(!displayed.length)$('#text-notice').innerHTML='<b>Keine der ausgewählten Ausgaben enthält hier sichtbaren Text.</b><br>Öffne „Ausgaben auswählen“ oder prüfe die Spracheinstellungen.';
-for(const mod of (window.amicusEditions?.ordered(view.modules)??view.modules)){if(window.amicusEditions?.isVisible(mod.id)===false)continue;const box=el('article','translation');box.dataset.language=mod.language;const head=el('div','translation-head'),title=el('span','',mod.title.toUpperCase()),tag=el('span','tag',mod.language+' · '+mod.id);head.append(title,tag);box.append(head);for(const v of mod.verses){let line=el('p','verse-line');line.dataset.verse=v.verse;line.lang=mod.language;if(mod.language==='he')line.dir='rtl';line.append(el('sup','',String(v.verse)));const words=(view.tokens||[]).filter(t=>t.module_id===mod.id&&t.verse===v.verse);if(words.length){for(const word of words){const btn=el('button','morph-word',word.surface);btn.type='button';btn.dataset.position=word.position;btn.dataset.moduleId=mod.id;window.amicusWordTools.enableHover(btn,word,mod);btn.onclick=(event)=>{event.stopPropagation();window.amicusWordTools.hideTooltip();selectVerse(v.verse);for(const x of $$('.morph-word.selected-word'))x.classList.remove('selected-word');btn.classList.add('selected-word');showWord(word,mod)};line.append(btn,document.createTextNode(' '))}}else{line.append(document.createTextNode(v.text));if(['grc','he'].includes(mod.language)){const hint=el('span','annotation-warning','  ·  Keine Wortannotation importiert');hint.dir='ltr';hint.title='Textmodule öffnen und die passende *_morph.tsv-Datei für diese Ausgabe importieren';line.append(hint);line.classList.add('unannotated')}}line.onclick=()=>selectVerse(v.verse);box.append(line)}box.append(el('small','',`Quelle: ${mod.provenance} · Lizenz: ${mod.license}`));out.append(box)}filterLanguages();for(const row of $$('.verse-line'))row.classList.toggle('active',Number(row.dataset.verse)===activeVerse);
-paintHighlights();refreshStudyPane();window.amicusEditions?.refresh();
-const first=out.querySelector(`.verse-line[data-verse="${activeVerse}"]`);if(first)first.scrollIntoView({block:'nearest'});
+function updateActiveVerse(){
+ for(const row of $$('.verse-line'))row.classList.toggle('active',Number(row.dataset.verse)===activeVerse);
+ for(const group of $$('.verse-group'))group.classList.toggle('verse-group-active',Number(group.dataset.verse)===activeVerse);
+}
+function selectVerse(v){activeVerse=v;updateActiveVerse();$('#current-ref').textContent=`${view.book} ${view.chapter},${v}`;$('#reference').value=`${view.book} ${view.chapter},${v}`;save({active_reference:`${view.book} ${view.chapter},${v}`});refreshStudyPane()}
+/** Build a single edition's verse; keep morphology, tooltips, click selection and notes intact. */
+function verseLine(mod,v,tokenIndex,showNumber=true){
+ const line=el('p','verse-line');line.dataset.verse=v.verse;line.lang=mod.language;
+ if(mod.language==='he')line.dir='rtl';
+ if(showNumber)line.append(el('sup','',String(v.verse)));
+ const words=tokenIndex.get(`${mod.id}:${v.verse}`)||[];
+ if(words.length){
+  for(const word of words){
+   const btn=el('button','morph-word',word.surface);btn.type='button';
+   btn.dataset.position=word.position;btn.dataset.moduleId=mod.id;
+   window.amicusWordTools.enableHover(btn,word,mod);
+   btn.onclick=(event)=>{event.stopPropagation();window.amicusWordTools.hideTooltip();selectVerse(v.verse);
+    for(const x of $$('.morph-word.selected-word'))x.classList.remove('selected-word');
+    btn.classList.add('selected-word');showWord(word,mod)};
+   line.append(btn,document.createTextNode(' '));
+  }
+ }else{
+  line.append(document.createTextNode(v.text));
+  if(['grc','he'].includes(mod.language)){
+   const hint=el('span','annotation-warning','  ·  Keine Wortannotation importiert');hint.dir='ltr';
+   hint.title='Textmodule öffnen und die passende *_morph.tsv-Datei für diese Ausgabe importieren';
+   line.append(hint);line.classList.add('unannotated');
+  }
+ }
+ line.onclick=()=>selectVerse(v.verse);
+ return line;
+}
+function makeEditionLabel(mod){
+ const head=el('div','translation-head');
+ head.append(el('span','',mod.title),el('span','tag',`${mod.language} · ${mod.id}`));
+ head.title=`Quelle: ${mod.provenance} · Lizenz: ${mod.license}`;
+ return head;
+}
+function render(){
+ window.amicusWordTools.hideTooltip();message('');
+ const out=$('#translations');out.replaceChildren();
+ $('#current-ref').textContent=`${view.book} ${view.chapter},${activeVerse}`;
+ $('#reference').value=`${view.book} ${view.chapter},${activeVerse}`;
+ $('#book-choice').value=view.book;$('#chapter-choice').value=view.chapter;
+ $('#chapter-title').textContent=`${view.book_name} · Kapitel ${view.chapter}`;
+ $('#chapter-badge').textContent=String(view.chapter).padStart(2,'0');
+ const layout=settings.text_layout==='edition'?'edition':'verse';
+ $('#text-layout').value=layout;
+ $('#chapter-subtitle').textContent=layout==='verse'?'Versweiser Vergleich · gleiche Versnummern unmittelbar untereinander':'Ausgabenweise Darstellung · alle Verse je Ausgabe';
+ $('#prev').disabled=!view.previous;$('#next').disabled=!view.next;
+ const ordered=window.amicusEditions?.ordered(view.modules)??view.modules;
+ const displayed=ordered.filter(m=>window.amicusEditions?.isVisible(m.id)!==false&&isShown(m.language));
+ const index=new Map();for(const t of (view.tokens||[])){
+  const key=`${t.module_id}:${t.verse}`;
+  if(!index.has(key))index.set(key,[]);
+  index.get(key).push(t);
+ }
+ for(const entry of index.values())entry.sort((a,b)=>a.position-b.position);
+ const available=new Set();for(const mod of displayed)for(const v of mod.verses)available.add(v.verse);
+ const verses=[...available].sort((a,b)=>a-b);
+ $('#verse-foot').textContent=`${verses.length} sichtbare Versnummern · ${layout==='verse'?'Versvergleich':'Ausgabenansicht'}`;
+ $('#text-notice').hidden=displayed.length>0;
+ if(!view.modules.length)$('#text-notice').innerHTML='<b>Für dieses Kapitel sind keine Bibeltexte installiert.</b><br>Öffne den Bibelausgaben-Katalog oder rufe eine andere Bibelstelle auf.';
+ else if(!displayed.length)$('#text-notice').innerHTML='<b>Keine der ausgewählten Ausgaben enthält hier sichtbaren Text.</b><br>Öffne „Ausgaben auswählen“ oder prüfe die Spracheinstellungen.';
+ // Installed/selected modules whose corpus has NO verse in this chapter (e.g. LXX in John 1).
+ const displayedIds=new Set(displayed.map(m=>m.id));
+ const unavailable=(window.amicusEditions?.ordered(modules)??modules).filter(m=>
+   window.amicusEditions?.isVisible(m.id)!==false && isShown(m.language) && !displayedIds.has(m.id));
+ if(unavailable.length){
+  const details=el('details','unavailable-editions');
+  details.append(el('summary','',`${unavailable.length} ausgewählte Ausgabe(n) ohne Text in ${view.book} ${view.chapter}`));
+  const lst=el('ul');for(const m of unavailable)lst.append(el('li','',m.title));
+  details.append(lst,el('p','hint','Die Ausgabe enthält für dieses Kapitel keinen importierten Text (z. B. Septuaginta im NT). Das ist kein textkritischer Befund.'));
+  out.append(details);
+ }
+ if(layout==='verse'){
+  const byModule=new Map(displayed.map(m=>[m.id,new Map(m.verses.map(v=>[v.verse,v]))]));
+  for(const number of verses){
+   const group=el('section','verse-group');group.dataset.verse=number;
+   const bar=el('div','verse-group-head');
+   bar.append(el('span','verse-group-number',`${view.book} ${view.chapter},${number}`),el('small','',`${displayed.filter(m=>byModule.get(m.id)?.has(number)).length}/${displayed.length} Ausgaben`));
+   bar.title=`${view.book} ${view.chapter},${number} auswählen`;
+   bar.onclick=()=>selectVerse(number);group.append(bar);
+   for(const mod of displayed){
+    const item=el('article','translation verse-translation');item.dataset.language=mod.language;
+    item.append(makeEditionLabel(mod));
+    const v=byModule.get(mod.id)?.get(number);
+    if(v)item.append(verseLine(mod,v,index,false));
+    else{const blank=el('p','verse-missing','— Kein Text für diesen Vers in dieser Ausgabe.');blank.title='Es liegt kein Text für diese Versnummer vor. Dies ist kein Nachweis für eine Textvariante.';item.append(blank)}
+    group.append(item);
+   }
+   out.append(group);
+  }
+ }else{
+  for(const mod of displayed){
+   const box=el('article','translation');box.dataset.language=mod.language;
+   box.append(makeEditionLabel(mod));
+   for(const v of mod.verses)box.append(verseLine(mod,v,index));
+   box.append(el('small','',`Quelle: ${mod.provenance} · Lizenz: ${mod.license}`));out.append(box);
+  }
+ }
+ updateActiveVerse();paintHighlights();refreshStudyPane();window.amicusEditions?.refresh();
+ const first=out.querySelector(`.verse-group[data-verse="${activeVerse}"]`)||out.querySelector(`.verse-line[data-verse="${activeVerse}"]`);
+ if(first)first.scrollIntoView({block:'nearest'});
 }
 async function go(b,c,v=1){try{const data=await api(`/api/chapter?book=${encodeURIComponent(b)}&chapter=${c}`);view=data;activeVerse=v;render();save({active_reference:`${b} ${c},${v}`})}catch(e){message(e.message)}}
 async function navigate(){try{const r=await api('/api/reference?q='+encodeURIComponent($('#reference').value));await go(r.book,r.chapter,r.verse)}catch(e){message(e.message)}}
 function moduleText(m){let row=el('div','module-entry');row.append(el('b','',m.title),el('small','',`${m.language} · ${m.verse_count} Verse · ${m.license}`));return row}
 async function refreshModules(){modules=await api('/api/modules');refreshSearchFilters();$('#module-counter').textContent=modules.length+' Module';const morphSel=$('#morph-module');const before=morphSel.value;morphSel.replaceChildren();for(const mod of modules.filter(x=>['grc','he'].includes(x.language))){const opt=el('option','',mod.title+' ('+mod.id+')');opt.value=mod.id;morphSel.append(opt)}if([...morphSel.options].some(x=>x.value===before))morphSel.value=before;window.amicusEditions?.refresh();for(const id of ['#module-summary','#module-list','#manage-list'])$(id).replaceChildren();if(!modules.length){for(const id of ['#module-summary','#module-list','#manage-list'])$(id).append(el('p','hint','Noch keine Module installiert.'))}for(const m of modules){$('#module-summary').append(moduleText(m));$('#module-list').append(moduleText(m));let row=el('div','manage-row'),detail=el('div');detail.append(el('b','',m.title),el('small','',`${m.id} · ${m.verse_count} Verse · ${m.license}`));const btn=el('button','btn','Entfernen');btn.type='button';btn.onclick=async()=>{if(!confirm(`Modul „${m.title}“ und alle zugehörigen Verse löschen?`))return;try{await api('/api/modules/'+encodeURIComponent(m.id),{method:'DELETE'});await refreshModules();await go(view.book,view.chapter,activeVerse)}catch(e){alert(e.message)}};row.append(detail,btn);$('#manage-list').append(row)}}
 async function start(){try{settings=await api('/api/settings');books=await api('/api/books');for(const b of books){const sb=el('option','',b.name);sb.value=b.id;$('#search-book').append(sb);const o=el('option','',b.name);o.value=b.id;$('#book-choice').append(o)}apply();await refreshModules();try{const r=await api('/api/reference?q='+encodeURIComponent(settings.active_reference));await go(r.book,r.chapter,r.verse)}catch{await go('Joh',1,1)}}catch(e){message('Lokaler Start fehlgeschlagen: '+e.message)}}
+$('#text-layout').onchange=e=>{save({text_layout:e.target.value});if(view)render()};
 $('#navigate').onclick=navigate;$('#reference').onkeydown=e=>{if(e.key==='Enter')navigate()};$('#book-choice').onchange=e=>go(e.target.value,1,1);$('#chapter-choice').onchange=e=>go($('#book-choice').value,Number(e.target.value),1);$('#prev').onclick=()=>view?.previous&&go(...view.previous,1);$('#next').onclick=()=>view?.next&&go(...view.next,1);
-$('#settings-btn').onclick=()=>show('#settings-dialog');$('#help-btn').onclick=()=>window.open('/ANLEITUNG.html','_blank','noopener,noreferrer');$('#module-btn').onclick=()=>show('#module-dialog');$('#add-module-left').onclick=()=>show('#module-dialog');$('#modules-close').onclick=()=>$('#module-dialog').close();$('#reset').onclick=()=>{save({search_width:25,analysis_width:27});apply()};$('#theme').onchange=e=>{save({theme:e.target.value});apply()};$('#font-size').oninput=e=>{save({font_size:Number(e.target.value)});apply()};for(const l of ['greek','german','latin'])$('#show-'+l).onchange=e=>{save({['show_'+l]:e.target.checked});apply()};$('#larger').onclick=()=>{save({font_size:Math.min(28,settings.font_size+1)});apply()};$('#smaller').onclick=()=>{save({font_size:Math.max(12,settings.font_size-1)});apply()};
+$('#settings-btn').onclick=()=>show('#settings-dialog');$('#help-btn').onclick=()=>window.open('/ANLEITUNG.html','_blank','noopener,noreferrer');$('#module-btn').onclick=()=>show('#module-dialog');$('#add-module-left').onclick=()=>show('#module-dialog');$('#modules-close').onclick=()=>$('#module-dialog').close();$('#reset').onclick=()=>{save({search_width:25,analysis_width:27});apply()};$('#theme').onchange=e=>{save({theme:e.target.value});apply()};$('#font-size').oninput=e=>{save({font_size:Number(e.target.value)});apply()};for(const l of ['greek','german','latin'])$('#show-'+l).onchange=e=>{save({['show_'+l]:e.target.checked});apply();if(view)render()};$('#larger').onclick=()=>{save({font_size:Math.min(28,settings.font_size+1)});apply()};$('#smaller').onclick=()=>{save({font_size:Math.max(12,settings.font_size-1)});apply()};
 // Bei Auswahl einer Demo-Datei alle Importfelder passend vorbelegen.
 // Für andere Dateien nur ID/Titel vorschlagen; Lizenz und Herkunft bleiben Nutzereingaben.
 $('#import-form').elements.namedItem('file').addEventListener('change',e=>{
@@ -103,8 +201,22 @@ let wordAnalysisSequence=0;
 function showWord(word,mod){
  const seq=++wordAnalysisSequence;
  const box=$('#word-analysis');box.replaceChildren();box.append(el('h3','',word.surface));
- for(const [key,value] of [['Lemma',word.lemma],['Edition',mod.title],['Quelle',mod.provenance]]){
-  const row=el('p','analysis-field');row.append(el('b','',key+': '),document.createTextNode(value));box.append(row)}
+ let lemmaDisplayNode=null;
+ for(const [key,value] of [['Lemma',mod.language==='he'?'Wird aus Lexikon ermittelt …':word.lemma],['Edition',mod.title],['Quelle',mod.provenance]]){
+  const row=el('p','analysis-field'),valueNode=document.createTextNode(value);
+  row.append(el('b','',key+': '),valueNode);box.append(row);
+  if(key==='Lemma')lemmaDisplayNode=valueNode;
+ }
+ if(mod.language==='he'){
+  (async()=>{
+   try{
+    const params=new URLSearchParams({module_id:mod.id,book:view.book,chapter:view.chapter,verse:word.verse,position:word.position});
+    const info=await api('/api/morphology/preview?'+params);
+    if(seq!==wordAnalysisSequence)return;
+    lemmaDisplayNode.textContent=info.display_lemma||'Keine hebräische Grundform im installierten Lexikon verfügbar';
+   }catch(e){if(seq===wordAnalysisSequence)lemmaDisplayNode.textContent='Grundform zurzeit nicht verfügbar'}
+  })();
+ }
  // Enable concordance IMMEDIATELY; lexicon responses may be slow or enormous.
  const concordanceBtn=el('button','btn primary concordance-button','Alle Vorkommen dieses Lemmas');
  concordanceBtn.type='button';
@@ -268,7 +380,7 @@ async function refreshStudyPane(){
  for(const note of current){const card=el('article','study-note');card.append(el('p','',note.content));const edit=el('button','btn','Bearbeiten'),del=el('button','btn','Löschen');edit.type=del.type='button';edit.onclick=async()=>{const value=prompt('Notiz bearbeiten:',note.content);if(value===null)return;try{await api(`/api/projects/${currentProjectId}/notes/${note.id}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({content:value})});await refreshStudyPane();await refreshProjectNotes()}catch(e){alert(e.message)}};del.onclick=async()=>{if(!confirm('Diese Notiz wirklich löschen?'))return;await api(`/api/projects/${currentProjectId}/notes/${note.id}`,{method:'DELETE'});await refreshStudyPane();await refreshProjectNotes()};card.append(edit,del);root.append(card)}
  }catch(e){root.append(el('p','hint','Notizen konnten nicht geladen werden: '+e.message))}
 }
-function paintHighlights(){if(!view)return;for(const row of $$('.verse-line')){for(const c of ['yellow','green','blue','pink','orange'])row.classList.remove('highlight-'+c);const c=studyHighlights[studyKey(view.book,view.chapter,Number(row.dataset.verse))];if(c)row.classList.add('highlight-'+c)}}
+function paintHighlights(){if(!view)return;for(const row of $$('.verse-line,.verse-group')){for(const c of ['yellow','green','blue','pink','orange'])row.classList.remove('highlight-'+c);const c=studyHighlights[studyKey(view.book,view.chapter,Number(row.dataset.verse))];if(c)row.classList.add('highlight-'+c)}}
 $('#projects-btn').onclick=async()=>{await refreshProjects();show('#projects-dialog')};
 $('#projects-close').onclick=()=>$('#projects-dialog').close();
 $('#project-create-form').onsubmit=async e=>{e.preventDefault();const f=e.target;try{const result=await api('/api/projects',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:f.elements.title.value,description:f.elements.description.value})});currentProjectId=result.id;f.reset();await refreshProjects()}catch(e){$('#project-status').textContent=e.message}};

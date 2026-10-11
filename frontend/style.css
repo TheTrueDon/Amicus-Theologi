@@ -205,3 +205,27 @@ body[data-theme] .study-project-layout input:focus-visible {
 .edition-source-link{display:inline-block;margin-top:6px;color:var(--blue);font-size:12px}
 .bible-edition-card .btn{flex-shrink:0}
 @media(max-width:560px){.bible-edition-card{align-items:stretch;flex-direction:column}.edition-strip-top .btn{margin-left:0}.bible-edition-card .btn{align-self:flex-start}}
+
+/* 1.0.6 – Primary verse-by-verse comparison; old edition grouping remains selectable. */
+.text-layout-label{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-left:auto}
+.text-layout-label select{border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--txt);padding:8px 10px;max-width:100%;min-width:0;cursor:pointer}
+.edition-strip-top .btn{margin-left:0}
+.verse-group{border:1px solid var(--line);border-radius:9px;overflow:hidden;margin:0 0 16px;background:var(--surface);scroll-margin-top:12px}
+.verse-group-head{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--head);color:var(--txt);padding:10px 14px;border-bottom:1px solid var(--line);cursor:pointer}
+.verse-group-head small{font-size:11px;color:var(--muted)}
+.verse-group-number{font-size:14px;font-weight:750;color:var(--gold);white-space:nowrap}
+.verse-group.verse-group-active{border-color:var(--blue);box-shadow:inset 0 0 0 1px var(--blue)}
+.verse-group.verse-group-active>.verse-group-head{background:var(--surface2)}
+.verse-translation{margin:0;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:12px 15px 10px;background:transparent}
+.verse-translation:last-child{border-bottom:0}
+.verse-translation .translation-head{margin-bottom:7px;font-size:12px;color:var(--gold);gap:8px;flex-wrap:wrap}
+.verse-translation .verse-line{margin:0;padding:0 0 2px;border-left:0;line-height:1.7}
+.verse-translation .verse-line.active{border-left:0}
+.verse-translation .verse-line[lang="he"]{text-align:right}
+.verse-translation .annotation-warning{margin-top:4px}
+.verse-missing{margin:3px 0 5px;font-size:12px;font-style:italic;color:var(--muted)}
+.unavailable-editions{border:1px dashed var(--line);border-radius:6px;margin:0 0 13px;padding:10px 12px;font-size:12px;color:var(--muted)}
+.unavailable-editions summary{cursor:pointer;color:var(--txt);font-weight:600}
+.unavailable-editions ul{padding-left:20px;margin:8px 0}
+.unavailable-editions .hint{margin:6px 0 0}
+@media(max-width:650px){.text-layout-label{width:100%;margin-left:0}.text-layout-label select{flex:1}.verse-translation{padding:10px 11px}.verse-group-head{padding:9px 11px}}

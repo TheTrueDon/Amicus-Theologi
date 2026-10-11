@@ -38,24 +38,105 @@ def decode(morph,language):
             add('Wortart',G_POS[pos]);add('Kasus',G_CASE[case]);add('Numerus',G_NUM[num]);add('Genus',G_GEN[gen])
             return {'recognized':True,'features':features,'raw':raw,'scheme':'Robinson-ähnliche griechische Morphologie'}
     if language=='he':
-        # OSHB e.g. HVqp3ms, Vqp3ms, HNcmsa; slash-delimited complexes are not guessed.
-        s=raw[1:] if raw.startswith('H') and len(raw)>1 else raw
-        if '/' not in s and s:
-            pos=s[0]
-            if pos in H_POS:
-                add('Wortart',H_POS[pos])
-                if pos=='V' and len(s)>=3 and s[1] in H_STEM and s[2] in H_CONJ:
-                    add('Stamm',H_STEM[s[1]]);add('Form',H_CONJ[s[2]])
-                    rest=s[3:]
-                    if rest and rest[0] in '123':add('Person',rest[0]+'. Person');rest=rest[1:]
-                    if rest and rest[0] in H_GENDER:add('Genus',H_GENDER[rest[0]]);rest=rest[1:]
-                    if rest and rest[0] in H_NUM:add('Numerus',H_NUM[rest[0]]);rest=rest[1:]
-                    if not rest:return {'recognized':True,'features':features,'raw':raw,'scheme':'Open Scriptures Hebrew Morphology'}
-                if pos in ('N','A') and len(s)>=3:
-                    rest=s[1:]
-                    if rest[0] in ('c','p','g'):add('Typ',{'c':'Gattungsname','p':'Eigenname','g':'Gentilizium'}[rest[0]]);rest=rest[1:]
-                    if rest and rest[0] in H_GENDER:add('Genus',H_GENDER[rest[0]]);rest=rest[1:]
-                    if rest and rest[0] in H_NUM:add('Numerus',H_NUM[rest[0]]);rest=rest[1:]
-                    if rest and rest[0] in ('a','c','d'):add('Status',{'a':'Absolutus','c':'Constructus','d':'Determiniert'}[rest[0]]);rest=rest[1:]
-                    if not rest and len(features)>1:return {'recognized':True,'features':features,'raw':raw,'scheme':'Open Scriptures Hebrew Morphology'}
+        return decode_hebrew(raw)
     return {'recognized':False,'features':[],'notice':'Codeformat derzeit nicht sicher erkannt. Der Originalcode bleibt erhalten; es wird keine Grammatik geraten.','raw':raw}
+
+# Structure based on the published Open Scriptures Hebrew morphology code
+# grammar. Composite codes use a single H/A prefix and slash-delimited
+# prefixes, headword and (occasionally) suffixes, e.g. HC/R/Ncfsa.
+_H_ADJECTIVE={'a':'Adjektiv','c':'Kardinalzahl','g':'Gentilizium','o':'Ordinalzahl'}
+_H_PRONOUN={'d':'Demonstrativpronomen','f':'Indefinitpronomen','i':'Interrogativpronomen',
+            'p':'Personalpronomen','r':'Relativpronomen'}
+_H_PARTICLE={'a':'Bekräftigungspartikel','d':'Bestimmter Artikel','e':'Aufforderungspartikel',
+             'i':'Fragepartikel','j':'Interjektion','m':'Demonstrativpartikel',
+             'n':'Negationspartikel','o':'Akkusativmarker','r':'Relativpartikel'}
+_H_SUFFIX={'d':'Direktional-He','h':'Paragogisches He','n':'Paragogisches Nun','p':'Pronominalsuffix'}
+
+
+def _hebrew_part(part, aramaic=False):
+    """Return guaranteed features for exactly one OSHB code, or None.
+
+    Important: neither a generic morphological label (e.g. 'Prefix') nor an
+    uncertain suffix is a dictionary translation. We do not infer meanings.
+    """
+    if not part:return None
+    pos=part[0]; rest=part[1:]
+    if pos not in H_POS:return None
+    features=[('Wortart', H_POS[pos])]
+    if pos=='V':
+        if aramaic or len(rest)<2 or rest[0] not in H_STEM or rest[1] not in H_CONJ:return None
+        features.extend([('Stamm',H_STEM[rest[0]]),('Form',H_CONJ[rest[1]])]);rest=rest[2:]
+        if rest and rest[0] in '123':
+            features.append(('Person',rest[0]+'. Person'));rest=rest[1:]
+        if rest and rest[0] in H_GENDER:
+            features.append(('Genus',H_GENDER[rest[0]]));rest=rest[1:]
+        if rest and rest[0] in H_NUM:
+            features.append(('Numerus',H_NUM[rest[0]]));rest=rest[1:]
+        if rest and rest[0] in ('a','c','d'):
+            features.append(('Status',{'a':'Absolutus','c':'Constructus','d':'Determiniert'}[rest[0]]));rest=rest[1:]
+        if rest:return None
+    elif pos in ('N','A'):
+        types={'c':'Gattungsname','p':'Eigenname','g':'Gentilizium'} if pos=='N' else _H_ADJECTIVE
+        if rest and rest[0] in types:
+            features.append(('Typ',types[rest[0]]));rest=rest[1:]
+        if rest and rest[0] in {**H_GENDER,'b':'Beide Genera'}:
+            features.append(('Genus',{**H_GENDER,'b':'Beide Genera'}[rest[0]]));rest=rest[1:]
+        if rest and rest[0] in H_NUM:
+            features.append(('Numerus',H_NUM[rest[0]]));rest=rest[1:]
+        if rest and rest[0] in ('a','c','d'):
+            features.append(('Status',{'a':'Absolutus','c':'Constructus','d':'Determiniert'}[rest[0]]));rest=rest[1:]
+        if rest:return None
+    elif pos in ('P','S'):
+        types=_H_PRONOUN if pos=='P' else _H_SUFFIX
+        if rest and rest[0] in types:
+            features.append(('Typ',types[rest[0]]));rest=rest[1:]
+        if rest and rest[0] in '123':
+            features.append(('Person',rest[0]+'. Person'));rest=rest[1:]
+        if rest and rest[0] in H_GENDER:
+            features.append(('Genus',H_GENDER[rest[0]]));rest=rest[1:]
+        if rest and rest[0] in H_NUM:
+            features.append(('Numerus',H_NUM[rest[0]]));rest=rest[1:]
+        if rest:return None
+    elif pos=='T':
+        if rest:
+            if rest not in _H_PARTICLE:return None
+            features.append(('Typ',_H_PARTICLE[rest]))
+    elif pos=='R':
+        if rest:
+            if rest!='d':return None
+            features.append(('Typ','Präposition mit bestimmtem Artikel'))
+    elif pos in ('C','D') and rest:
+        return None
+    return features
+
+
+def decode_hebrew(raw):
+    raw=(raw or '').strip()
+    fail={'recognized':False,'features':[],
+          'notice':'Hebräischer Morphologie-Code derzeit nicht vollständig erkannt. Originalcode bleibt verfügbar.',
+          'raw':raw}
+    if not raw:return fail
+    if raw[0] not in 'HA':return fail
+    aramaic=raw[0]=='A'
+    parts=raw[1:].split('/')
+    if not 1<=len(parts)<=10:return fail
+    expanded=[]
+    for part in parts:
+        info=_hebrew_part(part,aramaic)
+        if not info:return fail
+        expanded.append(info)
+    if len(expanded)==1:
+        features=expanded[0]
+    else:
+        # Preserve each affix as a component. The final part is normally the
+        # headword, but no claim is made about syntax or lexical meaning.
+        chain=' + '.join(part[0][1] for part in expanded)
+        features=[('Wortart',chain)]
+        for index,info in enumerate(expanded,1):
+            if index==len(expanded):
+                features.extend((f'Hauptwort: {key}',value) for key,value in info[1:])
+            else:
+                features.extend((f'Teil {index}: {key}',value) for key,value in info[1:])
+    return {'recognized':True,'features':[{'name':k,'value':v} for k,v in features],
+            'raw':raw,'scheme':'Open Scriptures Hebrew Morphology',
+            'components':len(expanded)}

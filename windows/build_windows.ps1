@@ -1,4 +1,4 @@
-# Amicus Theologi 1.0.5: build one-folder exe + Inno Setup on Windows.
+# Amicus Theologi 1.0.6: build one-folder exe + Inno Setup on Windows.
 # Called from the repository root, including by GitHub Actions.
 $ErrorActionPreference = 'Stop'
 Set-Location (Split-Path -Parent $PSScriptRoot)

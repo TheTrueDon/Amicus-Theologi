@@ -26,5 +26,5 @@ def build(output):
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser()
-    parser.add_argument('output',nargs='?',default=str(ROOT.parent/'Amicus_Theologi_v1.0.8.zip'))
+    parser.add_argument('output',nargs='?',default=str(ROOT.parent/'Amicus_Theologi_v1.0.9.zip'))
     build(parser.parse_args().output)

@@ -1,4 +1,4 @@
-"""1.0.8: test the persisted verse/edition display preference and existing data model."""
+"""1.0.9: test the persisted verse/edition display preference and existing data model."""
 import os
 import tempfile
 import unittest
@@ -20,7 +20,7 @@ class VerseComparisonTests(unittest.TestCase):
         self.temp.cleanup()
 
     def test_new_install_is_versewise_and_edition_mode_persists(self):
-        self.assertEqual(APP_VERSION, '1.0.8')
+        self.assertEqual(APP_VERSION, '1.0.9')
         with TestClient(app) as client:
             self.assertEqual(client.get('/api/settings').json()['text_layout'], 'verse')
             self.assertEqual(client.patch('/api/settings', json={'text_layout':'edition'}).status_code, 200)
@@ -67,8 +67,8 @@ class VerseComparisonTests(unittest.TestCase):
         portable=(root/'HANDBUCH_OFFLINE.html').read_text(encoding='utf-8')
         self.assertIn('Paralleltexte versweise vergleichen',manual)
         self.assertIn('Paralleltexte versweise vergleichen',portable)
-        self.assertIn('1.0.8',portable)
-        self.assertIn('1.0.8',(root/'windows/AmicusTheologi.iss').read_text(encoding='utf-8'))
-        self.assertEqual((root/'VERSION').read_text(encoding='utf-8').strip(),'1.0.8')
+        self.assertIn('Amicus Theologi',portable)
+        self.assertIn('1.0.9',(root/'windows/AmicusTheologi.iss').read_text(encoding='utf-8'))
+        self.assertEqual((root/'VERSION').read_text(encoding='utf-8').strip(),'1.0.9')
 
 if __name__=='__main__': unittest.main()

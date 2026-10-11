@@ -1,13 +1,17 @@
 # Amicus Theologi 📖
 
-**Freie, offlinefähige Studienumgebung für wissenschaftliche Bibelarbeit – Version 1.0.8.**
+**Freie, offlinefähige Studienumgebung für wissenschaftliche Bibelarbeit – Version 1.0.9.**
 
 Amicus Theologi bietet eine dreigeteilte Oberfläche aus **Suche · Bibeltext · Analyse**, griechisch/hebräische Wortinformationen, importierbare Bibelausgaben und Lexika, exegetische Studienprojekte, eine begrenzte Synopse und textkritische Vergleiche. Bei den vorkompilierten Windows-/Ubuntu-Installern ist **keine zusätzliche Python-Installation** erforderlich; Internet wird nur zum Herunterladen neuer wissenschaftlicher Datenmodule benötigt. Beim Start aus dem Quellcode-ZIP müssen Python-Abhängigkeiten zunächst installiert werden.
 
 > **Wissenschaftliche Einordnung:** 1.0 ist die erste zusammengeführte, getestete *Anwendungsbasis*, kein nachgewiesener vollständiger Ersatz für BibleWorks und keine vollständige kritische Textedition. Einige Quellformate (insbesondere STEPBible TAHOT und SWORD) sind noch experimentell. Angaben zu Morphologie und Wortbedeutung stammen aus den installierten Datensätzen; unbekannte Codes werden nicht geraten.
 
 
-## Neu in 1.0.8: Grafischer Ubuntu-Installer
+## Neu in 1.0.9: Amicus-Datenverzeichnis und vollständige Deinstallation
+
+Beim ersten Start werden bisherige lokale Daten sicher in den neuen Amicus-Datenordner verschoben. Ein Update erhält die Daten; eine vollständige Deinstallation löscht Datenbank, Module, Notizen und interne Backups. Vor der Deinstallation externe Sicherung erstellen. Bei vorhandenen Daten in beiden Verzeichnissen wird nichts überschrieben.
+
+## Aus 1.0.8: Grafischer Ubuntu-Installer
 
 - **Ubuntu 24.04 (x86_64) und neuere kompatible Systeme:** Installer mit GitHub Actions unter **Ubuntu installation package** bauen.
 - Doppelklick auf das `.deb`: grafische Installation über Ubuntu App Center, anschließend Start mit eigenem Icon im Anwendungsmenü.
@@ -89,12 +93,12 @@ Für die Rücksicherung: **Datensicherung → gesichertes ZIP auswählen → Wie
 
 **Update von 0.9:** Entpacke 1.0 in einen neuen Ordner und starte das Programm. Es verwendet den bestehenden Datenordner weiterhin. Beim ersten Start von 1.0 wird vor einer eventuell notwendigen Migration automatisch eine vollständige Sicherung unter `backups/` erstellt. Eine manuelle Migration ist nicht nötig und **das bestehende Datenbankschema wird für die 1.0-Funktionen nicht erweitert** (lediglich eine Versionseinstellung wird gespeichert).
 
-Der Datenordner heißt aus Gründen der Rückwärtskompatibilität unverändert:
-- Linux: `~/.local/share/biblewoerks/` (bzw. `$XDG_DATA_HOME/biblewoerks`)
-- Windows: `%LOCALAPPDATA%\Biblewoerks\`
+Der neue Standard-Datenordner heißt:
+- Linux: `~/.local/share/amicus-theologi/` (bzw. `$XDG_DATA_HOME/amicus-theologi`)
+- Windows: `%LOCALAPPDATA%\AmicusTheologi\`
 - Alternative: Umgebungsvariable `AMICUS_THEOLOGI_DATA_DIR`
 
-Dieser alte Ordnername ist **keine Rückbenennung des Produkts**. Beachte: Der Browser speichert die Liste zuletzt besuchter Stellen getrennt im jeweiligen Browser-Profil; die ZIP-Sicherung erfasst die lokalen SQLite-Daten, **nicht** den Browser-Verlauf.
+Bei bisherigen Installationen werden die Daten beim ersten Start automatisch umgezogen. Beachte: Der Browser speichert die Liste zuletzt besuchter Stellen getrennt im jeweiligen Browser-Profil; die ZIP-Sicherung erfasst die lokalen SQLite-Daten, **nicht** den Browser-Verlauf.
 
 ## Datenquellen und Grenzen
 

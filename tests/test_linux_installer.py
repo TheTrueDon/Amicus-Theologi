@@ -27,13 +27,14 @@ class UbuntuInstallerTests(unittest.TestCase):
     def test_app_data_outside_installed_program(self):
         database=(ROOT/'backend/database.py').read_text(encoding='utf-8')
         self.assertIn("'.local/share'", database)
-        self.assertIn("'biblewoerks'", database)
-        self.assertNotIn('rm -rf "$HOME', (ROOT/'linux/build_ubuntu_deb.sh').read_text(encoding='utf-8'))
+        self.assertIn("'amicus-theologi'", database)
+        self.assertNotIn('biblewoerks', database.lower())
+        self.assertIn('DEBIAN/postrm', (ROOT/'linux/build_ubuntu_deb.sh').read_text(encoding='utf-8'))
 
     def test_linux_workflow_and_version_consistency(self):
         workflow=(ROOT/'.github/workflows/ubuntu-installer.yml').read_text(encoding='utf-8')
         version=(ROOT/'VERSION').read_text(encoding='utf-8').strip()
-        self.assertEqual(version, '1.0.8')
+        self.assertEqual(version, '1.0.9')
         self.assertIn('ubuntu-24.04', workflow)
         self.assertIn('workflow_dispatch', workflow)
         self.assertIn('unittest discover', workflow)

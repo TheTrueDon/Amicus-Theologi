@@ -42,8 +42,7 @@ def _migrate_previous_data_dir(target: Path):
         if not target.is_dir() or target.is_symlink():
             raise RuntimeError('Der neue Amicus-Datenpfad ist kein sicherer Ordner.')
         if any(target.iterdir()):
-            # Both installations hold data; never silently overwrite either.
-            return
+            raise RuntimeError('Alter und neuer Amicus-Datenordner enthalten gleichzeitig Daten. Aus Sicherheitsgründen bitte vor dem nächsten Start den Konflikt manuell klären.')
         target.rmdir()
     target.parent.mkdir(parents=True, exist_ok=True)
     try:

@@ -52,7 +52,7 @@ class ManualAndInstallerTests(unittest.TestCase):
         self.assertIn('PrivilegesRequired=lowest',script)
         self.assertIn('desktopicon',script)
         self.assertIn('AmicusTheologi.exe',script)
-        self.assertNotIn('UninstallDelete',script)  # retain user data
+        self.assertIn('[UninstallDelete]',script)  # complete uninstall removes local data
         self.assertTrue((ROOT/'assets/amicus.ico').stat().st_size>5000)
         self.assertTrue((ROOT/'.github/workflows/windows-installer.yml').is_file())
         self.assertIn('--self-test',(ROOT/'windows/build_windows.ps1').read_text(encoding='utf-8'))

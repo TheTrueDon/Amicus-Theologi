@@ -52,4 +52,4 @@ Filename: "{app}\AmicusTheologi.exe"; Description: "Amicus Theologi jetzt starte
 ; Never remove user data during an update; Inno Setup's [UninstallDelete]
 ; directives are processed by the uninstaller, not by installing a new version.
 [UninstallDelete]
-Type: filesandordirs; Name: "{localappdata}\\AmicusTheologi"
+Type: filesandordirs; Name: "{localappdata}\AmicusTheologi"

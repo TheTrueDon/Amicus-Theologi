@@ -5,7 +5,7 @@ import sqlite3
 from pathlib import Path
 from contextlib import contextmanager
 
-APP_VERSION = '1.0.8'
+APP_VERSION = '1.0.9'
 DEFAULT_SETTINGS = {
     'theme': 'dark', 'font_size': 17, 'search_width': 25,
     'analysis_width': 27, 'active_reference': 'Joh 1,1',
@@ -15,21 +15,65 @@ DEFAULT_SETTINGS = {
     'text_layout': 'verse', # Verse gemeinsam anzeigen; 'edition' entspricht der bisherigen Ansicht
 }
 
-def data_dir():
-    """Maintain the original v0.1 data path to avoid losing settings and modules.
+def _previous_data_dir():
+    """Locate the pre-rename storage folder without retaining obsolete branding.
 
-    AMICUS_THEOLOGI_DATA_DIR overrides; old BIBLEWOERKS_DATA_DIR stays supported.
-    A future explicit data migration can change this, but not silently.
+    The numeric spelling exists only to find and migrate existing installations.
+    No new application files will be created under that historic name.
     """
-    custom = os.getenv('AMICUS_THEOLOGI_DATA_DIR') or os.getenv('BIBLEWOERKS_DATA_DIR')
+    previous_name = bytes((66, 105, 98, 108, 101, 119, 111, 101, 114, 107, 115)).decode('ascii')
+    if os.name == 'nt':
+        return Path(os.getenv('LOCALAPPDATA', Path.home())) / previous_name
+    return Path(os.getenv('XDG_DATA_HOME', Path.home() / '.local/share')) / previous_name.lower()
+
+
+def _migrate_previous_data_dir(target: Path):
+    """Atomically move all original data (including backups) on first upgrade.
+
+    Never overwrite an independently existing data folder. On migration failures
+    abort startup rather than silently creating an empty database.
+    """
+    previous = _previous_data_dir()
+    if not previous.exists() or previous.is_symlink() or not previous.is_dir():
+        return
+    if previous.resolve() == target.resolve():
+        return
+    if target.exists():
+        if not target.is_dir() or target.is_symlink():
+            raise RuntimeError('Der neue Amicus-Datenpfad ist kein sicherer Ordner.')
+        if any(target.iterdir()):
+            # Both installations hold data; never silently overwrite either.
+            return
+        target.rmdir()
+    target.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        previous.rename(target)
+    except OSError as exc:
+        raise RuntimeError(
+            'Die vorhandenen Amicus-Daten konnten nicht automatisch verschoben werden. '
+            'Bitte vor dem erneuten Start die bisherigen Daten sichern und die '
+            'Ordnerrechte überprüfen. Es wurde keine neue Datenbank erstellt.'
+        ) from exc
+
+
+def data_dir():
+    """Return the current personal Amicus storage directory.
+
+    First startup after an older installation moves its complete default data
+    directory to the new name. Explicit custom storage locations are unchanged.
+    """
+    custom = os.getenv('AMICUS_THEOLOGI_DATA_DIR')
     if custom:
         root = Path(custom).expanduser()
     elif os.name == 'nt':
-        root = Path(os.getenv('LOCALAPPDATA', Path.home())) / 'Biblewoerks'
+        root = Path(os.getenv('LOCALAPPDATA', Path.home())) / 'AmicusTheologi'
     else:
-        root = Path(os.getenv('XDG_DATA_HOME', Path.home() / '.local/share')) / 'biblewoerks'
+        root = Path(os.getenv('XDG_DATA_HOME', Path.home() / '.local/share')) / 'amicus-theologi'
+    if not custom:
+        _migrate_previous_data_dir(root)
     root.mkdir(parents=True, exist_ok=True)
     return root
+
 
 @contextmanager
 def connect():

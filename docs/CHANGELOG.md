@@ -1,3 +1,10 @@
+## 1.0.8 – Ubuntu-Installation und Menüintegration (11.10.2026)
+- Neuer GitHub-Actions-Workflow `Ubuntu installation package` erstellt ein normales `.deb` für Ubuntu 24.04 x86_64.
+- PyInstaller bündelt Python und Bibliotheken; keine manuelle Python-Installation bei der fertigen Ubuntu-Ausgabe.
+- Eigene Programmsymbole, Startmenü-Einträge, optionaler Desktop-Shortcut und Deinstallation via Ubuntu-Paketverwaltung.
+- Der bestehende Datenordner und die SQLite-Datenbank bleiben unverändert.
+- Der erste Ubuntu-Build muss auf GitHub Actions bzw. Ubuntu 24.04 getestet werden; Quellcodepaket enthält keinen vorgebauten Linux-Binary.
+
 ## 1.0.7 – Hebräische Wortvorschau repariert (11.10.2026)
 
 - Grundform aus hebräischen Lexikoneinträgen per Strong-Zuordnung anzeigen, statt Strong- oder Präfixcodes als Lemma auszugeben.

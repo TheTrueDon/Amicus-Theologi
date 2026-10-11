@@ -51,7 +51,7 @@ def download_bible(code):
     if code not in BIBLES:
         raise ValueError('Diese Bibelausgabe ist nicht im geprüften Katalog.')
     url = BIBLES[code]['base'] + code + '.zip'
-    req = urllib.request.Request(url, headers={'User-Agent': 'AmicusTheologi/1.0.7'})
+    req = urllib.request.Request(url, headers={'User-Agent': 'AmicusTheologi/1.0.8'})
     try:
         with urllib.request.urlopen(req, timeout=60) as response:
             chunks = []

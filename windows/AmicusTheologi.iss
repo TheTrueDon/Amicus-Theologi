@@ -1,6 +1,6 @@
-; Amicus Theologi 1.0.8 – normal Windows wizard installer.
+; Amicus Theologi 1.0.9 – normal Windows wizard installer.
 ; Compiles after running the PyInstaller build from the repository root.
-#define AppVersion "1.0.8"
+#define AppVersion "1.0.9"
 #define AppName "Amicus Theologi"
 [Setup]
 AppId={{26A80230-4B69-4A47-A1CA-6F7425147101}
@@ -19,7 +19,7 @@ WizardStyle=modern
 Compression=lzma2
 SolidCompression=yes
 OutputDir=..\dist_installer
-OutputBaseFilename=Amicus-Theologi-Setup-1.0.8
+OutputBaseFilename=Amicus-Theologi-Setup-1.0.9
 AllowNoIcons=no
 ChangesAssociations=no
 CloseApplications=yes
@@ -47,3 +47,9 @@ Name: "{autodesktop}\Amicus Theologi"; Filename: "{app}\AmicusTheologi.exe"; Wor
 
 [Run]
 Filename: "{app}\AmicusTheologi.exe"; Description: "Amicus Theologi jetzt starten"; Flags: nowait postinstall skipifsilent
+
+; Remove the application data directory only on explicit uninstallation.
+; Never remove user data during an update; Inno Setup's [UninstallDelete]
+; directives are processed by the uninstaller, not by installing a new version.
+[UninstallDelete]
+Type: filesandordirs; Name: "{localappdata}\\AmicusTheologi"

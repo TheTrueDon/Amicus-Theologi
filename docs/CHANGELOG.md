@@ -1,3 +1,10 @@
+## 1.0.9 – Amicus-Datenverzeichnis und vollständige Deinstallation
+
+- Bisherige Daten werden auf den neuen Standard-Datenpfad migriert, ohne Tabellenänderungen.
+- Windows- und Ubuntu-Deinstaller löschen alle lokalen Anwendungsdaten im Standardordner.
+- Upgrades behalten Daten, externe Sicherungen bleiben unangetastet.
+- Daten in benutzerdefinierten Pfaden müssen separat gelöscht werden.
+
 ## 1.0.8 – Ubuntu-Installation und Menüintegration (11.10.2026)
 - Neuer GitHub-Actions-Workflow `Ubuntu installation package` erstellt ein normales `.deb` für Ubuntu 24.04 x86_64.
 - PyInstaller bündelt Python und Bibliotheken; keine manuelle Python-Installation bei der fertigen Ubuntu-Ausgabe.
@@ -68,7 +75,7 @@
 - Hilfe und eigene Kurzreferenz zu den Tastenkombinationen.
 - Keine Änderung am Datenbankschema. Die kleine Besuchsliste wird im Browser-localStorage abgelegt.
 - Browser-Titel weiterhin nur „Amicus Theologi“.
-- Die genannten Befehle sind Amicus-Funktionen; keine vollständige BibleWorks-Befehlskompatibilität.
+- Die genannten Befehle sind Amicus-Funktionen; keine vollständige früheren Referenzanwendung-Befehlskompatibilität.
 
 ## 0.6.3
 - Klick-Katalog mit STEPBible TBESG, TBESH, TFLSJ, TAGNT, TAHOT und Open Scriptures.

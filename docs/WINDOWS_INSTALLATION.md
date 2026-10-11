@@ -12,7 +12,7 @@ Die komfortable Installation erfolgt mit **`Amicus-Theologi-Setup-1.0.7.exe`**. 
 
 **Python muss nicht installiert werden.** Die Setup-Ausgabe verwendet PyInstaller, der Python und die benötigten Bibliotheken mitsamt der Anwendung bündelt. Daher gibt es auch keinen Python-Downloader im Installationsassistenten: Er wäre unnötig, benötigt Netzwerkzugriff und würde Python systemweit installieren, obwohl Amicus es nur intern benötigt.
 
-**Internet** benötigt die Nutzerin *nur* zum erstmaligen Download des Setup-Pakets und später für gewünschte Textmodule. Einmal installiert, läuft die Anwendung lokal ohne Internet. **Bereits vorhandene Daten** werden durch einen normalen Update- oder Deinstallationsvorgang **nicht gelöscht**. Der Datenordner heißt aus Kompatibilitätsgründen weiterhin `%LOCALAPPDATA%\Biblewoerks\`.
+**Internet** benötigt die Nutzerin *nur* zum erstmaligen Download des Setup-Pakets und später für gewünschte Textmodule. Einmal installiert, läuft die Anwendung lokal ohne Internet. **Updates erhalten bestehende Nutzerdaten.** Bei der Deinstallation werden Datenbank, installierte Module und interne Sicherungen im Standarddatenordner `%LOCALAPPDATA%\AmicusTheologi\` gelöscht. Vorher extern sichern!
 
 ### SmartScreen und digitale Signatur
 
@@ -43,3 +43,8 @@ Das Skript installiert die Python-Buildpakete in der aktuellen Python-Umgebung, 
 Der Workflow startet die gebündelte EXE mit `--self-test` auf einem isolierten temporären Datenordner und prüft eine lokale HTTP-Antwort sowie das Handbuch. Ein vollständiger manueller Test des grafischen Installationsassistenten auf einem realen Windows-Computer bleibt zusätzlich erforderlich (Installation, Verknüpfungen, Erststart, Deinstallation, Update von 1.0, Datenerhalt).
 
 Das Paket bietet noch keinen Mehrbenutzer-Serverbetrieb. Eine installierte Windows-Anwendung läuft ausschließlich lokal auf `127.0.0.1`.
+
+
+## Daten bei Deinstallation
+
+Der Windows-Deinstallationsassistent entfernt den Standarddatenordner des aktuellen Benutzers, einschließlich Module, Studienprojekte und interner Sicherungen. Extern gespeicherte Sicherungen bleiben erhalten. Daten aus abweichend konfigurierten Speicherorten müssen separat gelöscht werden.

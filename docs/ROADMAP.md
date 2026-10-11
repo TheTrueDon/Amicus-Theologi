@@ -23,4 +23,4 @@
 - Native Windows-/Linux-Installer mit signierten Binärdateien, Barrierefreiheitstests, Benutzertests mit theologischer Fachpraxis.
 - Regelmäßige Dependency- und Sicherheitsupdates, externe Code- und Datenprüfung.
 
-Eine 1.0-Version ist hier ein **Meilenstein für das integrierte Einzelplatzprogramm**, nicht die Behauptung vollständiger Parität mit BibleWorks.
+Eine 1.0-Version ist hier ein **Meilenstein für das integrierte Einzelplatzprogramm**, nicht die Behauptung vollständiger Parität mit früheren Referenzanwendung.

@@ -6,7 +6,7 @@ Du benötigst **Ubuntu 24.04 oder neuer (64-Bit-x86_64)**. Das von GitHub Action
 
 1. Das GitHub-Repository öffnen → **Actions** → **Ubuntu installation package**.
 2. **Run workflow** starten; nach erfolgreichem Build unten unter **Artifacts** das Paket **Amicus-Theologi-Ubuntu-Installer** herunterladen.
-3. Das Artifact-ZIP entpacken; die Datei `Amicus-Theologi-1.0.8-Ubuntu-24.04-amd64.deb` per Doppelklick öffnen.
+3. Das Artifact-ZIP entpacken; die Datei `Amicus-Theologi-1.0.9-Ubuntu-24.04-amd64.deb` per Doppelklick öffnen.
 4. Im **Ubuntu App Center** auf **Installieren** klicken und das Systempasswort bestätigen. Wenn die Datei nicht automatisch mit dem App Center geöffnet wird: Rechtsklick → **Öffnen mit** → **App Center**.
 5. Das Programm über **Aktivitäten / Anwendungen → Amicus Theologi** starten. Beim ersten Start erscheint ein kleines Steuerfenster, das den lokalen Browser öffnet.
 6. Optional im Anwendungsmenü **Amicus Theologi – Desktopverknüpfung** öffnen und die Nachfrage bestätigen; je nach GNOME-Einstellungen muss das neue Desktop-Icon als vertrauenswürdig markiert werden. Über einen Rechtsklick auf das App-Symbol kann es außerdem ans Dock angeheftet werden.
@@ -15,7 +15,7 @@ Du benötigst **Ubuntu 24.04 oder neuer (64-Bit-x86_64)**. Das von GitHub Action
 
 ### Update und Deinstallation
 
-Ein neues `.deb` installiert das Programm über die vorhandene Ausgabe. Bereits importierte Bibeltexte, Lexika und Studienprojekte verbleiben im Benutzerordner (`~/.local/share/biblewoerks/`). Vor größeren Updates trotzdem die integrierte Datensicherung nutzen.
+Ein neues `.deb` installiert das Programm über die vorhandene Ausgabe. Bereits importierte Bibeltexte, Lexika und Studienprojekte verbleiben im Benutzerordner (`~/.local/share/amicus-theologi/`). Vor größeren Updates trotzdem die integrierte Datensicherung nutzen.
 
 Über Ubuntu App Center beziehungsweise die System-Softwareverwaltung lässt sich Amicus wieder entfernen. Die persönlichen Daten bleiben aus Sicherheitsgründen erhalten. Ein vollständiger Datenreset kann innerhalb von Amicus mit der Werksreset-Funktion ausgeführt werden.
 
@@ -42,4 +42,9 @@ Der offizielle Build wird auf Ubuntu 24.04/amd64 erstellt (glibc 2.39). Ubuntu 2
 
 ### Datenbank und Sicherheit
 
-Keine neuen Tabellen oder Migrationen in Version 1.0.8. Das `.deb` enthält keine Nutzerdaten und keine urheberrechtlich geschützten Bibelwerke. Es installiert nichts automatisch aus dem Internet. Bei der Deinstallation gibt es **kein** `postrm`-Skript, das Nutzerdaten entfernt.
+Keine neuen Tabellen oder Migrationen in Version 1.0.9. Das `.deb` enthält keine Nutzerdaten und keine urheberrechtlich geschützten Bibelwerke. Es installiert nichts automatisch aus dem Internet. Bei der Deinstallation löscht ein postrm-Skript lokale Anwendungsdaten; bei Updates nicht.
+
+
+## Vollständige Deinstallation
+
+Beim Entfernen des Debian-Pakets löscht der postrm-Hook die lokalen Amicus-Daten aus Standardverzeichnissen der Benutzer. Persönliche Notizen, Bibelmodule und interne Backups gehen verloren. Deshalb vorher extern sichern! Bei einem Upgrade bleiben die Daten erhalten. Ein benutzerdefinierter Pfad aus AMICUS_THEOLOGI_DATA_DIR ist nicht automatisch ermittelbar und muss separat gelöscht werden.

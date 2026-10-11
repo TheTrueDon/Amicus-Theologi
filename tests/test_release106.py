@@ -67,7 +67,7 @@ class VerseComparisonTests(unittest.TestCase):
         portable=(root/'HANDBUCH_OFFLINE.html').read_text(encoding='utf-8')
         self.assertIn('Paralleltexte versweise vergleichen',manual)
         self.assertIn('Paralleltexte versweise vergleichen',portable)
-        self.assertIn('1.0.9',portable)
+        self.assertIn('Amicus Theologi',portable)
         self.assertIn('1.0.9',(root/'windows/AmicusTheologi.iss').read_text(encoding='utf-8'))
         self.assertEqual((root/'VERSION').read_text(encoding='utf-8').strip(),'1.0.9')
 

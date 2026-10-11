@@ -1,10 +1,18 @@
 # Amicus Theologi 📖
 
-**Freie, offlinefähige Studienumgebung für wissenschaftliche Bibelarbeit – Version 1.0.5.**
+**Freie, offlinefähige Studienumgebung für wissenschaftliche Bibelarbeit – Version 1.0.7.**
 
 Amicus Theologi bietet eine dreigeteilte Oberfläche aus **Suche · Bibeltext · Analyse**, griechisch/hebräische Wortinformationen, importierbare Bibelausgaben und Lexika, exegetische Studienprojekte, eine begrenzte Synopse und textkritische Vergleiche. Eine aktive Internetverbindung ist **nur zum erstmaligen Installieren von Python-Abhängigkeiten und zum Nachladen von Datenmodulen** erforderlich.
 
 > **Wissenschaftliche Einordnung:** 1.0 ist die erste zusammengeführte, getestete *Anwendungsbasis*, kein nachgewiesener vollständiger Ersatz für BibleWorks und keine vollständige kritische Textedition. Einige Quellformate (insbesondere STEPBible TAHOT und SWORD) sind noch experimentell. Angaben zu Morphologie und Wortbedeutung stammen aus den installierten Datensätzen; unbekannte Codes werden nicht geraten.
+
+
+## Neu in 1.0.7: Hebräische Wortanalyse repariert
+
+- **Hebräische Grundformen:** Numerische OSHB-Lemmata (z. B. `c/m/6529`) werden im Tooltip nicht mehr als angebliche Grundformen angezeigt. Amicus löst die hebräische Grundform aus einem installierten Lexikon über den zugehörigen Strong-Schlüssel auf.
+- **Bedeutung:** Grammatische Kennzeichnungen wie „Prefix“ werden nicht mehr als Übersetzungen ausgegeben. Es werden quellgestützte deutsche oder englische Kurzglossen angezeigt, wenn verfügbar.
+- **Morphologie:** Einfache und zusammengesetzte OSHB-Codes, etwa `HVqp3ms` oder `HC/R/Ncfsa`, werden in lesbare deutsche Angaben zerlegt. Unbekannte Codes bleiben weiterhin unverändert abrufbar.
+- **Update:** Keine Datenbankmigration und keine Neuinstallation bestehender Korpora notwendig. Für hebräische Grundformen und Übersetzungen wird ein installiertes Lexikon wie **TBESH** benötigt.
 
 ## Loslegen – ohne Informatikkenntnisse
 
@@ -17,6 +25,12 @@ Amicus Theologi bietet eine dreigeteilte Oberfläche aus **Suche · Bibeltext ·
 Im Browser erscheint beim ersten Start die **dreiteilige Einführung**. Mit „Mini-Beispiele installieren“ kannst du Johannes 1 und Genesis 1 mit Wortanalyse ganz ohne Download ausprobieren. Diese Auszüge sind absichtlich kurz, nicht zitierfähig und keine vollständige Bibel. Über „Textmodule“ → „Modulkatalog“ installierst du weitere Quellen, sofern eine Internetverbindung besteht.
 
 📗 Eine verständliche Schritt-für-Schritt-Anleitung: [docs/SCHNELLSTART.md](docs/SCHNELLSTART.md). Auch die Datei `ANLEITUNG.html` lässt sich direkt im Browser öffnen; für die Suche werden `ANLEITUNG.js` und `ANLEITUNG.css` aus demselben Ordner geladen.
+
+## Neu in 1.0.6: Versweiser Bibelvergleich
+
+Im mittleren Textfenster werden Bibelausgaben standardmäßig **nach Versnummer** gruppiert: zuerst Vers 1 aus allen ausgewählten Ausgaben, dann Vers 2 usw. So sind Satzstruktur und Übersetzung schnell vergleichbar. Mit **Darstellung → Nach Ausgabe anzeigen** lässt sich die bisherige kapitelweise Sortierung wiederherstellen. Die Einstellung bleibt gespeichert. Wenn einzelne Ausgaben einen Vers nicht enthalten, wird dies ausdrücklich ausgewiesen; ein solcher Datenmangel ist **kein** textkritischer Nachweis. Für die Septuaginta gibt es z. B. im Johannesevangelium kein Kapitel, da sie das griechische Alte Testament umfasst.
+
+**Keine Datenbankschemaänderung.** Die zusätzliche Einstellung `text_layout` wird in der bestehenden `settings`-Tabelle gespeichert; Texte und Projekte bleiben unverändert.
 
 ## Neu in 1.0.5: Bibelübersetzungen mit einem Klick
 

@@ -80,7 +80,7 @@ class HebrewPreviewTests(unittest.TestCase):
     def test_frontend_uses_resolved_word_display(self):
         from pathlib import Path
         root=Path(__file__).resolve().parents[1]
-        self.assertIn('data.display_lemma',(root/'frontend/wordtools.js').read_text())
-        self.assertIn('info.display_lemma',(root/'frontend/app.js').read_text())
+        self.assertIn('data.display_lemma',(root/'frontend/wordtools.js').read_text(encoding='utf-8'))
+        self.assertIn('info.display_lemma',(root/'frontend/app.js').read_text(encoding='utf-8'))
 
 if __name__=='__main__':unittest.main()

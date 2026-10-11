@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Amicus Theologi – Desktopverknüpfung
+Comment=Optional ein Amicus-Icon auf dem Schreibtisch anlegen
+Exec=/opt/amicus-theologi/AmicusTheologi --create-desktop-shortcut
+TryExec=/opt/amicus-theologi/AmicusTheologi
+Icon=amicus-theologi
+Terminal=false
+Categories=Education;
+NoDisplay=false
+StartupNotify=false

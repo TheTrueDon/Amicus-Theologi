@@ -105,6 +105,15 @@ def start_desktop():
         if not icon.exists():icon=Path(__file__).resolve().parent.parent/'assets'/'amicus.ico'
         if icon.exists():root.iconbitmap(str(icon))
     except Exception:pass
+    if os.name != 'nt':
+        # Linux desktop environments use PNG icons instead of Windows ICO.
+        try:
+            png = Path(__file__).resolve().parent.parent / 'assets' / 'amicus.png'
+            if png.is_file():
+                root._amicus_icon = tk.PhotoImage(file=str(png))
+                root.iconphoto(True, root._amicus_icon)
+        except Exception:
+            pass
     tk.Label(root,text='Amicus Theologi',font=('Segoe UI',20,'bold'),
              bg='#172c3e',fg='#e7d3a5').pack(pady=(22,6))
     tk.Label(root,text='Wissenschaftliche Bibelarbeit · lokal auf diesem PC',
@@ -153,9 +162,80 @@ def start_desktop():
     worker.join(timeout=6)
 
 
+def desktop_shortcut():
+    """Provide an optional GNOME desktop shortcut without root privileges."""
+    from tkinter import Tk, messagebox
+    import subprocess
+    root=Tk()
+    root.withdraw()
+    try:
+        if os.name == 'nt':
+            messagebox.showinfo('Amicus Theologi', 'Diese Funktion ist für Ubuntu vorgesehen.', parent=root)
+            return 0
+        try:
+            desktop=subprocess.run(['xdg-user-dir', 'DESKTOP'], capture_output=True,
+                                   text=True, timeout=3, check=False).stdout.strip()
+        except (FileNotFoundError, subprocess.TimeoutExpired):
+            desktop=''
+        target_dir=Path(desktop).expanduser() if desktop else None
+        if not target_dir or not target_dir.is_dir():
+            target_dir=next((p for p in [Path.home()/'Schreibtisch', Path.home()/'Desktop'] if p.is_dir()), None)
+        if target_dir is None:
+            messagebox.showwarning('Amicus Theologi',
+                'Es wurde kein Desktop-Ordner gefunden.\n'
+                'Du kannst Amicus Theologi jederzeit über das Anwendungsmenü starten.', parent=root)
+            return 1
+        dest=target_dir/'amicus-theologi.desktop'
+        if not messagebox.askyesno('Amicus Theologi',
+            f'Desktopverknüpfung erstellen?\n\n{dest}', parent=root):
+            return 0
+        entry=('''[Desktop Entry]\nType=Application\nName=Amicus Theologi\n'''
+               '''Comment=Wissenschaftliche Bibelarbeit und Exegese\n'''
+               '''Exec=/opt/amicus-theologi/AmicusTheologi\n'''
+               '''Icon=amicus-theologi\nTerminal=false\nCategories=Education;Science;\n''')
+        if not Path('/opt/amicus-theologi/AmicusTheologi').exists():
+            messagebox.showerror('Amicus Theologi',
+                'Die installierte Anwendung wurde nicht gefunden.', parent=root)
+            return 1
+        dest.write_text(entry, encoding='utf-8')
+        dest.chmod(0o755)
+        try:
+            subprocess.run(['gio','set',str(dest),'metadata::trusted','true'],
+                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                           timeout=3, check=False)
+        except (FileNotFoundError, subprocess.TimeoutExpired):
+            pass
+        messagebox.showinfo('Amicus Theologi',
+            'Die Desktopverknüpfung wurde erstellt.\n'
+            'Je nach Ubuntu-Version muss sie beim ersten Start noch als vertrauenswürdig markiert werden.',
+            parent=root)
+        return 0
+    finally:
+        root.destroy()
+
+
+def gui_self_test():
+    """Checks that the bundled GUI and theme icon can be initialized."""
+    import tkinter as tk
+    root=tk.Tk()
+    root.title('Amicus Theologi – GUI Test')
+    png=Path(__file__).resolve().parent.parent/'assets'/'amicus.png'
+    if os.name != 'nt' and png.is_file():
+        root._amicus_icon=tk.PhotoImage(file=str(png))
+        root.iconphoto(True, root._amicus_icon)
+    root.update()
+    root.destroy()
+    print('GUI SELF-TEST OK')
+    return 0
+
+
 def main():
     if '--self-test' in sys.argv:
         return self_test()
+    if '--gui-self-test' in sys.argv:
+        return gui_self_test()
+    if '--create-desktop-shortcut' in sys.argv:
+        return desktop_shortcut()
     try:
         start_desktop()
         return 0

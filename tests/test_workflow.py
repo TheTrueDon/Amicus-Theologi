@@ -9,8 +9,8 @@ from backend.database import init_db
 ROOT=Path(__file__).resolve().parent.parent
 
 def test_command_palette_shipped():
-    html=(ROOT/'frontend/index.html').read_text()
-    js=(ROOT/'frontend/workflow.js').read_text()
+    html=(ROOT/'frontend/index.html').read_text(encoding='utf-8')
+    js=(ROOT/'frontend/workflow.js').read_text(encoding='utf-8')
     assert '<title>Amicus Theologi</title>' in html
     assert 'id="command-dialog"' in html
     assert 'id="palette-button"' in html
@@ -27,7 +27,7 @@ def test_frontend_routes_and_schema_unchanged():
         try:
             init_db()
             with TestClient(app) as client:
-                assert client.get('/api/status').json()['version']=='0.9.0'
+                assert client.get('/api/status').json()['version']=='1.0.8'
                 page=client.get('/')
                 assert page.status_code==200
                 assert '<title>Amicus Theologi</title>' in page.text

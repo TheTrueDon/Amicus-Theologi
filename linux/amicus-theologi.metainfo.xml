@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>org.amicustheologi.AmicusTheologi</id>
+  <name>Amicus Theologi</name>
+  <summary>Wissenschaftliche Bibelarbeit und Exegese</summary>
+  <description>
+    <p>Offlinefähige Anwendung zur Bibeltextanalyse und zum Vergleich von
+    Übersetzungen, mit Lemmata, Morphologie, Lexika und Studiennotizen.</p>
+    <p>Die Python-Laufzeit wird mitgeliefert; die Bibelmodule können
+    bei bestehender Internetverbindung separat installiert werden.</p>
+  </description>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-only</project_license>
+  <launchable type="desktop-id">amicus-theologi.desktop</launchable>
+  <url type="homepage">https://github.com/TheTrueDon/Amicus-Theologi</url>
+  <provides><binary>AmicusTheologi</binary></provides>
+</component>

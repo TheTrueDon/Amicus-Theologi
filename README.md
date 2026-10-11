@@ -1,13 +1,21 @@
 # Amicus Theologi 📖
 
-**Freie, offlinefähige Studienumgebung für wissenschaftliche Bibelarbeit – Version 1.0.7.**
+**Freie, offlinefähige Studienumgebung für wissenschaftliche Bibelarbeit – Version 1.0.8.**
 
-Amicus Theologi bietet eine dreigeteilte Oberfläche aus **Suche · Bibeltext · Analyse**, griechisch/hebräische Wortinformationen, importierbare Bibelausgaben und Lexika, exegetische Studienprojekte, eine begrenzte Synopse und textkritische Vergleiche. Eine aktive Internetverbindung ist **nur zum erstmaligen Installieren von Python-Abhängigkeiten und zum Nachladen von Datenmodulen** erforderlich.
+Amicus Theologi bietet eine dreigeteilte Oberfläche aus **Suche · Bibeltext · Analyse**, griechisch/hebräische Wortinformationen, importierbare Bibelausgaben und Lexika, exegetische Studienprojekte, eine begrenzte Synopse und textkritische Vergleiche. Bei den vorkompilierten Windows-/Ubuntu-Installern ist **keine zusätzliche Python-Installation** erforderlich; Internet wird nur zum Herunterladen neuer wissenschaftlicher Datenmodule benötigt. Beim Start aus dem Quellcode-ZIP müssen Python-Abhängigkeiten zunächst installiert werden.
 
 > **Wissenschaftliche Einordnung:** 1.0 ist die erste zusammengeführte, getestete *Anwendungsbasis*, kein nachgewiesener vollständiger Ersatz für BibleWorks und keine vollständige kritische Textedition. Einige Quellformate (insbesondere STEPBible TAHOT und SWORD) sind noch experimentell. Angaben zu Morphologie und Wortbedeutung stammen aus den installierten Datensätzen; unbekannte Codes werden nicht geraten.
 
 
-## Neu in 1.0.7: Hebräische Wortanalyse repariert
+## Neu in 1.0.8: Grafischer Ubuntu-Installer
+
+- **Ubuntu 24.04 (x86_64) und neuere kompatible Systeme:** Installer mit GitHub Actions unter **Ubuntu installation package** bauen.
+- Doppelklick auf das `.deb`: grafische Installation über Ubuntu App Center, anschließend Start mit eigenem Icon im Anwendungsmenü.
+- **Python ist bereits im fertig gebauten Ubuntu-Paket enthalten.** Kein Terminal oder separates Python für Anwender nötig.
+- Optionales Desktop-Icon, normale Deinstallation über die Softwareverwaltung und unveränderte persönliche Daten.
+- Anleitung: [`docs/UBUNTU_INSTALLATION.md`](docs/UBUNTU_INSTALLATION.md). Das Quellcode-ZIP ist **nicht** das fertige DEB.
+
+## Aus Version 1.0.7: Hebräische Wortanalyse repariert
 
 - **Hebräische Grundformen:** Numerische OSHB-Lemmata (z. B. `c/m/6529`) werden im Tooltip nicht mehr als angebliche Grundformen angezeigt. Amicus löst die hebräische Grundform aus einem installierten Lexikon über den zugehörigen Strong-Schlüssel auf.
 - **Bedeutung:** Grammatische Kennzeichnungen wie „Prefix“ werden nicht mehr als Übersetzungen ausgegeben. Es werden quellgestützte deutsche oder englische Kurzglossen angezeigt, wenn verfügbar.
@@ -15,6 +23,10 @@ Amicus Theologi bietet eine dreigeteilte Oberfläche aus **Suche · Bibeltext ·
 - **Update:** Keine Datenbankmigration und keine Neuinstallation bestehender Korpora notwendig. Für hebräische Grundformen und Übersetzungen wird ein installiertes Lexikon wie **TBESH** benötigt.
 
 ## Loslegen – ohne Informatikkenntnisse
+
+**Ubuntu-Installer:** über GitHub Actions **Ubuntu installation package** das fertige `.deb` erstellen, herunterladen und per Doppelklick im Ubuntu App Center installieren. Danach Amicus über das Anwendungsmenü starten. Keine separate Python-Installation erforderlich. [Schritt-für-Schritt-Anleitung](docs/UBUNTU_INSTALLATION.md).
+
+**Windows-Installer:** über GitHub Actions **Windows installation package** die Setup-EXE erstellen, per Doppelklick installieren und über Startmenü/Desktop starten. Python ist enthalten.
 
 **Windows:** [Python 3.10 oder neuer](https://www.python.org/downloads/) installieren (bei der Installation „Add Python to PATH“ aktivieren), ZIP entpacken, `start_windows.bat` doppelklicken. Beim ersten Mal lädt das Programm die benötigten Komponenten. Danach öffnet sich Amicus Theologi im Browser.
 

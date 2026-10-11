@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 class StudyFieldContrastTests(unittest.TestCase):
     def test_release_version(self):
         self.assertGreaterEqual(tuple(map(int, APP_VERSION.split('.'))), (1,0,4))
-        self.assertEqual((ROOT / 'VERSION').read_text().strip(), APP_VERSION)
+        self.assertEqual((ROOT / 'VERSION').read_text(encoding='utf-8').strip(), APP_VERSION)
 
     def test_study_note_uses_theme_tokens_not_missing_panel_token(self):
         css = (ROOT / 'frontend/style.css').read_text(encoding='utf-8')

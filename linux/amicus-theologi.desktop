@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Amicus Theologi
+GenericName=Bibelwissenschaftliche Studienumgebung
+Comment=Wissenschaftliche Bibelarbeit, Exegese und Textvergleich
+Exec=/opt/amicus-theologi/AmicusTheologi
+TryExec=/opt/amicus-theologi/AmicusTheologi
+Icon=amicus-theologi
+Terminal=false
+Categories=Education;Science;
+Keywords=Bibel;Theologie;Exegese;Greek;Hebrew;Septuaginta;
+StartupNotify=true

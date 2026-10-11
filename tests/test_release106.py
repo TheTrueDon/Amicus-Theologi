@@ -1,4 +1,4 @@
-"""1.0.7: test the persisted verse/edition display preference and existing data model."""
+"""1.0.8: test the persisted verse/edition display preference and existing data model."""
 import os
 import tempfile
 import unittest
@@ -20,7 +20,7 @@ class VerseComparisonTests(unittest.TestCase):
         self.temp.cleanup()
 
     def test_new_install_is_versewise_and_edition_mode_persists(self):
-        self.assertEqual(APP_VERSION, '1.0.7')
+        self.assertEqual(APP_VERSION, '1.0.8')
         with TestClient(app) as client:
             self.assertEqual(client.get('/api/settings').json()['text_layout'], 'verse')
             self.assertEqual(client.patch('/api/settings', json={'text_layout':'edition'}).status_code, 200)
@@ -53,8 +53,8 @@ class VerseComparisonTests(unittest.TestCase):
 
     def test_user_interface_help_and_installer_consistent(self):
         root=Path(__file__).resolve().parents[1]
-        html=(root/'frontend/index.html').read_text()
-        js=(root/'frontend/app.js').read_text()
+        html=(root/'frontend/index.html').read_text(encoding='utf-8')
+        js=(root/'frontend/app.js').read_text(encoding='utf-8')
         self.assertIn('id="text-layout"',html)
         self.assertIn('Versweise vergleichen',html)
         self.assertIn('Nach Ausgabe anzeigen',html)
@@ -63,12 +63,12 @@ class VerseComparisonTests(unittest.TestCase):
         self.assertIn('Kein Text für diesen Vers',js)
         self.assertIn('window.amicusWordTools.enableHover',js)
         self.assertIn('paintHighlights();refreshStudyPane();',js)
-        manual=(root/'ANLEITUNG.html').read_text()
-        portable=(root/'HANDBUCH_OFFLINE.html').read_text()
+        manual=(root/'ANLEITUNG.html').read_text(encoding='utf-8')
+        portable=(root/'HANDBUCH_OFFLINE.html').read_text(encoding='utf-8')
         self.assertIn('Paralleltexte versweise vergleichen',manual)
         self.assertIn('Paralleltexte versweise vergleichen',portable)
-        self.assertIn('1.0.7',portable)
-        self.assertIn('1.0.7',(root/'windows/AmicusTheologi.iss').read_text())
-        self.assertEqual((root/'VERSION').read_text().strip(),'1.0.7')
+        self.assertIn('1.0.8',portable)
+        self.assertIn('1.0.8',(root/'windows/AmicusTheologi.iss').read_text(encoding='utf-8'))
+        self.assertEqual((root/'VERSION').read_text(encoding='utf-8').strip(),'1.0.8')
 
 if __name__=='__main__': unittest.main()

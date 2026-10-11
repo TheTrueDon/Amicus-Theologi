@@ -1,0 +1,50 @@
+name: Ubuntu installation package
+on:
+  workflow_dispatch:
+  push:
+    tags: [ 'v*' ]
+permissions:
+  contents: read
+jobs:
+  ubuntu-amd64:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - name: System dependencies for GUI and packaging
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-venv python3-tk xvfb xauth dpkg xdg-user-dirs desktop-file-utils
+      - name: Create isolated Python build environment
+        run: |
+          python3 -m venv .venv
+          .venv/bin/python -m pip install --upgrade pip
+          .venv/bin/python -m pip install -r requirements-dev.txt
+          .venv/bin/python -m pip install 'pyinstaller>=6.15,<7'
+      - name: Python tests and JavaScript syntax
+        run: |
+          .venv/bin/python -m unittest discover -s tests -v
+          node --check frontend/app.js
+          node --check frontend/editions.js
+          node --check frontend/wordtools.js
+          node --check frontend/workflow.js
+          node --check frontend/release1.js
+          node --check ANLEITUNG.js
+      - name: Build native application and Debian package
+        env:
+          AMICUS_BUILD_PYTHON: .venv/bin/python
+        run: bash linux/build_ubuntu_deb.sh
+      - name: Validate package metadata and content
+        run: |
+          shopt -s nullglob
+          files=(dist_installer/*.deb)
+          test "${#files[@]}" -eq 1
+          dpkg-deb --info "${files[0]}"
+          dpkg-deb --contents "${files[0]}" | grep '/usr/share/applications/amicus-theologi.desktop'
+          dpkg-deb --contents "${files[0]}" | grep '/usr/share/icons/hicolor/512x512/apps/amicus-theologi.png'
+          dpkg-deb --contents "${files[0]}" | grep '/opt/amicus-theologi/AmicusTheologi$'
+          desktop-file-validate linux/amicus-theologi.desktop
+      - uses: actions/upload-artifact@v6
+        with:
+          name: Amicus-Theologi-Ubuntu-Installer
+          path: dist_installer/*.deb
+          if-no-files-found: error

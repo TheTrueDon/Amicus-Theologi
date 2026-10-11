@@ -81,6 +81,33 @@ Description: Offline-first scientific Bible study and exegesis
  morphology, lexica, concordances, and study notes.
  The Python runtime is bundled. No activation or account is needed.
 EOF
+# Remove user-owned local data on package removal (not on upgrade).
+# A package maintainer script runs as root, so ignore symbolic links and
+# never follow a symlinked home/.local/share directory.
+cat > "$STAGE/DEBIAN/postrm" <<'POSTRM'
+#!/bin/sh
+set -eu
+case "${1:-}" in
+  remove|purge)
+    if [ -f /etc/passwd ]; then
+      while IFS=: read -r username ignored uid gid gecos home shell; do
+        [ -n "$home" ] && [ "$home" != "/" ] || continue
+        [ -d "$home" ] && [ ! -L "$home" ] || continue
+        [ -d "$home/.local" ] && [ ! -L "$home/.local" ] || continue
+        [ -d "$home/.local/share" ] && [ ! -L "$home/.local/share" ] || continue
+        data="$home/.local/share/amicus-theologi"
+        if [ -d "$data" ] && [ ! -L "$data" ]; then
+          rm -rf -- "$data"
+        fi
+      done < /etc/passwd
+    fi
+    ;;
+  upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
+    ;;
+esac
+exit 0
+POSTRM
+chmod 0755 "$STAGE/DEBIAN/postrm"
 mkdir -p dist_installer
 OUT="$ROOT/dist_installer/Amicus-Theologi-${VERSION}-Ubuntu-24.04-amd64.deb"
 dpkg-deb --root-owner-group --build "$STAGE" "$OUT"

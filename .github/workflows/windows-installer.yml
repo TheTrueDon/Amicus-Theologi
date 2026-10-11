@@ -1,3 +1,6 @@
+
+    
+  
 name: Windows installation package
 on:
   workflow_dispatch:
@@ -8,9 +11,12 @@ permissions:
 jobs:
   build:
     runs-on: windows-latest
+    env:
+      PYTHONUTF8: '1'
+      PYTHONIOENCODING: 'utf-8'
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
           architecture: x64
@@ -37,8 +43,9 @@ jobs:
         run: |
           New-Item -ItemType Directory -Force -Path dist_installer | Out-Null
           Compress-Archive -Path 'dist/AmicusTheologi/*' -DestinationPath 'dist_installer/Amicus-Theologi-Portable-1.0.7.zip' -Force
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: Amicus-Theologi-1.0.7-Windows-Installer
           path: dist_installer/*
           if-no-files-found: error
+

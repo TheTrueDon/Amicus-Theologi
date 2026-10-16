@@ -10,6 +10,16 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v5
+      - name: Read and validate release version
+        id: release-version
+        run: |
+          amicus_version="$(tr -d '\r\n' < VERSION)"
+          [[ "$amicus_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          if [[ "$GITHUB_REF" == refs/tags/v* && "${GITHUB_REF#refs/tags/v}" != "$amicus_version" ]]; then
+            echo "Git tag and VERSION do not match" >&2
+            exit 1
+          fi
+          echo "version=$amicus_version" >> "$GITHUB_OUTPUT"
       - name: System dependencies for GUI and packaging
         run: |
           sudo apt-get update
@@ -45,6 +55,6 @@ jobs:
           desktop-file-validate linux/amicus-theologi.desktop
       - uses: actions/upload-artifact@v6
         with:
-          name: Amicus-Theologi-Ubuntu-Installer
+          name: Amicus-Theologi-${{ steps.release-version.outputs.version }}-Ubuntu-Installer
           path: dist_installer/*.deb
           if-no-files-found: error

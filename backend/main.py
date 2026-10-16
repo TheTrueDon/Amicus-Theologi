@@ -17,6 +17,7 @@ from .annotation_audit import audit_annotations
 from .library import BOOKS, NAMES, parse_reference, installed, chapter_view, chapter_refs, neighbor, read_import, install_module
 from .search import search_verses
 from .advanced_search import advanced_search
+from .query_builder import query_search
 from .source_import import install_scientific, download_source, MAX_UPLOAD
 from .lexicon import read_lexicon, install_lexicon, installed_lexica, lookup, remove_lexicon
 from .morphology import parse_annotation_file, import_annotations, chapter_tokens, get_word, lemma_concordance, lemma_concordance_page, lemma_forms_page
@@ -71,6 +72,11 @@ class SavedSearchPayload(BaseModel):
  model_config=ConfigDict(extra='forbid')
  name:str=Field(min_length=1,max_length=120)
  criteria:dict[str,Any]
+class QuerySearchPayload(BaseModel):
+ model_config=ConfigDict(extra='forbid')
+ criteria:dict[str,Any]
+ limit:int=Field(default=50,ge=1,le=100)
+ offset:int=Field(default=0,ge=0,le=100000)
 @app.get('/')
 def home():return FileResponse(WEB/'index.html')
 @app.get('/ANLEITUNG.html', include_in_schema=False)
@@ -257,6 +263,11 @@ def morphological_search(module_id:str='',book:str='',lemma:str='',surface:str='
    second_lemma=second_lemma,second_surface=second_surface,second_strong=second_strong,
    second_morph=second_morph,distance=distance,order=order,limit=limit,offset=offset)
  except ValueError as e: raise HTTPException(422,str(e))
+
+@app.post('/api/search/query')
+def structured_morphological_search(payload:QuerySearchPayload):
+ try:return query_search(payload.criteria,limit=payload.limit,offset=payload.offset)
+ except ValueError as e:raise HTTPException(422,str(e))
 
 @app.post('/api/scientific/import')
 async def scientific_import(source:Literal['step','oshb','sword']=Form(...),corpus:str=Form(''),file:UploadFile=File(...)):

@@ -7,7 +7,8 @@ from .database import connect
 from .library import NAMES
 
 FIELDS={'module_id','book','lemma','surface','strong','morph','second_lemma',
-        'second_surface','second_strong','second_morph','distance','order'}
+        'second_surface','second_strong','second_morph','distance','order',
+        'conditions','connector'}
 TEXT_FIELDS=FIELDS-{'distance','order'}
 MAX_NAME=120
 
@@ -33,6 +34,50 @@ def _clean(name, criteria):
     if not isinstance(criteria,dict) or set(criteria)-FIELDS:
         raise ValueError('Die Suchkriterien enthalten unbekannte Felder.')
     clean={}
+    # 1.3 structured criteria coexist with legacy two-word searches from 1.2.
+    if 'conditions' in criteria:
+        if set(criteria)-{'module_id','book','conditions','connector','distance','order'}:
+            raise ValueError('Die strukturierte Suchabfrage enthält unbekannte Felder.')
+        module_id=criteria.get('module_id','')
+        book=criteria.get('book','')
+        conditions=criteria.get('conditions')
+        if not isinstance(module_id,str) or len(module_id)>48:
+            raise ValueError('Ungültige Modul-ID.')
+        if not isinstance(book,str) or (book and book not in NAMES):
+            raise ValueError('Unbekanntes Bibelbuch.')
+        if not isinstance(conditions,list) or not 1<=len(conditions)<=5:
+            raise ValueError('Bitte 1 bis 5 Wortbedingungen speichern.')
+        cleaned_conditions=[]
+        for condition in conditions:
+            if not isinstance(condition,dict) or set(condition)-{'lemma','surface','strong','morph'}:
+                raise ValueError('Eine Wortbedingung enthält unbekannte Felder.')
+            item={}
+            for key,value in condition.items():
+                if not isinstance(value,str) or len(value)>200:
+                    raise ValueError(f'Ungültiger Wert für {key}.')
+                if value.strip():item[key]=value.strip()
+            if not item:raise ValueError('Jede Wortbedingung benötigt ein Suchfeld.')
+            cleaned_conditions.append(item)
+        connector=criteria.get('connector','all')
+        if connector not in ('all','any'):raise ValueError('Verknüpfung muss UND oder ODER sein.')
+        distance=criteria.get('distance',5)
+        if isinstance(distance,bool) or not isinstance(distance,int) or not 0<=distance<=100:
+            raise ValueError('Wortabstand muss zwischen 0 und 100 liegen.')
+        order=criteria.get('order','any')
+        if order not in ('any','before','after') or (connector=='any' and order!='any'):
+            raise ValueError('Ungültige Reihenfolge für diese Verknüpfung.')
+        if len(cleaned_conditions)<2 and order!='any':
+            raise ValueError('Eine Reihenfolge benötigt mindestens zwei Wortbedingungen.')
+        clean={'conditions':cleaned_conditions,'connector':connector,'distance':distance,'order':order}
+        if module_id:clean['module_id']=module_id
+        if book:clean['book']=book
+        if module_id:
+            with connect() as db:
+                module=db.execute('SELECT language FROM modules WHERE id=?',(module_id,)).fetchone()
+                if module is None:raise ValueError('Das ausgewählte Textmodul ist nicht installiert.')
+                if module['language'] not in ('grc','he'):
+                    raise ValueError('Morphologische Suchen benötigen griechische oder hebräische Module.')
+        return name.strip(),clean
     for key in TEXT_FIELDS:
         value=criteria.get(key,'')
         if not isinstance(value,str) or len(value)>200:

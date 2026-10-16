@@ -1,3 +1,11 @@
+## 1.3.0 – Grafischer Abfrageeditor
+
+- Morphologische Abfragen unterstützen bis zu fünf strukturierte Wortbedingungen mit UND-/ODER-Verknüpfung.
+- Bei UND werden unterschiedliche Token im selben Vers verlangt; Abstand und Reihenfolge gelten zwischen benachbarten Bedingungen.
+- Neuer API-Endpunkt `/api/search/query`; Eingaben werden streng validiert und als Parameter gebunden.
+- Gespeicherte Suchmuster aus 1.2.0 bleiben wiederherstellbar; neue Muster speichern die Bedingungen als strukturierte Kriterien.
+- Keine zusätzliche Datenbankmigration.
+
 ## 1.2.0 – Suchabfragen lokal speichern und wiederöffnen
 
 - Morphologische Suchabfragen lassen sich benennen und lokal sichern.

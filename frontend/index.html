@@ -6,19 +6,13 @@
 <section class="panel search-panel"><div class="panel-top"><div><small>WERKZEUG 01</small><h2>Suche</h2></div><span class="counter" id="search-total">Suche bereit</span></div><div class="panel-body scroll"><label class="field-label" for="search">Suchausdruck</label><div class="searchbar"><input id="search" type="search" placeholder="Wort, =Phrase, +alle, ?eines …" maxlength="180"><button id="search-btn" title="Suche starten">⌕</button></div>
 <div class="search-controls"><label>Modus<select id="search-mode"><option value="all">Alle Wörter</option><option value="phrase">Genaue Wortfolge</option><option value="any">Eines der Wörter</option></select></label><label>Textausgabe<select id="search-module"><option value="">Alle Module</option></select></label><label>Bibelbuch<select id="search-book"><option value="">Alle Bücher</option></select></label></div>
 <p class="hint">Befehle: <code>=im Anfang</code> (Phrase), <code>+Gott Wort</code> (alle), <code>?Gott Wort</code> (eines), <code>anfang*</code> (Wortanfang). Befehle überschreiben den Modus im Auswahlfeld.</p>
-<details class="advanced-box" id="advanced-box"><summary>Erweiterte Suche · Morphologie und Wortabstand</summary>
-<p class="hint">Nur annotierte griechische/hebräische Texte. Mindestens ein Feld für Wort 1. Morphologie sucht eine Zeichenfolge im importierten Morphologiecode.</p>
+<details class="advanced-box" id="advanced-box"><summary>Abfrageeditor · Morphologie und Wortabstand</summary>
+<p class="hint">Nur annotierte griechische/hebräische Texte. Pro Bedingung mindestens ein Feld ausfüllen. Morphologie sucht eine Zeichenfolge im importierten Morphologiecode. Maximal fünf Bedingungen.</p>
+<div id="query-conditions" class="query-conditions" aria-label="Wortbedingungen"></div>
+<div class="query-actions"><button class="btn" id="query-add-condition" type="button">+ Wortbedingung</button><label>Verknüpfung<select id="query-connector"><option value="all">UND · alle Bedingungen</option><option value="any">ODER · mindestens eine Bedingung</option></select></label><span class="hint">Abstand und Reihenfolge gelten mit UND und mindestens zwei Bedingungen.</span></div>
 <div class="advanced-grid">
-<label>Lemma 1<input id="adv-lemma" placeholder="λόγος"></label>
-<label>Wortform 1<input id="adv-surface" placeholder="λόγος"></label>
-<label>Morphologie 1<input id="adv-morph" placeholder="z. B. Aorist"></label>
-<label>Strong 1<input id="adv-strong" placeholder="G3056"></label>
-<label>Lemma 2<input id="adv-second-lemma" placeholder="εἰμί"></label>
-<label>Wortform 2<input id="adv-second-surface" placeholder="ἦν"></label>
-<label>Morphologie 2<input id="adv-second-morph" placeholder="Aorist"></label>
-<label>Strong 2<input id="adv-second-strong" placeholder="G1510"></label>
-<label>Max. Wörter dazwischen<input id="adv-distance" type="number" min="0" max="100" value="5"></label>
-<label>Reihenfolge<select id="adv-order"><option value="any">Beliebig</option><option value="before">Wort 1 vor Wort 2</option><option value="after">Wort 1 nach Wort 2</option></select></label>
+<label>Max. Wörter zwischen Bedingungen<input id="adv-distance" type="number" min="0" max="100" value="5"></label>
+<label>Reihenfolge<select id="adv-order"><option value="any">Beliebig</option><option value="before">In Bedingungsreihenfolge</option><option value="after">Umgekehrte Reihenfolge</option></select></label>
 </div><button class="btn primary" id="adv-search-btn" type="button">Morphologisch suchen</button>
 <section class="saved-searches" aria-label="Gespeicherte Suchen">
  <h4>Suchabfrage speichern</h4>

@@ -31,6 +31,15 @@
 .advanced-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:10px 0}
 .advanced-grid label{font-size:11px;display:flex;flex-direction:column;gap:4px;min-width:0}
 .advanced-grid input,.advanced-grid select{box-sizing:border-box;width:100%;min-width:0;padding:7px;border:1px solid #758293;border-radius:5px;background:var(--surface,#202a35);color:inherit}
+.query-condition{border:1px solid var(--line);border-radius:7px;padding:5px 9px 9px;margin:9px 0;min-width:0}
+.query-condition legend{font-size:12px;font-weight:700;padding:0 5px}
+.query-condition .advanced-grid{grid-template-columns:repeat(2,minmax(0,1fr));margin:5px 0}
+.query-remove{font-size:11px;padding:5px 8px}
+.query-actions{display:flex;align-items:end;gap:8px;flex-wrap:wrap;margin:8px 0}
+.query-actions label{font-size:11px;display:flex;flex-direction:column;gap:4px;min-width:180px}
+.query-actions select{padding:7px;border:1px solid #758293;border-radius:5px;background:var(--surface,#202a35);color:inherit}
+.query-actions .hint{font-size:11px;margin:0 0 7px}
+.query-condition input:disabled,.advanced-grid input:disabled,.advanced-grid select:disabled{opacity:.6}
 .saved-searches{border-top:1px solid var(--line);margin-top:12px;padding-top:8px}
 .saved-searches h4{font-size:13px;margin:4px 0 8px}
 .saved-search-row{display:flex;align-items:end;gap:7px;flex-wrap:wrap;margin:7px 0}

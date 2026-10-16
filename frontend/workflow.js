@@ -23,7 +23,7 @@ function openDialog(id){const d=q(id);if(d&&!d.open)d.showModal()}
 function run(id){switch(id){
 case 'reference':q('#reference').focus();q('#reference').select();break;
 case 'search':q('#search').focus();q('#search').select();break;
-case 'advanced':q('#advanced-box').open=true;q('#adv-lemma').focus();break;
+case 'advanced':q('#advanced-box').open=true;q('#query-conditions [data-query-field="lemma"]')?.focus();break;
 case 'back':moveHistory(-1);break;
 case 'forward':moveHistory(1);break;
 case 'previous':q('#prev').click();break;

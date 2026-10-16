@@ -15,6 +15,14 @@
 - [x] 1.1.1 – Interne Konsistenzprüfung gespeicherter griechischer/hebräischer Wortannotationen
 - [x] 1.1.2 – Exakte Wortformsuche aus Häufigkeitsverteilung nach Buch eingrenzen
 - [x] 1.2.0 – Morphologische Suchabfragen lokal benennen, speichern, wieder öffnen und ausführen
+- [x] 1.3.0 – Grafischer Abfrageeditor mit bis zu fünf Wortbedingungen, UND/ODER, Reihenfolge und Abstand
+
+## Noch offen innerhalb 1.3
+
+- Positionsbedingungen wie Versanfang oder eine festgelegte Spanne ergänzen.
+- Suchbereiche um Sprache/Korpus, Kapitel und benutzerdefinierte Referenzbereiche erweitern.
+- Gespeicherte Muster bearbeiten und duplizieren; Kriterien vor dem Ausführen lesbar zusammenfassen.
+- Eine dokumentierte Amicus-Kurzsyntax für häufige Abfragen ausarbeiten. BibleWorks-Kompatibilität nur für einzeln getestete Fälle zusagen.
 
 ## Weitere notwendige Arbeit nach 1.0
 

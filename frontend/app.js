@@ -204,16 +204,48 @@ async function runSearch(offset=0){
  }catch(e){$('#search-error').textContent=e.message;$('#search-error').hidden=false}
  finally{button.disabled=false}
 }
+const queryFields=[['lemma','Lemma','λόγος'],['surface','Wortform','λόγος'],['morph','Morphologie','z. B. Aorist'],['strong','Strong','G3056']];
+function setQueryConditions(conditions=[{}]){
+ const box=$('#query-conditions');box.replaceChildren();
+ conditions.slice(0,5).forEach((condition,index)=>{
+  const row=el('fieldset','query-condition');row.append(el('legend','',`Wortbedingung ${index+1}`));
+  const fields=el('div','advanced-grid');
+  for(const [key,title,placeholder] of queryFields){
+   const label=el('label','',title),input=el('input');input.type='text';input.dataset.queryField=key;input.value=condition[key]||'';input.placeholder=placeholder;label.append(input);fields.append(label);
+  }
+  row.append(fields);
+  const remove=el('button','btn query-remove','Bedingung entfernen');remove.type='button';remove.disabled=conditions.length===1;
+  remove.addEventListener('click',()=>{const next=[...box.querySelectorAll('.query-condition')].filter(x=>x!==row).map(x=>Object.fromEntries([...x.querySelectorAll('[data-query-field]')].map(i=>[i.dataset.queryField,i.value])));setQueryConditions(next)});
+  row.append(remove);box.append(row);
+ });
+ $('#query-add-condition').disabled=conditions.length>=5;
+ syncQueryControls();
+}
+setQueryConditions();
+function syncQueryControls(){
+ const positional=$('#query-connector').value==='all'&&$('#query-conditions').querySelectorAll('.query-condition').length>1;
+ $('#adv-order').disabled=!positional;$('#adv-distance').disabled=!positional;
+ if(!positional)$('#adv-order').value='any';
+}
+$('#query-connector').addEventListener('change',syncQueryControls);
+$('#query-add-condition').addEventListener('click',()=>{
+ const current=[...$('#query-conditions').querySelectorAll('.query-condition')].map(row=>Object.fromEntries([...row.querySelectorAll('[data-query-field]')].map(i=>[i.dataset.queryField,i.value])));
+ if(current.length<5)setQueryConditions([...current,{}]);
+});
+function currentAdvancedCriteria(){
+ const conditions=[...$('#query-conditions').querySelectorAll('.query-condition')].map(row=>Object.fromEntries(
+  [...row.querySelectorAll('[data-query-field]')].map(input=>[input.dataset.queryField,input.value.trim()])
+  .filter(([,value])=>value)
+ ));
+ const criteria={conditions,connector:$('#query-connector').value,distance:Number($('#adv-distance').value||5),order:$('#adv-order').value};
+ if($('#search-module').value)criteria.module_id=$('#search-module').value;
+ if($('#search-book').value)criteria.book=$('#search-book').value;
+ return criteria;
+}
 async function runAdvancedSearch(offset=0){
  activeSearch='advanced';
- const params=new URLSearchParams({limit:'50',offset:String(offset),distance:$('#adv-distance').value,order:$('#adv-order').value});
- for(const name of ['lemma','surface','morph','strong','second-lemma','second-surface','second-morph','second-strong']){
- const value=$('#adv-'+name).value.trim();if(value)params.set(name.replace(/-/g,'_'),value);
- }
- if($('#search-module').value)params.set('module_id',$('#search-module').value);
- if($('#search-book').value)params.set('book',$('#search-book').value);
  const button=$('#adv-search-btn');button.disabled=true;$('#search-error').hidden=true;
- try{const result=await api('/api/search/advanced?'+params);searchState=result;
+ try{const result=await api('/api/search/query',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({criteria:currentAdvancedCriteria(),limit:50,offset})});searchState=result;
  const list=$('#search-results');list.replaceChildren();$('#search-total').textContent=result.total+' Treffer';
  if(!result.results.length)list.append(el('p','hint','Keine passenden annotierten Verse gefunden. Bitte Module und Morphologie prüfen.'));
  for(const hit of result.results){const btn=el('button','search-hit');btn.type='button';
@@ -224,17 +256,6 @@ async function runAdvancedSearch(offset=0){
  $('#adv-note').textContent=result.note;
  }catch(e){$('#search-error').textContent=e.message;$('#search-error').hidden=false}
  finally{button.disabled=false}
-}
-function currentAdvancedCriteria(){
- const criteria={};
- for(const [key,id] of [['lemma','adv-lemma'],['surface','adv-surface'],['morph','adv-morph'],['strong','adv-strong'],
-  ['second_lemma','adv-second-lemma'],['second_surface','adv-second-surface'],['second_morph','adv-second-morph'],['second_strong','adv-second-strong']]){
-  const value=$('#'+id).value.trim();if(value)criteria[key]=value;
- }
- if($('#search-module').value)criteria.module_id=$('#search-module').value;
- if($('#search-book').value)criteria.book=$('#search-book').value;
- const distance=$('#adv-distance').value.trim();criteria.distance=distance===''?null:Number(distance);criteria.order=$('#adv-order').value;
- return criteria;
 }
 async function refreshSavedSearches(selectedId=''){
  const select=$('#saved-search-select');
@@ -266,8 +287,12 @@ $('#saved-search-open').addEventListener('click',async()=>{
   status.textContent=`Das gespeicherte Textmodul „${c.module_id}“ ist nicht installiert. Installiere es zuerst, dann lässt sich die Suche unverändert wieder öffnen.`;return;
  }
  if(c.book&&![...$('#search-book').options].some(o=>o.value===c.book)){status.textContent=`Das gespeicherte Bibelbuch „${c.book}“ ist in dieser Ausgabe nicht verfügbar.`;return}
- for(const [key,id] of [['lemma','adv-lemma'],['surface','adv-surface'],['morph','adv-morph'],['strong','adv-strong'],
-  ['second_lemma','adv-second-lemma'],['second_surface','adv-second-surface'],['second_morph','adv-second-morph'],['second_strong','adv-second-strong']])$('#'+id).value=c[key]||'';
+ const legacyFirst={lemma:c.lemma||'',surface:c.surface||'',morph:c.morph||'',strong:c.strong||''};
+ const legacySecond={lemma:c.second_lemma||'',surface:c.second_surface||'',morph:c.second_morph||'',strong:c.second_strong||''};
+ const conditions=c.conditions||[legacyFirst,...(Object.values(legacySecond).some(Boolean)?[legacySecond]:[])];
+ setQueryConditions(conditions.length?conditions:[{}]);
+ $('#query-connector').value=c.connector||'all';
+ syncQueryControls();
  $('#search-module').value=c.module_id||'';$('#search-book').value=c.book||'';
  $('#adv-distance').value=String(c.distance??5);$('#adv-order').value=c.order||'any';$('#advanced-box').open=true;
  status.textContent=`„${item.name}“ geladen; die Suche wird mit den gespeicherten Filtern ausgeführt.`;await runAdvancedSearch(0);
@@ -318,8 +343,7 @@ function showWord(word,mod){
  const formsBtn=el('button','btn forms-button','Wortformen und Häufigkeiten');
  formsBtn.type='button';
  formsBtn.addEventListener('click',()=>window.amicusWordTools.openForms(word,mod,async (surface,book='')=>{
-  for(const name of ['lemma','surface','morph','strong','second-lemma','second-surface','second-morph','second-strong'])$('#adv-'+name).value='';
-  $('#adv-surface').value=surface;
+  setQueryConditions([{surface}]);$('#query-connector').value='all';$('#adv-order').value='any';
   $('#search-module').value=mod.id;
   $('#search-book').value=book;
   $('#advanced-box').open=true;

@@ -1,13 +1,17 @@
 # Amicus Theologi 📖
 
-**Freie, offlinefähige Studienumgebung für wissenschaftliche Bibelarbeit – Version 1.0.9.**
+**Freie, offlinefähige Studienumgebung für wissenschaftliche Bibelarbeit – Version 1.1.0.**
 
 Amicus Theologi bietet eine dreigeteilte Oberfläche aus **Suche · Bibeltext · Analyse**, griechisch/hebräische Wortinformationen, importierbare Bibelausgaben und Lexika, exegetische Studienprojekte, eine begrenzte Synopse und textkritische Vergleiche. Bei den vorkompilierten Windows-/Ubuntu-Installern ist **keine zusätzliche Python-Installation** erforderlich; Internet wird nur zum Herunterladen neuer wissenschaftlicher Datenmodule benötigt. Beim Start aus dem Quellcode-ZIP müssen Python-Abhängigkeiten zunächst installiert werden.
 
 > **Wissenschaftliche Einordnung:** 1.0 ist die erste zusammengeführte, getestete *Anwendungsbasis*, kein nachgewiesener vollständiger Ersatz für BibleWorks und keine vollständige kritische Textedition. Einige Quellformate (insbesondere STEPBible TAHOT und SWORD) sind noch experimentell. Angaben zu Morphologie und Wortbedeutung stammen aus den installierten Datensätzen; unbekannte Codes werden nicht geraten.
 
 
-## Neu in 1.0.9: Amicus-Datenverzeichnis und vollständige Deinstallation
+## Neu in 1.1.0: Wortformen und Datenabdeckung
+
+Die Wortanalyse zeigt jetzt für ein Lemma alle im gewählten Modul tatsächlich belegten Schreibweisen, deren Häufigkeiten und Verteilung nach biblischen Büchern. Eine Form kann direkt als exakte Wortsuche geöffnet werden. Die Datenbankdiagnose weist zusätzlich aus, in wie vielen Versen Wortannotationen vorhanden sind. Diese Abdeckung ist kein Vollständigkeits- oder Qualitätsnachweis. Keine Migration erforderlich.
+
+## Aus 1.0.9: Amicus-Datenverzeichnis und vollständige Deinstallation
 
 Beim ersten Start werden bisherige lokale Daten sicher in den neuen Amicus-Datenordner verschoben. Ein Update erhält die Daten; eine vollständige Deinstallation löscht Datenbank, Module, Notizen und interne Backups. Vor der Deinstallation externe Sicherung erstellen. Bei vorhandenen Daten in beiden Verzeichnissen wird nichts überschrieben.
 
@@ -78,11 +82,13 @@ Beim Darüberfahren über ein annotiertes Wort erscheint eine Vorschau mit Grund
 | Mehrere Texte / Navigation | lokal installierte Ausgaben, kapitelweise synchron |
 | Volltextsuche | SQLite FTS5, Filter und einfache Suchsyntax |
 | Wortanalyse | importierte griechische/hebräische Annotationen, Lemma-Konkordanz, übersetzte Standard-Codes |
+| Wortformen | belegte Formen, Häufigkeit und Buchverteilung je Lemma; exakte Suche aus der Formenliste |
 | Morphologische Suche | zwei Wortbedingungen, Abstand / Reihenfolge, Stringfilter in Morph-Codes |
 | Wörterbücher | TSV/CSV-Import, experimentelle Direktinstallation ausgewählter STEPBible-Lexika |
 | Persönliche Studien | Projekte, Notizen, Markierungen, JSON-Export einzelner Projekte |
 | Ausgabenvergleich / Synopse | 2–4 Ausgaben, neun beispielhafte Parallelperikopen, importierte dokumentierte Varianten |
 | Bedienung | Befehlssuche Strg+K, Referenz-Verlauf, Tastenkürzel |
+| Diagnose | Datenbankprüfung und Versabdeckung der Wortannotationen je Modul; kein Vollständigkeitsnachweis |
 | Neu in 1.0 | Erststart-Einführung, vollständige Sicherung, geführte Rücksicherung, Gesundheitscheck, Startskripte |
 
 ## Vollständige Sicherung und Wiederherstellung

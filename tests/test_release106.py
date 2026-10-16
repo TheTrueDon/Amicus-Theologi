@@ -20,7 +20,7 @@ class VerseComparisonTests(unittest.TestCase):
         self.temp.cleanup()
 
     def test_new_install_is_versewise_and_edition_mode_persists(self):
-        self.assertEqual(APP_VERSION, '1.0.9')
+        self.assertEqual(APP_VERSION, (Path(__file__).resolve().parents[1]/'VERSION').read_text(encoding='utf-8').strip())
         with TestClient(app) as client:
             self.assertEqual(client.get('/api/settings').json()['text_layout'], 'verse')
             self.assertEqual(client.patch('/api/settings', json={'text_layout':'edition'}).status_code, 200)
@@ -68,7 +68,7 @@ class VerseComparisonTests(unittest.TestCase):
         self.assertIn('Paralleltexte versweise vergleichen',manual)
         self.assertIn('Paralleltexte versweise vergleichen',portable)
         self.assertIn('Amicus Theologi',portable)
-        self.assertIn('1.0.9',(root/'windows/AmicusTheologi.iss').read_text(encoding='utf-8'))
-        self.assertEqual((root/'VERSION').read_text(encoding='utf-8').strip(),'1.0.9')
+        self.assertIn(APP_VERSION,(root/'windows/AmicusTheologi.iss').read_text(encoding='utf-8'))
+        self.assertEqual((root/'VERSION').read_text(encoding='utf-8').strip(),APP_VERSION)
 
 if __name__=='__main__': unittest.main()

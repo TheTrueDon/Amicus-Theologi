@@ -34,7 +34,7 @@ class UbuntuInstallerTests(unittest.TestCase):
     def test_linux_workflow_and_version_consistency(self):
         workflow=(ROOT/'.github/workflows/ubuntu-installer.yml').read_text(encoding='utf-8')
         version=(ROOT/'VERSION').read_text(encoding='utf-8').strip()
-        self.assertEqual(version, '1.0.9')
+        self.assertEqual(version, (ROOT/'backend/database.py').read_text(encoding='utf-8').split("APP_VERSION = '",1)[1].split("'",1)[0])
         self.assertIn('ubuntu-24.04', workflow)
         self.assertIn('workflow_dispatch', workflow)
         self.assertIn('unittest discover', workflow)

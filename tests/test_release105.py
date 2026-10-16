@@ -2,6 +2,7 @@
 import os
 import tempfile
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 from fastapi.testclient import TestClient
 from backend.database import init_db, connect, APP_VERSION
@@ -21,7 +22,7 @@ class EditionInstallationTests(unittest.TestCase):
         self.temp.cleanup()
 
     def test_version_and_curated_records(self):
-        self.assertEqual(APP_VERSION, '1.0.9')
+        self.assertEqual(APP_VERSION, (Path(__file__).resolve().parents[1]/'VERSION').read_text(encoding='utf-8').strip())
         self.assertEqual(len(BIBLES), 5)
         self.assertTrue(all(x['base'].startswith('https://www.crosswire.org/') for x in BIBLES.values()))
         self.assertIn('GerElb1905', BIBLES)

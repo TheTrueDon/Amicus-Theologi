@@ -1,6 +1,6 @@
-; Amicus Theologi 1.0.9 – normal Windows wizard installer.
+; Amicus Theologi 1.1.0 – normal Windows wizard installer.
 ; Compiles after running the PyInstaller build from the repository root.
-#define AppVersion "1.0.9"
+#define AppVersion "1.1.0"
 #define AppName "Amicus Theologi"
 [Setup]
 AppId={{26A80230-4B69-4A47-A1CA-6F7425147101}
@@ -19,7 +19,7 @@ WizardStyle=modern
 Compression=lzma2
 SolidCompression=yes
 OutputDir=..\dist_installer
-OutputBaseFilename=Amicus-Theologi-Setup-1.0.9
+OutputBaseFilename=Amicus-Theologi-Setup-1.1.0
 AllowNoIcons=no
 ChangesAssociations=no
 CloseApplications=yes

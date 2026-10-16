@@ -5,7 +5,7 @@ from pathlib import Path
 from fastapi.testclient import TestClient
 from backend.database import init_db, connect
 from backend.library import read_import, install_module
-from backend.morphology import parse_annotation_file, import_annotations, lemma_concordance
+from backend.morphology import parse_annotation_file, import_annotations, lemma_concordance, lemma_forms_page
 from backend.main import app
 ROOT=Path(__file__).resolve().parents[1]
 class MorphologyTests(unittest.TestCase):
@@ -24,6 +24,30 @@ class MorphologyTests(unittest.TestCase):
   result=import_annotations('m-grc',parsed)
   self.assertEqual(result,{'annotated_verses':1,'tokens':17})
   self.assertEqual(len(lemma_concordance('m-grc','λόγος')),3)
+ def test_forms_page_groups_observed_forms_and_counts_books(self):
+  raw=self.example('grc');import_annotations('m-grc',parse_annotation_file(raw))
+  result=lemma_forms_page('m-grc','ὁ')
+  self.assertEqual(result['total_forms'],2)
+  self.assertEqual(result['total_occurrences'],4)
+  by_surface={form['surface']:form for form in result['forms']}
+  self.assertEqual(by_surface['ὁ']['occurrences'],3)
+  self.assertEqual(by_surface['ὁ']['books'],[{'book':'Joh','occurrences':3}])
+  self.assertEqual(by_surface['τὸν']['occurrences'],1)
+  self.assertFalse(by_surface['ὁ']['analyses'][0]['grammar']['recognized'])
+  self.assertEqual(by_surface['ὁ']['analyses'][0]['grammar']['raw'],by_surface['ὁ']['analyses'][0]['morph'])
+ def test_forms_api_and_validation(self):
+  raw=self.example('grc');import_annotations('m-grc',parse_annotation_file(raw))
+  with TestClient(app) as c:
+   response=c.get('/api/morphology/forms',params={'module_id':'m-grc','lemma':'λόγος'})
+   self.assertEqual(response.status_code,200,response.text)
+   self.assertEqual(response.json()['total_occurrences'],3)
+   self.assertEqual(c.get('/api/morphology/forms',params={'module_id':'missing','lemma':'λόγος'}).status_code,422)
+   self.assertEqual(c.get('/api/morphology/forms',params={'module_id':'m-grc','lemma':'λόγος','limit':0}).status_code,422)
+   diagnostic=c.get('/api/diagnostics').json()
+   module=next(item for item in diagnostic['modules'] if item['id']=='m-grc')
+   self.assertEqual(module['annotated_verses'],1)
+   self.assertEqual(module['annotation_coverage_percent'],100.0)
+   self.assertIn('weder Vollständigkeit',diagnostic['coverage_note'])
  def test_hebrew_example(self):
   raw=self.example('he');self.assertEqual(import_annotations('m-he',parse_annotation_file(raw))['tokens'],7)
  def test_hebrew_chapter_api_exposes_clickable_tokens(self):

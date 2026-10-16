@@ -13,6 +13,20 @@ jobs:
       PYTHONIOENCODING: 'utf-8'
     steps:
       - uses: actions/checkout@v5
+      - name: Read and validate release version
+        id: release-version
+        shell: pwsh
+        run: |
+          $amicusVersion = (Get-Content VERSION -Raw).Trim()
+          if ($amicusVersion -notmatch '^\d+\.\d+\.\d+$') { throw "Invalid VERSION: $amicusVersion" }
+          $database = Get-Content backend/database.py -Raw
+          $installer = Get-Content windows/AmicusTheologi.iss -Raw
+          if (-not $database.Contains("APP_VERSION = '$amicusVersion'")) { throw 'backend/database.py version differs from VERSION' }
+          if (-not $installer.Contains("#define AppVersion `"$amicusVersion`"")) { throw 'Inno Setup AppVersion differs from VERSION' }
+          if (-not $installer.Contains("OutputBaseFilename=Amicus-Theologi-Setup-$amicusVersion")) { throw 'Inno Setup output filename differs from VERSION' }
+          if ($env:GITHUB_REF -match '^refs/tags/v(.+)$' -and $Matches[1] -ne $amicusVersion) { throw 'Git tag and VERSION do not match' }
+          "version=$amicusVersion" >> $env:GITHUB_OUTPUT
+          "AMICUS_VERSION=$amicusVersion" >> $env:GITHUB_ENV
       - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
@@ -39,9 +53,9 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path dist_installer | Out-Null
-          Compress-Archive -Path 'dist/AmicusTheologi/*' -DestinationPath 'dist_installer/Amicus-Theologi-Portable-1.0.9.zip' -Force
+          Compress-Archive -Path 'dist/AmicusTheologi/*' -DestinationPath "dist_installer/Amicus-Theologi-Portable-$env:AMICUS_VERSION.zip" -Force
       - uses: actions/upload-artifact@v6
         with:
-          name: Amicus-Theologi-1.0.9-Windows-Installer
+          name: Amicus-Theologi-${{ steps.release-version.outputs.version }}-Windows-Installer
           path: dist_installer/*
           if-no-files-found: error

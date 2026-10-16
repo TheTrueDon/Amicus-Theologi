@@ -11,9 +11,12 @@
 - [x] 0.8 – Ausgabenvergleich, neun synoptische Parallelperikopen, eigene dokumentierte Lesarten
 - [x] 0.9 – Schnellbedienung, Befehlssuche, Verlauf, Tastenkürzel
 - [x] 1.0 – Erste konsolidierte lokale Veröffentlichung, Datenbankprüfung, Vollbackup, geprüfte Wiederherstellung, Erststart-Hilfe, Skriptinstaller, Qualitätsprüfungen
-- [x] 1.1 – Belegte Wortformen mit Häufigkeiten; Diagnose der Versabdeckung importierter Wortannotationen
+- [x] 1.1.0 – Erste Formenübersicht und Diagnose der Versabdeckung importierter Wortannotationen
+- [x] 1.1.1 – Interne Konsistenzprüfung gespeicherter griechischer/hebräischer Wortannotationen
 
 ## Weitere notwendige Arbeit nach 1.0
+
+Die 1.1.1-Prüfung vergleicht lokale Tokenfolgen mit den jeweils gespeicherten Versen und kontrolliert Positionen sowie ausgefüllte Lemma-/Morphologiefelder. Sie validiert keine Originalarchive und ersetzt weder Quellenprüfung noch eine wissenschaftliche Vollständigkeitskontrolle. Die umfassende Reproduzierbarkeitstests für vollständige OSHB-, STEPBible- und SWORD-Archive bleiben offen.
 
 - Unabhängige Validierung **vollständiger** aktueller STEPBible-, OSHB- und CrossWire-Originalarchive; reproduzierbare Datensatzstatistik und Referenzfälle.
 - Korrekte vollständige Morphologie-Decodierung anhand editionsspezifischer Grammatiken (TEGMC/TEHMC etc.), differenzierte hebräische Präfix- und Suffixanalyse.

@@ -1,3 +1,10 @@
+## 1.1.1 – Prüfung importierter Wortdaten
+
+- Griechische und hebräische Module können gezielt auf passende Wortfolge zum gespeicherten Vers, lückenlose Tokenpositionen und vorhandene Lemma-/Morphologiefelder geprüft werden.
+- Auffällige Bibelstellen werden mit begrenzter Fundstellenliste und Gesamtzahl ausgegeben; Module ohne Annotationen werden nicht als geprüft bestanden gemeldet.
+- Ergebnis ist eine interne Konsistenzprüfung. Sie belegt weder Vollständigkeit des Korpus noch Lizenz oder wissenschaftliche Richtigkeit.
+- Rein lesend; keine Schemaänderung oder Datenmigration.
+
 ## 1.1.0 – Wortformen und Datenabdeckung
 
 - Wortanalyse bietet für griechische und hebräische Lemmata eine paginierte Formenübersicht mit belegten Schreibweisen, Häufigkeiten, grammatischer Analyse und Verteilung nach biblischen Büchern.

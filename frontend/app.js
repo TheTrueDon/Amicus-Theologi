@@ -118,7 +118,43 @@ function render(){
 async function go(b,c,v=1){try{const data=await api(`/api/chapter?book=${encodeURIComponent(b)}&chapter=${c}`);view=data;activeVerse=v;render();save({active_reference:`${b} ${c},${v}`})}catch(e){message(e.message)}}
 async function navigate(){try{const r=await api('/api/reference?q='+encodeURIComponent($('#reference').value));await go(r.book,r.chapter,r.verse)}catch(e){message(e.message)}}
 function moduleText(m){let row=el('div','module-entry');row.append(el('b','',m.title),el('small','',`${m.language} · ${m.verse_count} Verse · ${m.license}`));return row}
-async function refreshModules(){modules=await api('/api/modules');refreshSearchFilters();$('#module-counter').textContent=modules.length+' Module';const morphSel=$('#morph-module');const before=morphSel.value;morphSel.replaceChildren();for(const mod of modules.filter(x=>['grc','he'].includes(x.language))){const opt=el('option','',mod.title+' ('+mod.id+')');opt.value=mod.id;morphSel.append(opt)}if([...morphSel.options].some(x=>x.value===before))morphSel.value=before;window.amicusEditions?.refresh();for(const id of ['#module-summary','#module-list','#manage-list'])$(id).replaceChildren();if(!modules.length){for(const id of ['#module-summary','#module-list','#manage-list'])$(id).append(el('p','hint','Noch keine Module installiert.'))}for(const m of modules){$('#module-summary').append(moduleText(m));$('#module-list').append(moduleText(m));let row=el('div','manage-row'),detail=el('div');detail.append(el('b','',m.title),el('small','',`${m.id} · ${m.verse_count} Verse · ${m.license}`));const btn=el('button','btn','Entfernen');btn.type='button';btn.onclick=async()=>{if(!confirm(`Modul „${m.title}“ und alle zugehörigen Verse löschen?`))return;try{await api('/api/modules/'+encodeURIComponent(m.id),{method:'DELETE'});await refreshModules();await go(view.book,view.chapter,activeVerse)}catch(e){alert(e.message)}};row.append(detail,btn);$('#manage-list').append(row)}}
+async function refreshModules(){
+ modules=await api('/api/modules');refreshSearchFilters();$('#module-counter').textContent=modules.length+' Module';
+ const morphSel=$('#morph-module'),before=morphSel.value;morphSel.replaceChildren();
+ for(const mod of modules.filter(x=>['grc','he'].includes(x.language))){const opt=el('option','',mod.title+' ('+mod.id+')');opt.value=mod.id;morphSel.append(opt)}
+ if([...morphSel.options].some(x=>x.value===before))morphSel.value=before;
+ window.amicusEditions?.refresh();
+ for(const id of ['#module-summary','#module-list','#manage-list'])$(id).replaceChildren();
+ if(!modules.length)for(const id of ['#module-summary','#module-list','#manage-list'])$(id).append(el('p','hint','Noch keine Module installiert.'));
+ for(const m of modules){
+  $('#module-summary').append(moduleText(m));$('#module-list').append(moduleText(m));
+  const row=el('div','manage-row'),detail=el('div');
+  detail.append(el('b','',m.title),el('small','',`${m.id} · ${m.verse_count} Verse · ${m.license}`));
+  if(['grc','he'].includes(m.language)){
+   const auditBtn=el('button','btn','Wortdaten prüfen');auditBtn.type='button';
+   const auditResult=el('small','module-audit-result','');auditResult.setAttribute('role','status');
+   auditBtn.onclick=async()=>{
+    auditBtn.disabled=true;auditResult.textContent='Prüfung läuft …';
+    try{
+     const result=await api('/api/modules/'+encodeURIComponent(m.id)+'/annotation-audit');
+     const c=result.counts,issueTotal=Object.values(result.issue_counts).reduce((a,b)=>a+b,0);
+     if(result.status==='no_annotations')auditResult.textContent=`Keine Wortannotationen vorhanden. ${c.verses.toLocaleString('de-DE')} Verse im Modul.`;
+     else if(result.status==='passed')auditResult.textContent=`Prüfung bestanden: ${c.annotated_words.toLocaleString('de-DE')} Wörter in ${c.annotated_verses.toLocaleString('de-DE')} Versen geprüft (${c.annotation_coverage_percent.toLocaleString('de-DE')} % Abdeckung).`;
+     else{
+      const refs=Object.values(result.issues).flat().filter(Boolean);
+      auditResult.textContent=`${issueTotal.toLocaleString('de-DE')} Auffälligkeiten gefunden. ${refs.length?`Beispiele: ${[...new Set(refs)].slice(0,8).join('; ')}.`:''} ${result.issue_list_truncated?'Die Fundstellenliste ist gekürzt.':''}`;
+     }
+     auditResult.title=result.note;
+    }catch(e){auditResult.textContent='Prüfung fehlgeschlagen: '+e.message}
+    finally{auditBtn.disabled=false}
+   };
+   detail.append(auditBtn,auditResult);
+  }
+  const btn=el('button','btn','Entfernen');btn.type='button';
+  btn.onclick=async()=>{if(!confirm(`Modul „${m.title}“ und alle zugehörigen Verse löschen?`))return;try{await api('/api/modules/'+encodeURIComponent(m.id),{method:'DELETE'});await refreshModules();await go(view.book,view.chapter,activeVerse)}catch(e){alert(e.message)}};
+  row.append(detail,btn);$('#manage-list').append(row);
+ }
+}
 async function start(){try{settings=await api('/api/settings');books=await api('/api/books');for(const b of books){const sb=el('option','',b.name);sb.value=b.id;$('#search-book').append(sb);const o=el('option','',b.name);o.value=b.id;$('#book-choice').append(o)}apply();await refreshModules();try{const r=await api('/api/reference?q='+encodeURIComponent(settings.active_reference));await go(r.book,r.chapter,r.verse)}catch{await go('Joh',1,1)}}catch(e){message('Lokaler Start fehlgeschlagen: '+e.message)}}
 $('#text-layout').onchange=e=>{save({text_layout:e.target.value});if(view)render()};
 $('#navigate').onclick=navigate;$('#reference').onkeydown=e=>{if(e.key==='Enter')navigate()};$('#book-choice').onchange=e=>go(e.target.value,1,1);$('#chapter-choice').onchange=e=>go($('#book-choice').value,Number(e.target.value),1);$('#prev').onclick=()=>view?.previous&&go(...view.previous,1);$('#next').onclick=()=>view?.next&&go(...view.next,1);

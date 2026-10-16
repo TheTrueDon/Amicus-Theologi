@@ -13,6 +13,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, Field
 from .database import APP_VERSION, data_dir, init_db, get_settings, set_settings, connect, factory_reset
 from . import maintenance
+from .annotation_audit import audit_annotations
 from .library import BOOKS, NAMES, parse_reference, installed, chapter_view, chapter_refs, neighbor, read_import, install_module
 from .search import search_verses
 from .advanced_search import advanced_search
@@ -135,6 +136,12 @@ def delete_module(module_id:str):
   cur=db.execute('DELETE FROM modules WHERE id=?',(module_id,))
   if not cur.rowcount:raise HTTPException(404,'Modul nicht gefunden.')
  return {'deleted':module_id}
+@app.get('/api/modules/{module_id}/annotation-audit')
+def module_annotation_audit(module_id:str):
+ if not re.fullmatch(r'[a-zA-Z0-9_-]{2,48}',module_id):
+  raise HTTPException(422,'Ungültige Modul-ID.')
+ try:return audit_annotations(module_id)
+ except ValueError as e:raise HTTPException(422,str(e))
 @app.get('/api/search')
 def search(q:str, module_id:str|None=None, book:str|None=None, mode:Literal['all','any','phrase']='all', limit:int=50,offset:int=0):
  try:return search_verses(q,module_id,book,mode,limit,offset)

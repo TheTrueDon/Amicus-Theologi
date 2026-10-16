@@ -1,4 +1,4 @@
-# Getestete direkte Abhängigkeiten für Amicus Theologi 1.2.0
+# Direkte Abhängigkeiten für Amicus Theologi 1.3.0
 # Bei Sicherheitsupdates bewusst prüfen, Tests ausführen und erst dann aktualisieren.
 fastapi==0.128.2
 uvicorn==0.48.0

@@ -1,6 +1,6 @@
 # Amicus Theologi 📖
 
-**Freie, offlinefähige Studienumgebung für wissenschaftliche Bibelarbeit – Version 1.2.0.**
+**Freie, offlinefähige Studienumgebung für wissenschaftliche Bibelarbeit – Version 1.3.0.**
 
 Amicus Theologi bietet eine dreigeteilte Oberfläche aus **Suche · Bibeltext · Analyse**, griechisch/hebräische Wortinformationen, importierbare Bibelausgaben und Lexika, exegetische Studienprojekte, eine begrenzte Synopse und textkritische Vergleiche. Bei den vorkompilierten Windows-/Ubuntu-Installern ist **keine zusätzliche Python-Installation** erforderlich; Internet wird nur zum Herunterladen neuer wissenschaftlicher Datenmodule benötigt. Beim Start aus dem Quellcode-ZIP müssen Python-Abhängigkeiten zunächst installiert werden.
 
@@ -10,6 +10,10 @@ Amicus Theologi bietet eine dreigeteilte Oberfläche aus **Suche · Bibeltext ·
 ## Neu in 1.2.0: Suchabfragen speichern
 
 Morphologische Suchabfragen lassen sich benennen und lokal sichern. Kriterien, Textmodul, Buchfilter, Abstand, Reihenfolge und Erstellungszeitpunkt werden gespeichert. Du kannst eine gespeicherte Abfrage laden, erneut ausführen oder löschen. Beim ersten Start wird dafür eine neue Tabelle angelegt; bestehende Daten bleiben erhalten.
+
+## Neu in 1.3.0: Grafischer Abfrageeditor
+
+Die morphologische Suche kann bis zu fünf Wortbedingungen mit UND oder ODER verknüpfen. Bei UND lassen sich Bedingungsreihenfolge und maximaler Abstand zwischen benachbarten Bedingungen festlegen. Gespeicherte Suchen aus 1.2.0 bleiben lesbar; neue Abfragen werden als strukturierte Kriterien gesichert. Für 1.3.0 ist keine weitere Datenbankmigration erforderlich.
 
 ## Aus 1.1.2: Wortformensuche nach Bibelbuch filtern
 
@@ -95,8 +99,8 @@ Beim Darüberfahren über ein annotiertes Wort erscheint eine Vorschau mit Grund
 | Volltextsuche | SQLite FTS5, Filter und einfache Suchsyntax |
 | Wortanalyse | importierte griechische/hebräische Annotationen, Lemma-Konkordanz, übersetzte Standard-Codes |
 | Wortformen | belegte Formen, Häufigkeit und Buchverteilung je Lemma; exakte Suche aus der Formenliste |
-| Morphologische Suche | zwei Wortbedingungen, Abstand / Reihenfolge, Stringfilter in Morph-Codes |
-| Gespeicherte Suchen | Morphologische Kriterien, Modul- und Buchfilter lokal benennen, speichern und erneut ausführen |
+| Morphologische Suche | bis zu fünf Wortbedingungen, UND/ODER, Abstand / Reihenfolge, Stringfilter in Morph-Codes |
+| Gespeicherte Suchen | strukturierte Kriterien, Modul- und Buchfilter lokal benennen, speichern und erneut ausführen; 1.2-Abfragen bleiben erhalten |
 | Wörterbücher | TSV/CSV-Import, experimentelle Direktinstallation ausgewählter STEPBible-Lexika |
 | Persönliche Studien | Projekte, Notizen, Markierungen, JSON-Export einzelner Projekte |
 | Ausgabenvergleich / Synopse | 2–4 Ausgaben, neun beispielhafte Parallelperikopen, importierte dokumentierte Varianten |

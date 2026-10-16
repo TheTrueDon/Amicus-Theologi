@@ -13,6 +13,7 @@
 - [x] 1.0 – Erste konsolidierte lokale Veröffentlichung, Datenbankprüfung, Vollbackup, geprüfte Wiederherstellung, Erststart-Hilfe, Skriptinstaller, Qualitätsprüfungen
 - [x] 1.1.0 – Erste Formenübersicht und Diagnose der Versabdeckung importierter Wortannotationen
 - [x] 1.1.1 – Interne Konsistenzprüfung gespeicherter griechischer/hebräischer Wortannotationen
+- [x] 1.1.2 – Exakte Wortformsuche aus Häufigkeitsverteilung nach Buch eingrenzen
 
 ## Weitere notwendige Arbeit nach 1.0
 

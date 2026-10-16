@@ -6,7 +6,7 @@ Du benötigst **Ubuntu 24.04 oder neuer (64-Bit-x86_64)**. Das von GitHub Action
 
 1. Das GitHub-Repository öffnen → **Actions** → **Ubuntu installation package**.
 2. **Run workflow** starten; nach erfolgreichem Build unten unter **Artifacts** das Paket **Amicus-Theologi-Ubuntu-Installer** herunterladen.
-3. Das Artifact-ZIP entpacken; die Datei `Amicus-Theologi-1.1.1-Ubuntu-24.04-amd64.deb` per Doppelklick öffnen.
+3. Das Artifact-ZIP entpacken; die Datei `Amicus-Theologi-1.1.2-Ubuntu-24.04-amd64.deb` per Doppelklick öffnen.
 4. Im **Ubuntu App Center** auf **Installieren** klicken und das Systempasswort bestätigen. Wenn die Datei nicht automatisch mit dem App Center geöffnet wird: Rechtsklick → **Öffnen mit** → **App Center**.
 5. Das Programm über **Aktivitäten / Anwendungen → Amicus Theologi** starten. Beim ersten Start erscheint ein kleines Steuerfenster, das den lokalen Browser öffnet.
 6. Optional im Anwendungsmenü **Amicus Theologi – Desktopverknüpfung** öffnen und die Nachfrage bestätigen; je nach GNOME-Einstellungen muss das neue Desktop-Icon als vertrauenswürdig markiert werden. Über einen Rechtsklick auf das App-Symbol kann es außerdem ans Dock angeheftet werden.
@@ -42,7 +42,7 @@ Der offizielle Build wird auf Ubuntu 24.04/amd64 erstellt (glibc 2.39). Ubuntu 2
 
 ### Datenbank und Sicherheit
 
-Version 1.1.1 ergänzt keine neuen Tabellen und benötigt keine Datenmigration. Das `.deb` enthält keine Nutzerdaten und keine urheberrechtlich geschützten Bibelwerke. Es installiert nichts automatisch aus dem Internet. Bei der Deinstallation löscht ein postrm-Skript lokale Anwendungsdaten; bei Updates nicht.
+Version 1.1.2 ergänzt keine neuen Tabellen und benötigt keine Datenmigration. Das `.deb` enthält keine Nutzerdaten und keine urheberrechtlich geschützten Bibelwerke. Es installiert nichts automatisch aus dem Internet. Bei der Deinstallation löscht ein postrm-Skript lokale Anwendungsdaten; bei Updates nicht.
 
 
 ## Vollständige Deinstallation

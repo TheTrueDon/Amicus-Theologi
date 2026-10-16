@@ -264,11 +264,11 @@ function showWord(word,mod){
  box.append(concordanceBtn);
  const formsBtn=el('button','btn forms-button','Wortformen und Häufigkeiten');
  formsBtn.type='button';
- formsBtn.addEventListener('click',()=>window.amicusWordTools.openForms(word,mod,async surface=>{
+ formsBtn.addEventListener('click',()=>window.amicusWordTools.openForms(word,mod,async (surface,book='')=>{
   for(const name of ['lemma','surface','morph','strong','second-lemma','second-surface','second-morph','second-strong'])$('#adv-'+name).value='';
   $('#adv-surface').value=surface;
   $('#search-module').value=mod.id;
-  $('#search-book').value='';
+  $('#search-book').value=book;
   $('#advanced-box').open=true;
   await runAdvancedSearch(0);
  }));

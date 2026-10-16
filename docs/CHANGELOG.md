@@ -1,3 +1,9 @@
+## 1.1.2 – Wortformensuche nach Bibelbuch filtern
+
+- In der Formenübersicht startet ein Klick auf eine Wortform weiterhin die exakte Suche im gesamten Modul.
+- Die Buchverteilung ist jetzt anklickbar: Suche nach derselben Form, beschränkt auf das gewählte Bibelbuch.
+- Das Suchmodul bleibt auf die Edition der geöffneten Wortanalyse eingestellt. Keine Datenbankänderung.
+
 ## 1.1.1 – Prüfung importierter Wortdaten
 
 - Griechische und hebräische Module können gezielt auf passende Wortfolge zum gespeicherten Vers, lückenlose Tokenpositionen und vorhandene Lemma-/Morphologiefelder geprüft werden.

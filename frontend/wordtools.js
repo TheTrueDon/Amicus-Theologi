@@ -220,7 +220,7 @@ async function loadForms(offset=0){
    const card=elt('article','morph-form-card');
    const top=elt('div','morph-form-top');
    const search=elt('button','morph-form-search',form.surface);search.type='button';search.title='Nach dieser exakten Wortform suchen';
-   search.addEventListener('click',async()=>{const runSearch=formsState.search;closeForms();await runSearch(form.surface)});
+   search.addEventListener('click',async()=>{const runSearch=formsState.search;closeForms();await runSearch(form.surface,'')});
    top.append(search,elt('strong','morph-form-count',`${form.occurrences.toLocaleString('de-DE')}×`));card.append(top);
    for(const analysis of form.analyses||[]){
     const grammar=analysis.grammar?.recognized?(analysis.grammar.features||[]).map(x=>`${x.name}: ${x.value}`).join(' · '):analysis.morph;
@@ -229,7 +229,14 @@ async function loadForms(offset=0){
    }
    if(form.books?.length){
     const detail=elt('details','morph-form-books');detail.append(elt('summary','',`Vorkommen in ${form.books.length} Büchern`));
-    const list=elt('ul','');for(const entry of form.books)list.append(elt('li','',`${entry.book}: ${entry.occurrences.toLocaleString('de-DE')}`));detail.append(list);card.append(detail);
+    const list=elt('ul','');
+    for(const entry of form.books){
+     const row=elt('li',''),bookSearch=elt('button','morph-book-search',`${entry.book}: ${entry.occurrences.toLocaleString('de-DE')}`);
+     bookSearch.type='button';bookSearch.title=`Diese Wortform in ${entry.book} suchen`;
+     bookSearch.addEventListener('click',async()=>{const runSearch=formsState.search;closeForms();await runSearch(form.surface,entry.book)});
+     row.append(bookSearch);list.append(row);
+    }
+    detail.append(list);card.append(detail);
    }
    formsList.append(card);
   }

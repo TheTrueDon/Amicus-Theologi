@@ -37,10 +37,23 @@ class UbuntuInstallerTests(unittest.TestCase):
         self.assertEqual(version, (ROOT/'backend/database.py').read_text(encoding='utf-8').split("APP_VERSION = '",1)[1].split("'",1)[0])
         self.assertIn('ubuntu-24.04', workflow)
         self.assertIn('workflow_dispatch', workflow)
+        self.assertIn('id: release-version', workflow)
+        self.assertIn('steps.release-version.outputs.version', workflow)
         self.assertIn('unittest discover', workflow)
         self.assertIn('linux/build_ubuntu_deb.sh', workflow)
         self.assertIn('upload-artifact@v6', workflow)
         self.assertIn('docs/UBUNTU_INSTALLATION.md', (ROOT/'README.md').read_text(encoding='utf-8'))
+
+    def test_windows_installer_names_follow_release_version(self):
+        workflow=(ROOT/'.github/workflows/windows-installer.yml').read_text(encoding='utf-8')
+        version=(ROOT/'VERSION').read_text(encoding='utf-8').strip()
+        installer=(ROOT/'windows/AmicusTheologi.iss').read_text(encoding='utf-8')
+        self.assertIn('id: release-version', workflow)
+        self.assertIn('steps.release-version.outputs.version', workflow)
+        self.assertIn('$env:AMICUS_VERSION', workflow)
+        self.assertIn(f'#define AppVersion "{version}"', installer)
+        self.assertIn(f'OutputBaseFilename=Amicus-Theologi-Setup-{version}', installer)
+        self.assertIn('Git tag and VERSION do not match', workflow)
 
     def test_gui_and_server_self_tests_shipped(self):
         launcher=(ROOT/'windows/launcher.py').read_text(encoding='utf-8')

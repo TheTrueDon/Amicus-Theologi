@@ -205,6 +205,18 @@ async function runSearch(offset=0){
  finally{button.disabled=false}
 }
 const queryFields=[['lemma','Lemma','λόγος'],['surface','Wortform','λόγος'],['morph','Morphologie','z. B. Aorist'],['strong','Strong','G3056']];
+function readQueryCondition(row){
+ const item=Object.fromEntries([...row.querySelectorAll('[data-query-field]')].map(input=>[input.dataset.queryField,input.value.trim()]).filter(([,value])=>value));
+ const start=row.querySelector('[data-query-start]')?.checked;
+ const from=row.querySelector('[data-query-position="from"]')?.value;
+ const to=row.querySelector('[data-query-position="to"]')?.value;
+ if(start){item.position_from=1;item.position_to=1}
+ else{
+  if(from!=='')item.position_from=Number(from);
+  if(to!=='')item.position_to=Number(to);
+ }
+ return item;
+}
 function setQueryConditions(conditions=[{}]){
  const box=$('#query-conditions');box.replaceChildren();
  conditions.slice(0,5).forEach((condition,index)=>{
@@ -214,8 +226,22 @@ function setQueryConditions(conditions=[{}]){
    const label=el('label','',title),input=el('input');input.type='text';input.dataset.queryField=key;input.value=condition[key]||'';input.placeholder=placeholder;label.append(input);fields.append(label);
   }
   row.append(fields);
+  const position=el('div','query-position');
+  const startLabel=el('label','query-start-label');const start=el('input');start.type='checkbox';start.dataset.queryStart='';start.checked=Number(condition.position_from)===1&&Number(condition.position_to)===1;
+  startLabel.append(start,document.createTextNode('Wort am Versanfang (Token 1)'));position.append(startLabel);
+  for(const [key,title] of [['from','Position von'],['to','Position bis']]){
+   const label=el('label','',title),input=el('input');input.type='number';input.min='1';input.max='500';input.step='1';input.dataset.queryPosition=key;
+   input.value=condition['position_'+key]??'';input.disabled=start.checked;label.append(input);position.append(label);
+  }
+  start.addEventListener('change',()=>{
+   const from=row.querySelector('[data-query-position="from"]'),to=row.querySelector('[data-query-position="to"]');
+   if(start.checked){from.value='1';to.value='1'}
+   from.disabled=to.disabled=start.checked;
+  });
+  position.querySelectorAll('[data-query-position]').forEach(input=>input.addEventListener('input',()=>{start.checked=input.value==='1'&&row.querySelector('[data-query-position="from"]').value==='1'&&row.querySelector('[data-query-position="to"]').value==='1'}));
+  row.append(position);
   const remove=el('button','btn query-remove','Bedingung entfernen');remove.type='button';remove.disabled=conditions.length===1;
-  remove.addEventListener('click',()=>{const next=[...box.querySelectorAll('.query-condition')].filter(x=>x!==row).map(x=>Object.fromEntries([...x.querySelectorAll('[data-query-field]')].map(i=>[i.dataset.queryField,i.value])));setQueryConditions(next)});
+  remove.addEventListener('click',()=>{const next=[...box.querySelectorAll('.query-condition')].filter(x=>x!==row).map(readQueryCondition);setQueryConditions(next)});
   row.append(remove);box.append(row);
  });
  $('#query-add-condition').disabled=conditions.length>=5;
@@ -229,14 +255,11 @@ function syncQueryControls(){
 }
 $('#query-connector').addEventListener('change',syncQueryControls);
 $('#query-add-condition').addEventListener('click',()=>{
- const current=[...$('#query-conditions').querySelectorAll('.query-condition')].map(row=>Object.fromEntries([...row.querySelectorAll('[data-query-field]')].map(i=>[i.dataset.queryField,i.value])));
+ const current=[...$('#query-conditions').querySelectorAll('.query-condition')].map(readQueryCondition);
  if(current.length<5)setQueryConditions([...current,{}]);
 });
 function currentAdvancedCriteria(){
- const conditions=[...$('#query-conditions').querySelectorAll('.query-condition')].map(row=>Object.fromEntries(
-  [...row.querySelectorAll('[data-query-field]')].map(input=>[input.dataset.queryField,input.value.trim()])
-  .filter(([,value])=>value)
- ));
+ const conditions=[...$('#query-conditions').querySelectorAll('.query-condition')].map(readQueryCondition);
  const criteria={conditions,connector:$('#query-connector').value,distance:Number($('#adv-distance').value||5),order:$('#adv-order').value};
  if($('#search-module').value)criteria.module_id=$('#search-module').value;
  if($('#search-book').value)criteria.book=$('#search-book').value;

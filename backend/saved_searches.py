@@ -49,14 +49,23 @@ def _clean(name, criteria):
             raise ValueError('Bitte 1 bis 5 Wortbedingungen speichern.')
         cleaned_conditions=[]
         for condition in conditions:
-            if not isinstance(condition,dict) or set(condition)-{'lemma','surface','strong','morph'}:
+            if not isinstance(condition,dict) or set(condition)-{'lemma','surface','strong','morph','position_from','position_to'}:
                 raise ValueError('Eine Wortbedingung enthält unbekannte Felder.')
             item={}
             for key,value in condition.items():
-                if not isinstance(value,str) or len(value)>200:
-                    raise ValueError(f'Ungültiger Wert für {key}.')
-                if value.strip():item[key]=value.strip()
-            if not item:raise ValueError('Jede Wortbedingung benötigt ein Suchfeld.')
+                if key in ('position_from','position_to'):
+                    if value is None or value=='':continue
+                    if isinstance(value,bool) or not isinstance(value,int) or not 1<=value<=500:
+                        raise ValueError('Tokenpositionen müssen ganze Zahlen zwischen 1 und 500 sein.')
+                    item[key]=value
+                else:
+                    if not isinstance(value,str) or len(value)>200:
+                        raise ValueError(f'Ungültiger Wert für {key}.')
+                    if value.strip():item[key]=value.strip()
+            if not any(item.get(key) for key in ('lemma','surface','strong','morph')):
+                raise ValueError('Jede Wortbedingung benötigt ein Suchfeld.')
+            if ('position_from' in item and 'position_to' in item and item['position_from']>item['position_to']):
+                raise ValueError('Die erste Tokenposition darf nicht hinter der letzten liegen.')
             cleaned_conditions.append(item)
         connector=criteria.get('connector','all')
         if connector not in ('all','any'):raise ValueError('Verknüpfung muss UND oder ODER sein.')

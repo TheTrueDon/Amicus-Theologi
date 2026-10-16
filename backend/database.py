@@ -5,7 +5,7 @@ import sqlite3
 from pathlib import Path
 from contextlib import contextmanager
 
-APP_VERSION = '1.3.0'
+APP_VERSION = '1.3.1'
 DEFAULT_SETTINGS = {
     'theme': 'dark', 'font_size': 17, 'search_width': 25,
     'analysis_width': 27, 'active_reference': 'Joh 1,1',

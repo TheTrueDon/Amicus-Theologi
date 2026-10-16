@@ -1,3 +1,10 @@
+## 1.3.1 – Positionsbedingungen für Wortabfragen
+
+- Jede Wortbedingung kann auf Tokenposition 1 am Versanfang oder auf einen inklusiven Tokenpositionsbereich begrenzt werden.
+- Positionsbedingungen gelten innerhalb jedes Verses und jeder installierten annotierten Ausgabe; sie funktionieren bei UND und ODER.
+- Gespeicherte Suchmuster erweitern sich ohne Schemaänderung und bleiben über Versionen hinweg wiederherstellbar.
+- Keine Datenbankmigration.
+
 ## 1.3.0 – Grafischer Abfrageeditor
 
 - Morphologische Abfragen unterstützen bis zu fünf strukturierte Wortbedingungen mit UND-/ODER-Verknüpfung.
@@ -5,6 +12,7 @@
 - Neuer API-Endpunkt `/api/search/query`; Eingaben werden streng validiert und als Parameter gebunden.
 - Gespeicherte Suchmuster aus 1.2.0 bleiben wiederherstellbar; neue Muster speichern die Bedingungen als strukturierte Kriterien.
 - Keine zusätzliche Datenbankmigration.
+- Beide Offline-Handbücher beschreiben Abfrageeditor und gespeicherte Suchmuster.
 
 ## 1.2.0 – Suchabfragen lokal speichern und wiederöffnen
 

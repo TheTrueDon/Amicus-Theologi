@@ -4,13 +4,16 @@ from .library import NAMES
 
 MAX_RESULTS = 100
 MAX_CONDITIONS = 5
-FIELDS = ('lemma', 'surface', 'strong', 'morph')
+POSITION_FIELDS = ('position_from', 'position_to')
+FIELDS = ('lemma', 'surface', 'strong', 'morph', *POSITION_FIELDS)
 
 
 def _condition_sql(alias, condition):
     parts = []
     args = []
     for field in FIELDS:
+        if field in POSITION_FIELDS:
+            continue
         value = condition.get(field, '').strip()
         if value:
             if field == 'morph':
@@ -18,6 +21,12 @@ def _condition_sql(alias, condition):
             else:
                 parts.append(f'{alias}.{field}=? COLLATE NOCASE')
             args.append(value)
+    if condition.get('position_from') is not None:
+        parts.append(f'{alias}.position>=?')
+        args.append(condition['position_from'])
+    if condition.get('position_to') is not None:
+        parts.append(f'{alias}.position<=?')
+        args.append(condition['position_to'])
     return ' AND '.join(parts), args
 
 
@@ -43,12 +52,22 @@ def _validate(criteria):
         item = {}
         for field in FIELDS:
             value = condition.get(field, '')
-            if not isinstance(value, str) or len(value) > 200:
-                raise ValueError(f'Ungültiger Wert für {field}.')
-            if value.strip():
-                item[field] = value.strip()
-        if not item:
+            if field in POSITION_FIELDS:
+                if value is None or value == '':
+                    continue
+                if isinstance(value, bool) or not isinstance(value, int) or not 1 <= value <= 500:
+                    raise ValueError('Tokenpositionen müssen ganze Zahlen zwischen 1 und 500 sein.')
+                item[field] = value
+            else:
+                if not isinstance(value, str) or len(value) > 200:
+                    raise ValueError(f'Ungültiger Wert für {field}.')
+                if value.strip():
+                    item[field] = value.strip()
+        if not any(item.get(field) for field in ('lemma', 'surface', 'strong', 'morph')):
             raise ValueError('Jede Wortbedingung benötigt mindestens ein Suchfeld.')
+        if ('position_from' in item and 'position_to' in item
+                and item['position_from'] > item['position_to']):
+            raise ValueError('Die erste Tokenposition darf nicht hinter der letzten liegen.')
         cleaned.append(item)
     connector = criteria.get('connector', 'all')
     if connector not in ('all', 'any'):
@@ -81,7 +100,7 @@ def query_search(criteria, *, limit=50, offset=0):
 
     For AND, each condition matches a distinct token in the same verse. The
     maximum distance is checked between adjacent conditions in their displayed
-    order. ODER searches each condition independently and ignores position.
+    order. Per-condition token position ranges apply to both UND and ODER.
     """
     criteria = _validate(criteria)
     if not 1 <= limit <= MAX_RESULTS or not 0 <= offset <= 100000:
@@ -139,5 +158,5 @@ def query_search(criteria, *, limit=50, offset=0):
     return {
         'total': total, 'limit': limit, 'offset': offset,
         'results': [dict(row) for row in rows], 'criteria': criteria,
-        'note': 'Morphologie wird als Teilzeichenfolge des importierten Codes geprüft. UND verlangt alle Wortbedingungen im selben Vers; der Abstand gilt zwischen benachbarten Bedingungen.',
+        'note': 'Morphologie wird als Teilzeichenfolge des importierten Codes geprüft. Positionsangaben zählen annotierte Token ab 1 je Vers. UND verlangt alle Wortbedingungen im selben Vers; der Abstand gilt zwischen benachbarten Bedingungen.',
     }

@@ -198,6 +198,55 @@ q('#lemma-dialog-close').addEventListener('click',closeConcordance);
 dialog.addEventListener('close',()=>{++concordanceRequest});
 prev.addEventListener('click',()=>loadConcordance(Math.max(0,concordanceState.offset-50)));
 next.addEventListener('click',()=>loadConcordance(concordanceState.offset+50));
+
+const formsDialog=q('#forms-dialog'),formsList=q('#forms-dialog-results');
+let formsState=null,formsRequest=0;
+function closeForms(){formsRequest++;if(formsDialog.open)formsDialog.close()}
+async function loadForms(offset=0){
+ if(!formsState)return;
+ const seq=++formsRequest;const {word,mod}=formsState;
+ const status=q('#forms-dialog-status');formsList.replaceChildren();status.textContent='Wortformen werden aus den importierten Annotationen gezählt …';
+ q('#forms-dialog-prev').disabled=true;q('#forms-dialog-next').disabled=true;
+ try{
+  const params=new URLSearchParams({module_id:mod.id,lemma:word.lemma,limit:'50',offset:String(offset)});
+  const response=await fetch('/api/morphology/forms?'+params);
+  if(!response.ok){let body={};try{body=await response.json()}catch{}throw new Error(body.detail||`HTTP ${response.status}`)}
+  const data=await response.json();
+  if(seq!==formsRequest||!formsDialog.open)return;
+  formsState.offset=offset;formsState.totalForms=data.total_forms;
+  status.textContent=`${data.total_forms.toLocaleString('de-DE')} belegte Wortformen · ${data.total_occurrences.toLocaleString('de-DE')} Vorkommen in ${mod.title}`;
+  if(!data.forms.length)formsList.append(elt('p','hint','Für dieses Lemma liegen in diesem Modul keine annotierten Vorkommen vor.'));
+  for(const form of data.forms){
+   const card=elt('article','morph-form-card');
+   const top=elt('div','morph-form-top');
+   const search=elt('button','morph-form-search',form.surface);search.type='button';search.title='Nach dieser exakten Wortform suchen';
+   search.addEventListener('click',async()=>{const runSearch=formsState.search;closeForms();await runSearch(form.surface)});
+   top.append(search,elt('strong','morph-form-count',`${form.occurrences.toLocaleString('de-DE')}×`));card.append(top);
+   for(const analysis of form.analyses||[]){
+    const grammar=analysis.grammar?.recognized?(analysis.grammar.features||[]).map(x=>`${x.name}: ${x.value}`).join(' · '):analysis.morph;
+    card.append(elt('p','morph-form-grammar',`${grammar||'Keine grammatische Analyse in der Quelle angegeben.'} · ${analysis.occurrences.toLocaleString('de-DE')}×`));
+    if(analysis.grammar?.recognized&&analysis.morph)card.append(elt('p','morph-form-code','Originalcode: '+analysis.morph));
+   }
+   if(form.books?.length){
+    const detail=elt('details','morph-form-books');detail.append(elt('summary','',`Vorkommen in ${form.books.length} Büchern`));
+    const list=elt('ul','');for(const entry of form.books)list.append(elt('li','',`${entry.book}: ${entry.occurrences.toLocaleString('de-DE')}`));detail.append(list);card.append(detail);
+   }
+   formsList.append(card);
+  }
+  q('#forms-dialog-page').textContent=data.total_forms?`${offset+1}–${Math.min(offset+data.forms.length,data.total_forms)} von ${data.total_forms}`:'';
+  q('#forms-dialog-prev').disabled=offset===0;q('#forms-dialog-next').disabled=offset+data.forms.length>=data.total_forms;
+ }catch(e){if(seq===formsRequest){status.textContent='Die Wortformen konnten nicht geladen werden: '+e.message;formsList.append(elt('p','hint','Prüfe, ob das ausgewählte Modul Wortannotationen enthält.'))}}
+}
+function openForms(word,mod,search){
+ formsState={word,mod,search,offset:0,totalForms:0};
+ q('#forms-dialog-title').textContent='Wortformen · '+word.lemma;
+ q('#forms-dialog-page').textContent='';
+ formsDialog.showModal();loadForms(0);
+}
+q('#forms-dialog-close').addEventListener('click',closeForms);
+formsDialog.addEventListener('close',()=>{formsRequest++;formsState=null});
+q('#forms-dialog-prev').addEventListener('click',()=>loadForms(Math.max(0,formsState.offset-50)));
+q('#forms-dialog-next').addEventListener('click',()=>loadForms(formsState.offset+50));
 window.addEventListener('scroll',()=>{if(activeButton)placeTooltip(activeButton)},true);
-window.amicusWordTools={renderLexicalText,enableHover,hideTooltip,openConcordance};
+window.amicusWordTools={renderLexicalText,enableHover,hideTooltip,openConcordance,openForms};
 })();

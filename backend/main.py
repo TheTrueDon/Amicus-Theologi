@@ -18,7 +18,7 @@ from .search import search_verses
 from .advanced_search import advanced_search
 from .source_import import install_scientific, download_source, MAX_UPLOAD
 from .lexicon import read_lexicon, install_lexicon, installed_lexica, lookup, remove_lexicon
-from .morphology import parse_annotation_file, import_annotations, chapter_tokens, get_word, lemma_concordance, lemma_concordance_page
+from .morphology import parse_annotation_file, import_annotations, chapter_tokens, get_word, lemma_concordance, lemma_concordance_page, lemma_forms_page
 from .catalog import catalog_list, install_catalog_item
 from .bible_catalog import bible_catalog, install_bible_from_catalog
 ROOT=Path(__file__).resolve().parent.parent; WEB=ROOT/'frontend'
@@ -163,6 +163,13 @@ def morphology_lemma(module_id:str,lemma:str,limit:int=50,offset:int=0,sort_by:L
  if not re.fullmatch(r'[a-zA-Z0-9_-]{2,48}',module_id):
   raise HTTPException(422,'Ungültige Modul-ID.')
  try:return lemma_concordance_page(module_id,lemma,limit,offset,sort_by,direction)
+ except ValueError as e:raise HTTPException(422,str(e))
+
+@app.get('/api/morphology/forms')
+def morphology_forms(module_id:str,lemma:str,limit:int=50,offset:int=0):
+ if not re.fullmatch(r'[a-zA-Z0-9_-]{2,48}',module_id):
+  raise HTTPException(422,'Ungültige Modul-ID.')
+ try:return lemma_forms_page(module_id,lemma,limit,offset)
  except ValueError as e:raise HTTPException(422,str(e))
 
 @app.get('/api/morphology/preview')

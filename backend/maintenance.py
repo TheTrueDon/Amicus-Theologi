@@ -223,13 +223,19 @@ def diagnostics():
             quantities[key] = db.execute(f'SELECT COUNT(*) FROM {table}').fetchone()[0]
         modules = [dict(r) for r in db.execute('''SELECT m.id,m.title,m.language,m.license,m.provenance,
           COUNT(DISTINCT v.rowid) AS verse_count,
-          (SELECT COUNT(*) FROM tokens t WHERE t.module_id=m.id) AS annotated_words
+          (SELECT COUNT(*) FROM tokens t WHERE t.module_id=m.id) AS annotated_words,
+          (SELECT COUNT(DISTINCT t.book || ':' || t.chapter || ':' || t.verse)
+             FROM tokens t WHERE t.module_id=m.id) AS annotated_verses
           FROM modules m LEFT JOIN verses v ON v.module_id=m.id
           GROUP BY m.id ORDER BY m.title''')]
+        for module in modules:
+            total=module['verse_count']
+            module['annotation_coverage_percent']=round(100*module['annotated_verses']/total,1) if total else 0.0
     return {'version': APP_VERSION, 'database_ok':integrity=='ok' and not foreign_keys,
             'database_message': integrity if not foreign_keys else 'Fehlerhafte Fremdschlüssel',
             'pending_restore': pending_restore(), 'counts': quantities, 'modules':modules,
-            'storage':str(data_dir()), 'data_size_mb':round((data_dir() / DB_NAME).stat().st_size / (1024*1024), 2)}
+            'storage':str(data_dir()), 'data_size_mb':round((data_dir() / DB_NAME).stat().st_size / (1024*1024), 2),
+            'coverage_note':'Die Abdeckung zählt Verse mit importierten Wortannotationen. Sie belegt weder Vollständigkeit der Ausgabe noch Korrektheit der Annotationen.'}
 
 
 def install_demo_bundle():

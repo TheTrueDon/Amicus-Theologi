@@ -136,6 +136,19 @@ body[data-theme=light] .word-preview-red{color:#ab2339}
 .lemma-result-context{font-size:12px;line-height:1.45;overflow-wrap:anywhere;max-height:3em;overflow:hidden}
 .lemma-dialog-navigation{display:flex;align-items:center;gap:12px;justify-content:center;padding:12px 0}
 @media(max-width:650px){.lemma-result{grid-template-columns:85px minmax(0,1fr)}.lemma-result-context{grid-column:1/-1}}
+.forms-dialog{width:min(760px,95vw);max-height:90vh;overflow:hidden;background:var(--surface);color:var(--txt);border:1px solid var(--line);border-radius:12px;padding:20px;box-shadow:0 16px 50px #0005}
+.forms-dialog::backdrop{background:#07121cb0}
+.forms-dialog-results{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:10px;overflow:auto;max-height:58vh;padding:8px 2px}
+.morph-form-card{background:var(--surface2);border:1px solid var(--line);border-radius:8px;padding:12px;min-width:0}
+.morph-form-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.morph-form-search{border:0;background:transparent;color:var(--gold);font:700 21px Georgia,serif;text-align:left;overflow-wrap:anywhere;cursor:pointer}
+.morph-form-search:hover,.morph-form-search:focus-visible{text-decoration:underline;outline-color:var(--blue)}
+.morph-form-count{white-space:nowrap}
+.morph-form-grammar{font-size:13px;line-height:1.45;margin:8px 0;color:var(--txt)}
+.morph-form-code{font-size:11px;color:var(--muted);overflow-wrap:anywhere}
+.morph-form-books{font-size:12px;color:var(--muted)}
+.morph-form-books ul{margin:6px 0;padding-left:20px;columns:2}
+@media(max-width:520px){.forms-dialog{padding:14px}.morph-form-books ul{columns:1}}
 
 /* 1.0.3: sorted lemma concordance, with accessible column labels */
 .lemma-sort-bar{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:12px 0 10px;font-size:13px}

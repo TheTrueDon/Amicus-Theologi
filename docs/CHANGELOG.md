@@ -1,3 +1,11 @@
+## 1.1.0 – Wortformen und Datenabdeckung
+
+- Wortanalyse bietet für griechische und hebräische Lemmata eine paginierte Formenübersicht mit belegten Schreibweisen, Häufigkeiten, grammatischer Analyse und Verteilung nach biblischen Büchern.
+- Anklicken einer Form startet eine exakte Oberflächensuche.
+- Datenbankdiagnose zeigt pro Textmodul Verse mit Wortannotationen und deren Anteil an den vorhandenen Versen.
+- Die Diagnose erklärt ausdrücklich, dass Abdeckung weder Vollständigkeit des Textes noch Richtigkeit der Annotationen nachweist.
+- Auswertungen beruhen ausschließlich auf tatsächlich importierten Daten. Keine Schemaänderung oder Datenmigration.
+
 ## 1.0.9 – Amicus-Datenverzeichnis und vollständige Deinstallation
 
 - Bisherige Daten werden auf den neuen Standard-Datenpfad migriert, ohne Tabellenänderungen.

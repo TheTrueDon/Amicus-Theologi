@@ -48,7 +48,8 @@ $('#diagnostics-btn').addEventListener('click',async()=>{
     }root.append(grid);
     const extra=document.createElement('p');extra.className='hint';extra.textContent=`Speicherort: ${d.storage} · Datenbankgröße: ${d.data_size_mb} MB`;root.append(extra);
     if(!d.counts.bibeltexte){const hint=document.createElement('p');hint.className='hint';hint.textContent='Noch keine Bibeltexte installiert. Öffne den Modulkatalog oder verwende die Mini-Beispiele für einen Test.';root.append(hint)}
-    for(const m of d.modules){const line=document.createElement('p');line.className='hint';line.textContent=`${m.title}: ${m.verse_count.toLocaleString('de-DE')} Verse, ${m.annotated_words.toLocaleString('de-DE')} annotierte Wörter · ${m.provenance}`;root.append(line)}
+    for(const m of d.modules){const line=document.createElement('p');line.className='hint';line.textContent=`${m.title}: Wortdaten in ${m.annotated_verses.toLocaleString('de-DE')} von ${m.verse_count.toLocaleString('de-DE')} Versen (${m.annotation_coverage_percent.toLocaleString('de-DE')} %), ${m.annotated_words.toLocaleString('de-DE')} annotierte Wörter · ${m.provenance}`;root.append(line)}
+    if(d.modules.some(m=>m.annotated_words)){const note=document.createElement('p');note.className='hint';note.textContent=d.coverage_note;root.append(note)}
   }catch(err){root.textContent='Prüfung fehlgeschlagen: '+err.message}
 });
 $('#backup-restore-form').addEventListener('submit',async ev=>{

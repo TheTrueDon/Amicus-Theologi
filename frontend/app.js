@@ -226,6 +226,17 @@ function showWord(word,mod){
   if(chosen){chosen.scrollIntoView({block:'center'});chosen.classList.add('selected-word');chosen.focus({preventScroll:true})}
  }));
  box.append(concordanceBtn);
+ const formsBtn=el('button','btn forms-button','Wortformen und Häufigkeiten');
+ formsBtn.type='button';
+ formsBtn.addEventListener('click',()=>window.amicusWordTools.openForms(word,mod,async surface=>{
+  for(const name of ['lemma','surface','morph','strong','second-lemma','second-surface','second-morph','second-strong'])$('#adv-'+name).value='';
+  $('#adv-surface').value=surface;
+  $('#search-module').value=mod.id;
+  $('#search-book').value='';
+  $('#advanced-box').open=true;
+  await runAdvancedSearch(0);
+ }));
+ box.append(formsBtn);
  $('#lemma-results').replaceChildren(el('p','hint','Die vollständige Konkordanz öffnet sich über „Alle Vorkommen dieses Lemmas“ im eigenen Fenster.'));
  const grammar=el('section','grammar-box');grammar.append(el('p','hint','Grammatik wird geladen …'));box.append(grammar);
  const technical=el('details','technical-codes');technical.append(el('summary','','Originalcodes / technische Angaben'));

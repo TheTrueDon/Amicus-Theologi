@@ -123,3 +123,46 @@ def lemma_concordance_page(module_id, lemma, limit=50, offset=0,
             (module_id,lemma,limit,offset)).fetchall()
     return {'module_id':module_id,'lemma':lemma,'total':total,'limit':limit,'offset':offset,
             'sort_by':sort_by,'direction':direction,'results':[dict(x) for x in rows]}
+
+
+def lemma_forms_page(module_id, lemma, limit=50, offset=0):
+    """Return observed surface forms and their per-book counts for one lemma.
+
+    Counts are derived only from imported token annotations. No missing form or
+    grammatical feature is inferred. Pagination is applied after aggregation.
+    """
+    if (not module_id or len(module_id)>48 or not lemma or len(lemma)>200 or
+            not (1<=limit<=100) or not (0<=offset<=1_000_000)):
+        raise ValueError('Ungültiges Modul, Lemma oder Seitenlimit.')
+    with connect() as db:
+        module=db.execute('SELECT id,language FROM modules WHERE id=?',(module_id,)).fetchone()
+        if module is None:
+            raise ValueError('Textmodul nicht gefunden.')
+        if module['language'] not in ('grc','he'):
+            raise ValueError('Formenübersichten sind nur für griechische und hebräische Annotationen verfügbar.')
+        rows=db.execute('''SELECT surface,morph,book,COUNT(*) AS occurrences
+            FROM tokens WHERE module_id=? AND lemma=?
+            GROUP BY surface,morph,book''',(module_id,lemma)).fetchall()
+    from .morph_display import decode
+    book_order={record[0]:index for index,record in enumerate(BOOKS)}
+    grouped={}
+    for row in rows:
+        item=grouped.setdefault(row['surface'],{'surface':row['surface'],
+            'occurrences':0,'books':{},'analyses':{}})
+        count=int(row['occurrences'])
+        item['occurrences']+=count
+        item['books'][row['book']]=item['books'].get(row['book'],0)+count
+        analysis=item['analyses'].setdefault(row['morph'],{'morph':row['morph'],'occurrences':0})
+        analysis['occurrences']+=count
+    forms=list(grouped.values())
+    for item in forms:
+        item['books']=[{'book':book,'occurrences':count} for book,count in item['books'].items()]
+        item['books'].sort(key=lambda x:(book_order.get(x['book'],999),x['book']))
+        item['analyses']=list(item['analyses'].values())
+        for analysis in item['analyses']:
+            analysis['grammar']=decode(analysis['morph'],module['language'])
+        item['analyses'].sort(key=lambda x:(-x['occurrences'],x['morph'].casefold()))
+    forms.sort(key=lambda x:(-x['occurrences'],x['surface'].casefold()))
+    return {'module_id':module_id,'lemma':lemma,'language':module['language'],
+            'total_forms':len(forms),'total_occurrences':sum(x['occurrences'] for x in forms),
+            'limit':limit,'offset':offset,'forms':forms[offset:offset+limit]}

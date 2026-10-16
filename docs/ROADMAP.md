@@ -11,6 +11,7 @@
 - [x] 0.8 – Ausgabenvergleich, neun synoptische Parallelperikopen, eigene dokumentierte Lesarten
 - [x] 0.9 – Schnellbedienung, Befehlssuche, Verlauf, Tastenkürzel
 - [x] 1.0 – Erste konsolidierte lokale Veröffentlichung, Datenbankprüfung, Vollbackup, geprüfte Wiederherstellung, Erststart-Hilfe, Skriptinstaller, Qualitätsprüfungen
+- [x] 1.1 – Belegte Wortformen mit Häufigkeiten; Diagnose der Versabdeckung importierter Wortannotationen
 
 ## Weitere notwendige Arbeit nach 1.0
 

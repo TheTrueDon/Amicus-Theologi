@@ -47,6 +47,18 @@ class QueryBuilderTests(unittest.TestCase):
                      'conditions':[{'surface':'Ἐν'},{'lemma':'θεός'}]})
         self.assertEqual(query_search(pair)['total'],1)
 
+    def test_token_position_start_and_range(self):
+        beginning={'conditions':[{'surface':'Ἐν','position_from':1,'position_to':1}],
+                   'module_id':'demo-grc'}
+        self.assertEqual(query_search(beginning)['total'],1)
+        beginning['conditions']=[{'lemma':'λόγος','position_from':16,'position_to':17}]
+        self.assertEqual(query_search(beginning)['total'],1)
+        beginning['conditions']=[{'lemma':'λόγος','position_from':1,'position_to':4}]
+        self.assertEqual(query_search(beginning)['total'],0)
+        beginning['conditions']=[{'lemma':'λόγος','position_from':17,'position_to':2}]
+        with self.assertRaisesRegex(ValueError,'darf nicht hinter'):
+            query_search(beginning)
+
     def test_single_clause_matches_existing_search_and_invalid_query_is_rejected(self):
         result=query_search({'conditions':[{'lemma':'λόγος'}],'module_id':'demo-grc'})
         old=advanced_search(lemma='λόγος',module_id='demo-grc')

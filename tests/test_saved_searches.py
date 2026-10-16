@@ -49,7 +49,7 @@ class SavedSearchStorageTests(unittest.TestCase):
         self.assertEqual(list_saved_searches(),[])
 
     def test_structured_query_conditions_are_saved(self):
-        criteria={'module_id':'greek','book':'Joh','conditions':[{'surface':'λόγος'},{'lemma':'θεός'}],
+        criteria={'module_id':'greek','book':'Joh','conditions':[{'surface':'λόγος','position_from':1,'position_to':4},{'lemma':'θεός'}],
                   'connector':'all','distance':4,'order':'before'}
         item=create_saved_search('Mehrere Bedingungen',criteria)
         self.assertEqual(item['criteria'],criteria)

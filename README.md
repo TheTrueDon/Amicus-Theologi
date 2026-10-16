@@ -1,13 +1,17 @@
 # Amicus Theologi 📖
 
-**Freie, offlinefähige Studienumgebung für wissenschaftliche Bibelarbeit – Version 1.1.1.**
+**Freie, offlinefähige Studienumgebung für wissenschaftliche Bibelarbeit – Version 1.1.2.**
 
 Amicus Theologi bietet eine dreigeteilte Oberfläche aus **Suche · Bibeltext · Analyse**, griechisch/hebräische Wortinformationen, importierbare Bibelausgaben und Lexika, exegetische Studienprojekte, eine begrenzte Synopse und textkritische Vergleiche. Bei den vorkompilierten Windows-/Ubuntu-Installern ist **keine zusätzliche Python-Installation** erforderlich; Internet wird nur zum Herunterladen neuer wissenschaftlicher Datenmodule benötigt. Beim Start aus dem Quellcode-ZIP müssen Python-Abhängigkeiten zunächst installiert werden.
 
 > **Wissenschaftliche Einordnung:** 1.0 ist die erste zusammengeführte, getestete *Anwendungsbasis*, kein nachgewiesener vollständiger Ersatz für BibleWorks und keine vollständige kritische Textedition. Einige Quellformate (insbesondere STEPBible TAHOT und SWORD) sind noch experimentell. Angaben zu Morphologie und Wortbedeutung stammen aus den installierten Datensätzen; unbekannte Codes werden nicht geraten.
 
 
-## Neu in 1.1.1: Wortdaten gezielt prüfen
+## Neu in 1.1.2: Wortformensuche nach Bibelbuch filtern
+
+In der Wortformenübersicht kannst du auf eine Form klicken, um sie im ausgewählten Modul exakt zu suchen. Ein Klick auf ein Buch in der Häufigkeitsverteilung schränkt dieselbe Suche auf dieses Buch ein.
+
+## Aus 1.1.1: Wortdaten gezielt prüfen
 
 Im Textmodul-Dialog kann für griechische und hebräische Ausgaben eine Prüfung gestartet werden. Sie vergleicht die gespeicherten Wortoberflächen mit dem Vers, kontrolliert die lückenlose Reihenfolge der Tokenpositionen und meldet fehlende Lemma-/Morphologiefelder. Das Ergebnis ist eine interne Datenkonsistenzprüfung, kein Nachweis für Vollständigkeit, Lizenz oder wissenschaftliche Richtigkeit. Es werden keine Daten verändert.
 

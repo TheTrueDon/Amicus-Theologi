@@ -22,5 +22,12 @@ class DatabaseTests(unittest.TestCase):
     def test_schema(self):
         with connect() as db:
             names={row[0] for row in db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
-        self.assertTrue({'settings','modules','verses','tokens','verse_mapping'}<=names)
+        self.assertTrue({'settings','modules','verses','tokens','verse_mapping','saved_searches'}<=names)
+    def test_saved_search_schema_is_additive(self):
+        set_settings({'theme':'light'})
+        with connect() as db:db.execute('DROP TABLE saved_searches')
+        init_db()
+        self.assertEqual(get_settings()['theme'],'light')
+        with connect() as db:
+            self.assertIsNotNone(db.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='saved_searches'").fetchone())
 if __name__=='__main__':unittest.main()

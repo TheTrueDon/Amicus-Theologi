@@ -48,6 +48,10 @@ class MorphologyTests(unittest.TestCase):
    self.assertEqual(module['annotated_verses'],1)
    self.assertEqual(module['annotation_coverage_percent'],100.0)
    self.assertIn('weder Vollständigkeit',diagnostic['coverage_note'])
+   audit=c.get('/api/modules/m-grc/annotation-audit')
+   self.assertEqual(audit.status_code,200,audit.text)
+   self.assertEqual(audit.json()['status'],'passed')
+   self.assertEqual(c.get('/api/modules/missing/annotation-audit').status_code,422)
  def test_hebrew_example(self):
   raw=self.example('he');self.assertEqual(import_annotations('m-he',parse_annotation_file(raw))['tokens'],7)
  def test_hebrew_chapter_api_exposes_clickable_tokens(self):

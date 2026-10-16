@@ -14,6 +14,7 @@
 - [x] 1.1.0 – Erste Formenübersicht und Diagnose der Versabdeckung importierter Wortannotationen
 - [x] 1.1.1 – Interne Konsistenzprüfung gespeicherter griechischer/hebräischer Wortannotationen
 - [x] 1.1.2 – Exakte Wortformsuche aus Häufigkeitsverteilung nach Buch eingrenzen
+- [x] 1.2.0 – Morphologische Suchabfragen lokal benennen, speichern, wieder öffnen und ausführen
 
 ## Weitere notwendige Arbeit nach 1.0
 

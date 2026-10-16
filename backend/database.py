@@ -5,7 +5,7 @@ import sqlite3
 from pathlib import Path
 from contextlib import contextmanager
 
-APP_VERSION = '1.1.2'
+APP_VERSION = '1.2.0'
 DEFAULT_SETTINGS = {
     'theme': 'dark', 'font_size': 17, 'search_width': 25,
     'analysis_width': 27, 'active_reference': 'Joh 1,1',
@@ -143,6 +143,8 @@ def init_db():
         setup_studies(db)
         from .textcriticism import setup as setup_textcriticism
         setup_textcriticism(db)
+        from .saved_searches import setup as setup_saved_searches
+        setup_saved_searches(db)
         # v0.3 migration: add an FTS5 virtual table plus maintenance triggers.
         # Existing module IDs, verses and user settings are preserved.
         db.executescript("""
@@ -185,6 +187,7 @@ def factory_reset():
     with connect() as db:
         db.execute('DELETE FROM study_projects')
         db.execute('DELETE FROM textual_variants')
+        db.execute('DELETE FROM saved_searches')
         db.execute('DELETE FROM modules')
         db.execute('DELETE FROM lexicon_modules')
         db.execute('DELETE FROM verse_mapping')

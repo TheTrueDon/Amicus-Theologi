@@ -5,7 +5,7 @@ import tempfile
 from starlette.background import BackgroundTask
 from fastapi.responses import JSONResponse
 from pathlib import Path
-from typing import Literal
+from typing import Literal, Any
 import re
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Request
 from fastapi.responses import FileResponse
@@ -22,6 +22,7 @@ from .lexicon import read_lexicon, install_lexicon, installed_lexica, lookup, re
 from .morphology import parse_annotation_file, import_annotations, chapter_tokens, get_word, lemma_concordance, lemma_concordance_page, lemma_forms_page
 from .catalog import catalog_list, install_catalog_item
 from .bible_catalog import bible_catalog, install_bible_from_catalog
+from .saved_searches import list_saved_searches, create_saved_search, delete_saved_search
 ROOT=Path(__file__).resolve().parent.parent; WEB=ROOT/'frontend'
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -66,6 +67,10 @@ class SettingsUpdate(BaseModel):
  display_module_ids:list[str]|None=Field(default=None,max_length=150)
  display_module_order:list[str]|None=Field(default=None,max_length=150)
  text_layout:Literal['verse','edition']|None=None
+class SavedSearchPayload(BaseModel):
+ model_config=ConfigDict(extra='forbid')
+ name:str=Field(min_length=1,max_length=120)
+ criteria:dict[str,Any]
 @app.get('/')
 def home():return FileResponse(WEB/'index.html')
 @app.get('/ANLEITUNG.html', include_in_schema=False)
@@ -94,6 +99,16 @@ def patch_settings(change:SettingsUpdate):
  return set_settings(data)
 @app.get('/api/books')
 def books():return [{'id':b[0],'name':b[1]} for b in BOOKS]
+@app.get('/api/saved-searches')
+def saved_searches_list():return list_saved_searches()
+@app.post('/api/saved-searches',status_code=201)
+def saved_searches_create(payload:SavedSearchPayload):
+ try:return create_saved_search(payload.name,payload.criteria)
+ except ValueError as e:raise HTTPException(422,str(e))
+@app.delete('/api/saved-searches/{search_id}')
+def saved_searches_delete(search_id:int):
+ if not delete_saved_search(search_id):raise HTTPException(404,'Gespeicherte Suche nicht gefunden.')
+ return {'deleted':search_id}
 @app.get('/api/modules')
 def modules():return installed()
 @app.get('/api/bible-catalog')

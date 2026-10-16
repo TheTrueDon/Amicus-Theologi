@@ -31,6 +31,12 @@
 .advanced-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:10px 0}
 .advanced-grid label{font-size:11px;display:flex;flex-direction:column;gap:4px;min-width:0}
 .advanced-grid input,.advanced-grid select{box-sizing:border-box;width:100%;min-width:0;padding:7px;border:1px solid #758293;border-radius:5px;background:var(--surface,#202a35);color:inherit}
+.saved-searches{border-top:1px solid var(--line);margin-top:12px;padding-top:8px}
+.saved-searches h4{font-size:13px;margin:4px 0 8px}
+.saved-search-row{display:flex;align-items:end;gap:7px;flex-wrap:wrap;margin:7px 0}
+.saved-search-row label{font-size:11px;display:flex;flex-direction:column;gap:4px;flex:1 1 190px;min-width:0}
+.saved-search-row input,.saved-search-row select{box-sizing:border-box;width:100%;min-width:0;padding:7px;border:1px solid #758293;border-radius:5px;background:var(--surface,#202a35);color:inherit}
+.saved-searches .hint{margin:6px 0;font-size:11px}
 
 /* 0.6.1 guided library importer */
 .source-wizard{padding:18px;margin:12px 0 20px;border:1px solid var(--border, #64748b);border-radius:12px;background:rgba(127,140,160,.07)}

@@ -1,7 +1,7 @@
 "use strict";
 const $=x=>document.querySelector(x), $$=x=>document.querySelectorAll(x);
 let currentProjectId=null,studyHighlights={},allProjects=[];
-let settings={},saving=Promise.resolve(),modules=[],view=null,activeVerse=1,books=[],searchState={offset:0,total:0,limit:50},activeSearch='normal';
+let settings={},saving=Promise.resolve(),modules=[],view=null,activeVerse=1,books=[],searchState={offset:0,total:0,limit:50},activeSearch='normal',savedSearchItems=[];
 async function api(path,opts={}){const r=await fetch(path,opts);if(!r.ok){let j;try{j=await r.json()}catch{};throw new Error(typeof j?.detail==='string'?j.detail:`HTTP ${r.status}`)}return r.json()}
 function save(p){Object.assign(settings,p);saving=saving.then(()=>api('/api/settings',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)})).catch(e=>message(e.message))}
 function message(text){$('#error-msg').textContent=text;$('#error-msg').hidden=!text}
@@ -155,7 +155,7 @@ async function refreshModules(){
   row.append(detail,btn);$('#manage-list').append(row);
  }
 }
-async function start(){try{settings=await api('/api/settings');books=await api('/api/books');for(const b of books){const sb=el('option','',b.name);sb.value=b.id;$('#search-book').append(sb);const o=el('option','',b.name);o.value=b.id;$('#book-choice').append(o)}apply();await refreshModules();try{const r=await api('/api/reference?q='+encodeURIComponent(settings.active_reference));await go(r.book,r.chapter,r.verse)}catch{await go('Joh',1,1)}}catch(e){message('Lokaler Start fehlgeschlagen: '+e.message)}}
+async function start(){try{settings=await api('/api/settings');books=await api('/api/books');for(const b of books){const sb=el('option','',b.name);sb.value=b.id;$('#search-book').append(sb);const o=el('option','',b.name);o.value=b.id;$('#book-choice').append(o)}apply();await refreshModules();try{await refreshSavedSearches()}catch{}try{const r=await api('/api/reference?q='+encodeURIComponent(settings.active_reference));await go(r.book,r.chapter,r.verse)}catch{await go('Joh',1,1)}}catch(e){message('Lokaler Start fehlgeschlagen: '+e.message)}}
 $('#text-layout').onchange=e=>{save({text_layout:e.target.value});if(view)render()};
 $('#navigate').onclick=navigate;$('#reference').onkeydown=e=>{if(e.key==='Enter')navigate()};$('#book-choice').onchange=e=>go(e.target.value,1,1);$('#chapter-choice').onchange=e=>go($('#book-choice').value,Number(e.target.value),1);$('#prev').onclick=()=>view?.previous&&go(...view.previous,1);$('#next').onclick=()=>view?.next&&go(...view.next,1);
 $('#settings-btn').onclick=()=>show('#settings-dialog');$('#help-btn').onclick=()=>window.open('/ANLEITUNG.html','_blank','noopener,noreferrer');$('#module-btn').onclick=()=>show('#module-dialog');$('#add-module-left').onclick=()=>show('#module-dialog');$('#modules-close').onclick=()=>$('#module-dialog').close();$('#reset').onclick=()=>{save({search_width:25,analysis_width:27});apply()};$('#theme').onchange=e=>{save({theme:e.target.value});apply()};$('#font-size').oninput=e=>{save({font_size:Number(e.target.value)});apply()};for(const l of ['greek','german','latin'])$('#show-'+l).onchange=e=>{save({['show_'+l]:e.target.checked});apply();if(view)render()};$('#larger').onclick=()=>{save({font_size:Math.min(28,settings.font_size+1)});apply()};$('#smaller').onclick=()=>{save({font_size:Math.max(12,settings.font_size-1)});apply()};
@@ -225,6 +225,59 @@ async function runAdvancedSearch(offset=0){
  }catch(e){$('#search-error').textContent=e.message;$('#search-error').hidden=false}
  finally{button.disabled=false}
 }
+function currentAdvancedCriteria(){
+ const criteria={};
+ for(const [key,id] of [['lemma','adv-lemma'],['surface','adv-surface'],['morph','adv-morph'],['strong','adv-strong'],
+  ['second_lemma','adv-second-lemma'],['second_surface','adv-second-surface'],['second_morph','adv-second-morph'],['second_strong','adv-second-strong']]){
+  const value=$('#'+id).value.trim();if(value)criteria[key]=value;
+ }
+ if($('#search-module').value)criteria.module_id=$('#search-module').value;
+ if($('#search-book').value)criteria.book=$('#search-book').value;
+ const distance=$('#adv-distance').value.trim();criteria.distance=distance===''?null:Number(distance);criteria.order=$('#adv-order').value;
+ return criteria;
+}
+async function refreshSavedSearches(selectedId=''){
+ const select=$('#saved-search-select');
+ try{
+  savedSearchItems=await api('/api/saved-searches');select.replaceChildren(el('option','','Gespeicherte Suche auswählen …'));select.firstChild.value='';
+  for(const item of savedSearchItems){const option=el('option','',`${item.name} · ${new Date(item.created_at).toLocaleString('de-DE')}`);option.value=String(item.id);select.append(option)}
+  if(selectedId&&savedSearchItems.some(item=>String(item.id)===String(selectedId)))select.value=String(selectedId);
+  const enabled=Boolean(select.value);$('#saved-search-open').disabled=!enabled;$('#saved-search-delete').disabled=!enabled;
+  return savedSearchItems;
+ }catch(error){$('#saved-search-status').textContent='Gespeicherte Suchen konnten nicht geladen werden: '+error.message;throw error}
+}
+$('#saved-search-select').addEventListener('change',event=>{
+ const enabled=Boolean(event.target.value);$('#saved-search-open').disabled=!enabled;$('#saved-search-delete').disabled=!enabled;
+});
+$('#saved-search-save').addEventListener('click',async()=>{
+ const name=$('#saved-search-name').value.trim(),status=$('#saved-search-status');
+ if(!name){status.textContent='Bitte einen Namen für die Suchabfrage eingeben.';$('#saved-search-name').focus();return}
+ const button=$('#saved-search-save');button.disabled=true;
+ try{
+  const item=await api('/api/saved-searches',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,criteria:currentAdvancedCriteria()})});
+  $('#saved-search-name').value='';await refreshSavedSearches(item.id);status.textContent=`„${item.name}“ wurde lokal gespeichert (${new Date(item.created_at).toLocaleString('de-DE')}).`;
+ }catch(error){status.textContent='Speichern fehlgeschlagen: '+error.message}
+ finally{button.disabled=false}
+});
+$('#saved-search-open').addEventListener('click',async()=>{
+ const item=savedSearchItems.find(x=>String(x.id)===$('#saved-search-select').value);if(!item)return;
+ const c=item.criteria||{},status=$('#saved-search-status');
+ if(c.module_id&&![...$('#search-module').options].some(o=>o.value===c.module_id)){
+  status.textContent=`Das gespeicherte Textmodul „${c.module_id}“ ist nicht installiert. Installiere es zuerst, dann lässt sich die Suche unverändert wieder öffnen.`;return;
+ }
+ if(c.book&&![...$('#search-book').options].some(o=>o.value===c.book)){status.textContent=`Das gespeicherte Bibelbuch „${c.book}“ ist in dieser Ausgabe nicht verfügbar.`;return}
+ for(const [key,id] of [['lemma','adv-lemma'],['surface','adv-surface'],['morph','adv-morph'],['strong','adv-strong'],
+  ['second_lemma','adv-second-lemma'],['second_surface','adv-second-surface'],['second_morph','adv-second-morph'],['second_strong','adv-second-strong']])$('#'+id).value=c[key]||'';
+ $('#search-module').value=c.module_id||'';$('#search-book').value=c.book||'';
+ $('#adv-distance').value=String(c.distance??5);$('#adv-order').value=c.order||'any';$('#advanced-box').open=true;
+ status.textContent=`„${item.name}“ geladen; die Suche wird mit den gespeicherten Filtern ausgeführt.`;await runAdvancedSearch(0);
+});
+$('#saved-search-delete').addEventListener('click',async()=>{
+ const id=$('#saved-search-select').value,item=savedSearchItems.find(x=>String(x.id)===id);if(!item)return;
+ if(!confirm(`Gespeicherte Suche „${item.name}“ löschen?`))return;
+ try{await api('/api/saved-searches/'+encodeURIComponent(id),{method:'DELETE'});await refreshSavedSearches();$('#saved-search-status').textContent=`„${item.name}“ wurde gelöscht.`}
+ catch(error){$('#saved-search-status').textContent='Löschen fehlgeschlagen: '+error.message}
+});
 function pageSearch(offset){return activeSearch==='advanced'?runAdvancedSearch(offset):runSearch(offset)}
 $('#adv-search-btn').addEventListener('click',()=>runAdvancedSearch(0));
 $('#search-btn').addEventListener('click',()=>runSearch(0));

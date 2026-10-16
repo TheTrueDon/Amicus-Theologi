@@ -1,3 +1,10 @@
+## 1.2.0 – Suchabfragen lokal speichern und wiederöffnen
+
+- Morphologische Suchabfragen lassen sich benennen und lokal sichern.
+- Gespeichert werden Kriterien für beide Wörter, Suchabstand, Reihenfolge, Textmodul und ausgewähltes Bibelbuch sowie Erstellungszeitpunkt.
+- Gespeicherte Suchen können wiederhergestellt, erneut ausgeführt und gelöscht werden. Doppelte Namen werden ohne Beachtung der Groß-/Kleinschreibung verhindert.
+- Additive SQLite-Tabelle `saved_searches`; wird beim Start angelegt. Vorhandene Daten bleiben bestehen; ältere Backups können weiterhin wiederhergestellt werden.
+
 ## 1.1.2 – Wortformensuche nach Bibelbuch filtern
 
 - In der Formenübersicht startet ein Klick auf eine Wortform weiterhin die exakte Suche im gesamten Modul.

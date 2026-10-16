@@ -19,7 +19,13 @@
 <label>Strong 2<input id="adv-second-strong" placeholder="G1510"></label>
 <label>Max. Wörter dazwischen<input id="adv-distance" type="number" min="0" max="100" value="5"></label>
 <label>Reihenfolge<select id="adv-order"><option value="any">Beliebig</option><option value="before">Wort 1 vor Wort 2</option><option value="after">Wort 1 nach Wort 2</option></select></label>
-</div><button class="btn primary" id="adv-search-btn">Morphologisch suchen</button>
+</div><button class="btn primary" id="adv-search-btn" type="button">Morphologisch suchen</button>
+<section class="saved-searches" aria-label="Gespeicherte Suchen">
+ <h4>Suchabfrage speichern</h4>
+ <div class="saved-search-row"><label for="saved-search-name">Name<input id="saved-search-name" maxlength="120" placeholder="z. B. Aoristformen in Johannes"></label><button class="btn" id="saved-search-save" type="button">Aktuelle Suche speichern</button></div>
+ <div class="saved-search-row"><label for="saved-search-select">Gespeicherte Suche<select id="saved-search-select"><option value="">Lade gespeicherte Suchen …</option></select></label><button class="btn" id="saved-search-open" type="button" disabled>Laden &amp; suchen</button><button class="btn danger" id="saved-search-delete" type="button" disabled>Löschen</button></div>
+ <p id="saved-search-status" class="hint" role="status" aria-live="polite">Gespeicherte Suchen bleiben lokal auf diesem Gerät.</p>
+</section>
 <p id="adv-note" class="hint">Es werden nur Verse mit importierten Wortannotationen gefunden.</p></details>
 <div class="subheading">ZULETZT BESUCHTE STELLEN</div><div id="recent-references" class="workflow-recents"></div><div class="subheading">SUCHTREFFER</div><div id="search-error" class="error-box" hidden role="alert"></div><div id="search-results" aria-live="polite"><p class="hint">Gib ein Wort oder eine Wortfolge ein und starte die Suche. Ergebnisse lassen sich anklicken.</p></div><div class="search-pagination"><button class="btn" id="search-prev" hidden>← Vorherige</button><span id="search-page"></span><button class="btn" id="search-next" hidden>Nächste →</button></div><div class="subheading">INSTALLIERTE MODULE</div><div id="module-summary" class="module-summary"></div><button id="add-module-left" class="btn module-action">+ Textmodul importieren</button></div><div class="panel-foot">Volltextindex · offline</div></section>
 <div class="splitter" data-resize="left" role="separator" aria-orientation="vertical" title="Zum Verändern ziehen"></div>

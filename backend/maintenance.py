@@ -88,7 +88,7 @@ def make_backup(destination=None):
             'created_at': utc_now(), 'application_version': APP_VERSION,
             'database_file': 'database.sqlite3', 'database_bytes': temp.stat().st_size,
             'sha256': _checksum(temp),
-            'content': 'Bibeltexte, Wortannotationen, Lexika, Notizen, Projekte, Markierungen, Einstellungen',
+            'content': 'Bibeltexte, Quellentexte, Wortannotationen, Lexika, Notizen, Projekte, Markierungen, Einstellungen',
         }
         with zipfile.ZipFile(destination, 'w', zipfile.ZIP_DEFLATED, compresslevel=5) as z:
             z.writestr('manifest.json', json.dumps(manifest, ensure_ascii=False, indent=2))
@@ -219,7 +219,9 @@ def diagnostics():
                            ('annotierte_woerter','tokens'), ('lexika','lexicon_modules'),
                            ('lexikoneintraege','lexicon_entries'), ('projekte','study_projects'),
                            ('notizen','study_notes'), ('markierungen','study_highlights'),
-                           ('textvarianten','textual_variants')]:
+                           ('textvarianten','textual_variants'),
+                           ('quellenwerke','source_modules'), ('quellenabschnitte','source_sections'),
+                           ('quellenwoerter','source_tokens'), ('quellennotizen','source_notes')]:
             quantities[key] = db.execute(f'SELECT COUNT(*) FROM {table}').fetchone()[0]
         modules = [dict(r) for r in db.execute('''SELECT m.id,m.title,m.language,m.license,m.provenance,
           COUNT(DISTINCT v.rowid) AS verse_count,

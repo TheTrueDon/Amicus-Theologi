@@ -145,6 +145,8 @@ def init_db():
         setup_textcriticism(db)
         from .saved_searches import setup as setup_saved_searches
         setup_saved_searches(db)
+        from .sources import setup as setup_sources
+        setup_sources(db)
         # v0.3 migration: add an FTS5 virtual table plus maintenance triggers.
         # Existing module IDs, verses and user settings are preserved.
         db.executescript("""
@@ -185,6 +187,7 @@ def set_settings(patch):
 def factory_reset():
     """Transactional data reset. Retain schema/FTS triggers and recreate defaults."""
     with connect() as db:
+        db.execute('DELETE FROM source_modules')
         db.execute('DELETE FROM study_projects')
         db.execute('DELETE FROM textual_variants')
         db.execute('DELETE FROM saved_searches')

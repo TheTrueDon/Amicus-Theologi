@@ -1,3 +1,12 @@
+## Unveröffentlichter Testzweig auf Basis 1.3.1 – Quellenstudium, Morphologie- und Tooltip-Korrektur
+
+- Eigenständiges Quellenstudium erhält wieder ein sichtbares Wort-Tooltip auf Maus-Hover, Tastaturfokus und Touch-Auswahl, einschließlich Lemma, Morphologie, möglicher Bedeutung und Kennzeichnung der Datenqualität.
+- Zwei neue Ein-Klick-Datenpakete: vollständig annotierte *Confessiones* von Augustinus (CIRCSE, manuell nachgeprüft) und die analysierte griechische Severian-Ausgabe des Patristic Text Archive (automatische Analyse).
+- Der TEI-Import übernimmt nur positionell belegte Annotationen mit übereinstimmender Wortfolge. Nicht deckungsgleiche Abschnitte bleiben unannotiert.
+- Nicht annotierte Wörter erhalten gegebenenfalls als Vorschlag ausgewiesene Belege aus installierten annotierten Quellen oder Bibelkorpora; keine irreführende Behauptung einer sicheren Kontextanalyse.
+- Katalog unterscheidet reine Texteditionen sichtbar von annotierten Korpora. Additiver SQLite-Index für schnellere Wortformenvergleiche.
+- **Noch nicht committet, gepusht oder als stabile Amicus-Version veröffentlicht.**
+
 ## 1.3.1 – Positionsbedingungen für Wortabfragen
 
 - Jede Wortbedingung kann auf Tokenposition 1 am Versanfang oder auf einen inklusiven Tokenpositionsbereich begrenzt werden.
@@ -190,3 +199,26 @@
 - Optimierte Startskripte installieren Python-Pakete nur bei Bedarf, Linux-Menüintegration optional; ausführliche verständliche Dokumentation und GitHub-CI-Vorbereitung.
 - **Keine neue Datenbanktabelle** und keine Änderung bestehender Tabellenspalten in 1.0; lediglich neue Anwendungseinstellungen.
 - Grenzen der Bibliotheksimporte und der wissenschaftlichen Textdaten ausdrücklich dokumentiert. Große STEPBible-Textdateien werden jetzt zeilenweise gelesen; defektes UTF-8 wird nicht mehr stillschweigend ersetzt.
+
+## Quellenstudium – lokaler Testzweig auf Basis 1.3.1 (nicht veröffentlicht)
+
+- **Katalogausbau (zweiter Teststand):** Vier Bereiche für Primärquellen,
+  Lexika, Sprachdaten und Hilfsmittel mit Filter nach Kategorie und Sprache.
+- Ein-Klick-Quellen aus CSEL (Augustinus), First1KGreek (Clemens), PTA
+  (Severian), Sefaria (Mischna und Maimonides).
+- Ein-Klick-Import von LSJ und Georges aus PTA-Wörterbuchdateien; HTML in
+  Lexikoneinträgen wird zu harmlosem Nur-Text umgewandelt.
+- Annotierte CoNLL-U-Textproben von Thomas von Aquin und dem griechischen
+  Perseus Treebank, mit Kontrolle abweichender Tokenisierung.
+- Corpus Corporum und UD-Dokumentation als ausdrücklich externe
+  Nachschlagehilfen, keine vorgetäuschte Komplettinstallation.
+- Eigenes Fenster für lateinische, griechische und hebräische Primärquellen.
+- Importassistent für CSV/TSV, JSON und TEI-P5-Texte sowie Wortannotationen und
+  Lexika mit Herkunfts- und Lizenzfeldern.
+- Ein-Klick-Katalog mit Perseus-Editionen, Sefaria-Lizenzprüfung,
+  Latin Lewis & Short und vorhandenen STEPBible-Lexika.
+- Eigener Volltextindex, Wortformen/Konkordanz, Statistiken und Notizen.
+- Additive SQLite-Tabellen; die vorhandenen Bibelmodule bleiben erhalten.
+- Basissuite, HTTP-Tests und echte Katalogdownloads geprüft. Keine erfundene
+  Morphologie für nicht annotierte Texte.
+- Keine Versionsänderung und keine Veröffentlichung.

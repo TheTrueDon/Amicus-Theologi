@@ -2,6 +2,18 @@
 
 **Freie, offlinefähige Studienumgebung für wissenschaftliche Bibelarbeit – Version 1.3.1.**
 
+> **Optionaler Testzweig Quellenstudium (noch kein Release):** Auf Basis
+> von 1.3.1 öffnet sich ein separates Fenster für außerbiblische
+> Primärtexte in Latein, Altgriechisch und Hebräisch. Enthalten sind
+> manuelle Quellen-, Annotationen- und Lexikonimporte, ein viergeteilter
+> Ein-Klick-Katalog (u. a. Augustinus, Clemens, PTA, Sefaria, LSJ,
+> Georges und UD-Treebanks), zusätzlich die annotierten *Confessiones*
+> (CIRCSE) und die automatisch analysierte Severian-Ausgabe (PTA),
+> Wort-Tooltips, Textnavigation, Suche, Statistiken und Notizen.
+> Für reine Texteditionen sind nur Vergleichskorpus-Vorschläge möglich,
+> keine als gesichert ausgegebenen Wortanalysen.
+> **Anleitung:** [docs/QUELLENSTUDIUM.md](docs/QUELLENSTUDIUM.md).
+
 Amicus Theologi bietet eine dreigeteilte Oberfläche aus **Suche · Bibeltext · Analyse**, griechisch/hebräische Wortinformationen, importierbare Bibelausgaben und Lexika, exegetische Studienprojekte, eine begrenzte Synopse und textkritische Vergleiche. Bei den vorkompilierten Windows-/Ubuntu-Installern ist **keine zusätzliche Python-Installation** erforderlich; Internet wird nur zum Herunterladen neuer wissenschaftlicher Datenmodule benötigt. Beim Start aus dem Quellcode-ZIP müssen Python-Abhängigkeiten zunächst installiert werden.
 
 > **Wissenschaftliche Einordnung:** 1.0 ist die erste zusammengeführte, getestete *Anwendungsbasis*, kein nachgewiesener vollständiger Ersatz für BibleWorks und keine vollständige kritische Textedition. Einige Quellformate (insbesondere STEPBible TAHOT und SWORD) sind noch experimentell. Angaben zu Morphologie und Wortbedeutung stammen aus den installierten Datensätzen; unbekannte Codes werden nicht geraten.

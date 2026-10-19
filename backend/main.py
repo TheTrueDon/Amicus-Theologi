@@ -24,6 +24,7 @@ from .morphology import parse_annotation_file, import_annotations, chapter_token
 from .catalog import catalog_list, install_catalog_item
 from .bible_catalog import bible_catalog, install_bible_from_catalog
 from .saved_searches import list_saved_searches, create_saved_search, delete_saved_search
+from . import sources
 ROOT=Path(__file__).resolve().parent.parent; WEB=ROOT/'frontend'
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -79,6 +80,8 @@ class QuerySearchPayload(BaseModel):
  offset:int=Field(default=0,ge=0,le=100000)
 @app.get('/')
 def home():return FileResponse(WEB/'index.html')
+@app.get('/quellenstudium', include_in_schema=False)
+def source_workspace():return FileResponse(WEB/'sources.html')
 @app.get('/ANLEITUNG.html', include_in_schema=False)
 def help_manual():return FileResponse(ROOT/'ANLEITUNG.html', media_type='text/html')
 @app.get('/ANLEITUNG.css', include_in_schema=False)
@@ -231,7 +234,7 @@ def morphology_preview(module_id:str,book:str,chapter:int,verse:int,position:int
 def lexica():return installed_lexica()
 
 @app.get('/api/lexicon/lookup')
-def lexicon_lookup(language:Literal['grc','he'],lemma:str='',strong:str=''):
+def lexicon_lookup(language:Literal['la','grc','he'],lemma:str='',strong:str=''):
  try:
   from .lexical_text import best_gloss
   if language=='he':
@@ -289,6 +292,79 @@ def available_catalog():return catalog_list()
 def catalog_install(item:str):
  try:return install_catalog_item(item)
  except ValueError as e:raise HTTPException(422,str(e))
+
+# Optional source-study window. Biblical references and their endpoints are unchanged.
+@app.get('/api/sources/modules')
+def sources_modules():
+ return sources.modules()
+
+@app.post('/api/sources/import')
+async def sources_import(file:UploadFile=File(...),module_id:str=Form(...),title:str=Form(...),
+ author:str=Form(...),language:Literal['la','grc','he']=Form(...),edition:str=Form(...),
+ license_name:str=Form(...),provenance:str=Form(...),version:str=Form('1')):
+ try:
+  raw=await file.read(sources.MAX_FILE+1)
+  return sources.install_source(module_id.strip(),title.strip(),author.strip(),language,
+   edition.strip(),license_name.strip(),provenance.strip(),version.strip(),sources.read_source(raw))
+ except ValueError as e:raise HTTPException(422,str(e))
+
+@app.delete('/api/sources/modules/{module_id}')
+def sources_remove(module_id:str):
+ if not sources.remove_source(module_id):raise HTTPException(404,'Quelle nicht gefunden.')
+ return {'deleted':module_id}
+
+@app.get('/api/sources/sections')
+def sources_sections(module_id:str):
+ return sources.sections_for(module_id)
+
+@app.get('/api/sources/passage')
+def sources_passage(module_id:str,ref:str):
+ try:return sources.passage(module_id,ref)
+ except ValueError as e:raise HTTPException(404,str(e))
+
+@app.get('/api/sources/search')
+def sources_search(q:str='',module_id:str='',mode:Literal['all','any','phrase']='all',
+ lemma:str='',surface:str='',morph:str='',limit:int=50,offset:int=0):
+ try:return sources.search_sources(q,module_id,mode,lemma,surface,morph,limit,offset)
+ except ValueError as e:raise HTTPException(422,str(e))
+
+@app.get('/api/sources/word')
+def sources_word(module_id:str,ref:str,position:int):
+ try:return sources.word_analysis(module_id,ref,position)
+ except ValueError as e:raise HTTPException(404,str(e))
+
+@app.get('/api/sources/stats')
+def sources_stats(module_id:str,lemma:str=''):
+ return sources.stats(module_id,lemma)
+
+@app.post('/api/sources/annotations/import')
+async def sources_annotations(file:UploadFile=File(...),module_id:str=Form(...)):
+ try:return sources.import_annotations(module_id,await file.read(sources.MAX_FILE+1))
+ except ValueError as e:raise HTTPException(422,str(e))
+
+@app.get('/api/sources/note')
+def sources_get_note(module_id:str,ref:str):
+ return sources.get_note(module_id,ref)
+
+class SourceNoteUpdate(BaseModel):
+ module_id:str=Field(max_length=48)
+ ref:str=Field(max_length=160)
+ content:str=Field(max_length=20000)
+
+@app.put('/api/sources/note')
+def sources_put_note(note:SourceNoteUpdate):
+ try:return sources.save_note(note.module_id,note.ref,note.content)
+ except ValueError as e:raise HTTPException(422,str(e))
+
+@app.get('/api/sources/catalog')
+def sources_catalog():
+ return sources.catalog_list()
+
+@app.post('/api/sources/catalog/{item}/install')
+def sources_install_catalog(item:str):
+ try:return sources.install_catalog(item)
+ except ValueError as e:raise HTTPException(422,str(e))
+ except (OSError, TimeoutError) as e:raise HTTPException(502,'Download nicht möglich: '+str(e))
 
 # Version 1.0: self-check, portable complete backups, staged recovery and offline demo setup.
 @app.get('/api/diagnostics')

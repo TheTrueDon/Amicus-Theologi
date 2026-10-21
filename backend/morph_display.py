@@ -62,6 +62,14 @@ def _decode_ud(raw):
 def _decode_agdt(raw):
     if len(raw)!=9 or raw[0] not in AGDT_POS:return None
     pos,person,num,tense,mood,voice,gender,case,degree=raw
+    # AGDT is positional. A recognized part of speech alone does not make an
+    # arbitrary nine-character string a valid code; reject unknown symbols in
+    # every slot so malformed tags remain visible as unrecognized source data.
+    allowed=(set('123-x'),set('spd-x'),set(AGDT_TENSE)|set('-x'),
+             set(AGDT_MOOD)|set('-x'),set(AGDT_VOICE)|set('-x'),
+             set('mfn-x'),set('ngdav-x'),set(AGDT_DEGREE)|set('-x'))
+    if any(value not in chars for value,chars in zip((person,num,tense,mood,voice,gender,case,degree),allowed)):
+        return None
     features=[{'name':'Wortart','value':AGDT_POS[pos]}]
     if person in '123':features.append({'name':'Person','value':person+'. Person'})
     if num in {'s':'Singular','p':'Plural','d':'Dual'}:features.append({'name':'Numerus','value':{'s':'Singular','p':'Plural','d':'Dual'}[num]})

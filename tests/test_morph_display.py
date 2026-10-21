@@ -10,6 +10,10 @@ class MorphDisplayTests(unittest.TestCase):
         self.assertEqual(result['scheme'], 'AGDT/Perseus positional morphology')
         self.assertIn({'name': 'Tempus', 'value': 'Aorist'}, result['features'])
 
+    def test_malformed_agdt_code_is_not_misidentified(self):
+        self.assertFalse(decode('X-UNKNOWN', 'grc')['recognized'])
+        self.assertFalse(decode('v1saoa-?-', 'grc')['recognized'])
+
     def test_ud_features_are_readable_for_latin_and_greek(self):
         for language in ('la', 'grc'):
             result = decode('NOUN|Case=Gen|Gender=Fem|Number=Sing', language)

@@ -11,6 +11,7 @@ python -m PyInstaller --noconfirm --clean --onedir --windowed `
   --name 'AmicusTheologi' --paths '.' --icon 'assets/amicus.ico' `
   --add-data 'frontend;frontend' `
   --add-data 'modules/examples;modules/examples' `
+  --add-data 'source_packages;source_packages' `
   --add-data 'assets/amicus.ico;assets' `
   --add-data 'ANLEITUNG.html;.' `
   --add-data 'ANLEITUNG.css;.' `

@@ -58,6 +58,7 @@
    <article id="source-text" class="text-content">
     <p class="placeholder">Installiere eine Quelle über den Katalog oder importiere einen eigenen Text. Latein, Altgriechisch und Hebräisch werden unterstützt.</p>
    </article>
+   <section id="source-translations" class="translations" aria-label="Übersetzungen"></section>
    <p id="edition-note" class="edition-note"></p>
   </div>
   <footer class="panel-foot">Wörter anklicken · Text und Navigation bleiben im eigenen Quellenfenster</footer>
@@ -81,7 +82,15 @@
 </main>
 <dialog id="catalog-dialog" class="large-dialog">
  <div class="dialog-top"><div><small>ONLINE-KATALOG</small><h2>Quellen und Lexika installieren</h2></div><button data-close="catalog-dialog" aria-label="Schließen">×</button></div>
- <p class="hint">Die vier Bereiche trennen Originaltexte, Lexika, annotierte Sprachkorpora und wissenschaftliche Hilfsmittel. Installierbare Editionen werden heruntergeladen und danach offline genutzt. Externe Forschungsportale werden als solche gekennzeichnet.</p>
+ <p class="hint">Installiere kuratierte Offlinepakete oder lade eine Edition aus dem Onlinekatalog. Die Paketmetadaten nennen Edition, Rechte, Herkunft, Übersetzungen und den Prüfstatus der Wortanalysen.</p>
+ <section class="import-step package-install"><h3>Amicus-Quellenpaket installieren</h3>
+  <p>Ein Paket enthält den Originaltext, seine Stellenstruktur, Editions- und Lizenzangaben, optionale positionsgenaue Wortanalysen sowie zugeordnete Übersetzungen. Installiere eine <code>.amicus-source</code>- oder <code>.zip</code>-Datei.</p>
+  <form id="package-install-form" class="import-grid">
+   <label>Quellenpaket<input name="file" type="file" accept=".amicus-source,.zip" required></label>
+   <button class="primary" type="submit">Paket prüfen und installieren</button>
+  </form>
+  <p id="package-install-status" class="message" role="status"></p>
+ </section>
  <div class="catalog-filters">
   <label>Kategorie<select id="catalog-category"><option value="">Alle vier Bereiche</option><option value="quellen">1 · Primärquellen</option><option value="lexika">2 · Lexika</option><option value="sprachen">3 · Sprachwissenschaftliche Daten</option><option value="hilfsmittel">4 · Hilfsmittel</option></select></label>
   <label>Sprache<select id="catalog-language"><option value="">Alle Sprachen</option><option value="la">Latein</option><option value="grc">Altgriechisch</option><option value="he">Hebräisch</option></select></label>

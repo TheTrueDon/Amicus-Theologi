@@ -106,6 +106,16 @@
 .welcome-cards article h3{font-size:18px;margin:12px 0}
 .welcome-cards article p{font-size:14px;line-height:1.65;min-height:104px}
 .welcome-cards article button{margin:5px 5px 0 0}
+.install-all-progress{margin:12px 0;padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);font-size:12px}
+.install-all-progress[hidden]{display:none}
+.install-all-heading{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.install-all-progress progress{display:block;width:100%;height:12px;margin:10px 0;accent-color:var(--gold)}
+.install-all-progress p{margin:5px 0;min-height:0!important;font-size:12px!important;line-height:1.45!important}
+.install-all-errors{max-height:130px;overflow:auto;margin:8px 0;padding-left:20px;color:#efb2a8}
+.install-all-errors:empty{display:none}
+.install-spinner{width:17px;height:17px;border:2px solid var(--line);border-top-color:var(--gold);border-radius:50%;animation:install-spin .8s linear infinite}
+.install-spinner[hidden]{display:none}
+@keyframes install-spin{to{transform:rotate(360deg)}}
 .welcome-actions{text-align:right;margin-top:20px}
 .backup-dialog{width:min(810px,96vw);max-width:96vw;max-height:90vh;overflow-y:auto}
 .backup-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:18px 0}

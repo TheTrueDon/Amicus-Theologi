@@ -11,6 +11,7 @@ const get=async(url,options)=>{
 const welcome=$('#welcome-dialog');
 const backup=$('#backup-dialog');
 const status=$('#backup-restore-status');
+let allSourcesRunning=false;
 async function finishWelcome(){
   try{await get('/api/settings',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({welcome_completed:true})})}catch{}
   if(welcome.open)welcome.close();
@@ -19,8 +20,57 @@ function showBackup(){if(welcome.open)welcome.close();if(!backup.open)backup.sho
 $('#data-center-btn').addEventListener('click',showBackup);
 $('#settings-open-backup').addEventListener('click',()=>{$('#settings-dialog').close();showBackup()});
 $('#backup-close').addEventListener('click',()=>backup.close());
-$('#welcome-close').addEventListener('click',finishWelcome);
-$('#welcome-done').addEventListener('click',finishWelcome);
+function setAllSourcesRunning(value){
+  allSourcesRunning=value;
+  $('#welcome-install-all').disabled=value;
+  $('#welcome-close').disabled=value;
+  $('#welcome-done').disabled=value;
+  for(const id of ['welcome-demo','welcome-modules','welcome-joh','welcome-backup'])$('#'+id).disabled=value;
+  $('#install-all-spinner').hidden=!value;
+}
+function paintAllSourcesProgress(data){
+  const panel=$('#install-all-progress');panel.hidden=false;
+  const total=Number(data.total)||0,done=Number(data.completed)||0;
+  $('#install-all-bar').value=Number(data.progress)||0;
+  $('#install-all-count').textContent=total
+    ?`${done.toLocaleString('de-DE')} von ${total.toLocaleString('de-DE')} Quellen · ${Number(data.progress)||0} %`
+    :'Keine neuen Quellen erforderlich';
+  $('#install-all-phase').textContent=data.current_title
+    ?`${data.phase} ${data.current_title}`:data.phase;
+  const errors=$('#install-all-errors');errors.replaceChildren();
+  for(const item of data.errors||[]){
+    const line=document.createElement('li');line.textContent=`${item.title}: ${item.message}`;errors.append(line);
+  }
+  $('#install-all-summary').textContent=data.done
+    ?`Neu installiert: ${Number(data.installed||0).toLocaleString('de-DE')} · Bereits vorhanden: ${Number(data.skipped||0).toLocaleString('de-DE')} · Fehler: ${(data.errors||[]).length.toLocaleString('de-DE')} · Externe Verweise: ${(data.external_titles||[]).join(', ')||'keine'}.`
+    :`Bereits vorhanden: ${Number(data.skipped||0).toLocaleString('de-DE')} · Einzelne große Quellen können länger laden; der aktuelle Titel bleibt hier sichtbar.`;
+}
+async function installAllSources(){
+  const button=$('#welcome-install-all');setAllSourcesRunning(true);
+  $('#install-all-progress').hidden=false;$('#install-all-errors').replaceChildren();
+  $('#install-all-count').textContent='Installationsauftrag wird vorbereitet …';
+  $('#install-all-phase').textContent='Kataloge und mitgelieferte Pakete werden geprüft.';
+  $('#install-all-summary').textContent='Bereits installierte Quellen werden übersprungen.';
+  try{
+    const started=await get('/api/initial-install/start',{method:'POST'}),jobId=started.id;
+    let result=started;
+    while(!result.done){
+      paintAllSourcesProgress(result);
+      await new Promise(resolve=>setTimeout(resolve,900));
+      result=await get('/api/initial-install/'+encodeURIComponent(jobId));
+    }
+    paintAllSourcesProgress(result);setAllSourcesRunning(false);
+    if(result.errors?.length){button.disabled=false;button.textContent='Fehlerhafte Quellen erneut versuchen';}
+    else{button.disabled=true;button.textContent='Alle verfügbaren Quellen sind installiert';}
+    try{await window.amicusReloadAfterDemo()}catch{}
+  }catch(error){
+    $('#install-all-phase').textContent='Installation konnte nicht gestartet oder abgefragt werden: '+error.message;
+    setAllSourcesRunning(false);button.disabled=false;button.textContent='Erneut versuchen';
+  }
+}
+$('#welcome-install-all').addEventListener('click',installAllSources);
+$('#welcome-close').addEventListener('click',()=>{if(!allSourcesRunning)finishWelcome()});
+$('#welcome-done').addEventListener('click',()=>{if(!allSourcesRunning)finishWelcome()});
 $('#welcome-demo').addEventListener('click',async()=>{
   const btn=$('#welcome-demo');btn.disabled=true;btn.textContent='Installiere Mini-Beispiele …';
   try{const res=await get('/api/demo/install',{method:'POST'});

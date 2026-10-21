@@ -25,6 +25,7 @@ from .catalog import catalog_list, install_catalog_item
 from .bible_catalog import bible_catalog, install_bible_from_catalog
 from .saved_searches import list_saved_searches, create_saved_search, delete_saved_search
 from . import sources
+from . import initial_install
 ROOT=Path(__file__).resolve().parent.parent; WEB=ROOT/'frontend'
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -365,6 +366,26 @@ def sources_install_catalog(item:str):
  try:return sources.install_catalog(item)
  except ValueError as e:raise HTTPException(422,str(e))
  except (OSError, TimeoutError) as e:raise HTTPException(502,'Download nicht möglich: '+str(e))
+
+@app.post('/api/sources/packages/install')
+async def sources_install_package(file:UploadFile=File(...)):
+ try:
+  from .source_packages import install_package,MAX_PACKAGE
+  raw=await file.read(MAX_PACKAGE+1)
+  return install_package(raw)
+ except ValueError as e:raise HTTPException(422,str(e))
+
+@app.post('/api/initial-install/start')
+def initial_install_start():
+ try:return initial_install.start_installation()
+ except (OSError, ValueError) as exc:raise HTTPException(500,'Quelleninstallation konnte nicht vorbereitet werden: '+str(exc))
+
+@app.get('/api/initial-install/{job_id}')
+def initial_install_get_status(job_id:str):
+ if not re.fullmatch(r'[a-f0-9-]{36}',job_id):raise HTTPException(422,'Ungültige Installations-ID.')
+ state=initial_install.installation_status(job_id)
+ if state is None:raise HTTPException(404,'Installationsauftrag nicht gefunden. Bitte neu starten.')
+ return state
 
 # Version 1.0: self-check, portable complete backups, staged recovery and offline demo setup.
 @app.get('/api/diagnostics')

@@ -1,6 +1,6 @@
 # Amicus Quellenstudium – Funktions- und Testanleitung
 
-**Entwicklungsstand:** lokaler Testzweig auf Basis von Amicus Theologi 1.3.1.
+**Entwicklungsstand:** lokaler Testzweig auf Basis von Amicus Theologi 1.3.2.
 Diese Erweiterung ist noch nicht in einer regulären Version veröffentlicht.
 
 ## Funktionsumfang
@@ -24,7 +24,23 @@ eigener Arbeitsbereich. Die bisherige Bibeloberfläche bleibt unverändert.
 wissenschaftlichen Lemmata oder Grammatik. Sprachwissenschaftliche Analysen
 stehen nur nach Import geeigneter Annotationen zur Verfügung. Aus anderen
 Korpora belegte Wörter werden als **nicht kontextgeprüfte Vorschläge** getrennt
-angezeigt. Weder Lexikonbedeutungen noch grammatische Merkmale werden durch KI erfunden.
+angezeigt. Der Import eines bloßen Textes erzeugt keine Lemmata, Morphologie
+oder Lexikonbedeutungen.
+
+**Datenstatus der mitgelieferten Pakete:** Die Griechisch-Pakete enthalten
+automatische morphosyntaktische Analysen des Open Greek Corpus (COMBO-Modell)
+und teilweise Modell-Ergänzungen. Die Latein-Pakete kombinieren CIRCSE-Analysen
+mit automatisch ergänzten LatinCy-UDPipe- und spaCy-Ausgaben. Für alle 720.984
+Worttoken in den zehn Paketen sind Lemma und Morphologie-/Wortartcode belegt;
+Codes ohne ausformulierte Flexionsmerkmale bleiben bei einem Teil der Wörter
+als solche erkennbar (zum Beispiel POS-only-Analysen, häufig bei
+nichtflektierenden Wörtern, Eigennamen und Numeralia). Diese Resultate sind
+nicht vollständig redaktionell geprüft und können falsche Lemmata oder
+Merkmale enthalten. Vollständig ausdifferenzierte Flexionsangaben sind nicht
+für jedes Token verfügbar. Beim Wortklick und in den Editionsmetadaten wird
+der Prüfstatus ausgewiesen. Hebräische Codes werden editionsgebunden aus OSHB
+übernommen. Lemma-/Morphologieabdeckung ersetzt keine vollständigen
+Wörterbuchdefinitionen; für einzelne Lemmata kann der Wörterbucheintrag fehlen.
 
 ## Erste Schritte
 
@@ -34,6 +50,33 @@ angezeigt. Weder Lexikonbedeutungen noch grammatische Merkmale werden durch KI e
 4. Über **Werk** und **Stelle** zu einem Abschnitt navigieren.
 5. Wörter anklicken, nach Formen suchen, Statistiken öffnen oder Notizen speichern.
 6. Über den **Importassistenten** eigene Text-, Annotationen- und Lexikondateien ergänzen.
+
+Beim ersten Start bündelt **Alle verfügbaren Quellen installieren** die
+mitgelieferten `.amicus-source`-Pakete, alle installierbaren Bibelausgaben,
+Textmodule und Einträge des Quellenstudium-Katalogs. Offlinepakete werden zuerst
+übernommen; installierte Quellen werden übersprungen. Eine Fortschrittsanzeige
+nennt den gerade verarbeiteten Titel und meldet Fehler einzeln, während die
+übrigen Quellen weiter installiert werden. Nach einem Werksreset erscheint der
+Willkommensdialog erneut. Externe Hilfsmittel wie Corpus Corporum bleiben Links,
+weil sie keine installierbaren Datenmodule sind. Onlinequellen benötigen eine
+Internetverbindung.
+
+### Offlinepakete
+
+Im Katalog kann außerdem ein Amicus-Quellenpaket (`.amicus-source` oder ZIP)
+installiert werden. Die ASPK-v1-Datei enthält Manifest, Stellen, optionale
+positionsgenaue Wortanalysen und Übersetzungsausgaben. Die Installation prüft
+Dateipfade, Größen, SHA-256-Prüfsummen und ob Wortpositionen exakt zum
+Quellentext passen. Modul, Annotationen und Übersetzungen werden zusammen
+installiert; bei Fehlern bleibt die Bibliothek unverändert.
+
+Der Offlinebestand liegt im Ordner `source_packages/`: Augustinus, Origenes,
+Athanasius, Johannes Chrysostomus, Severian, Philon, Josephus und Genesis.
+Die README dort nennt für jedes Paket den Umfang und die Abdeckung der
+mitgelieferten Übersetzungen. Die Morphologiecodes der Editionen bleiben
+erhalten. Automatische Ergänzungen werden als solche gekennzeichnet; eine
+technische Vollabdeckung ist kein Qualitätsnachweis für jedes einzelne Lemma
+oder Merkmal.
 
 ### Der Ein-Klick-Katalog: vier Arbeitsbereiche
 
@@ -148,7 +191,8 @@ Stichwort gesucht; das ist noch keine morphologische Bestimmung.
 ## Datenbank, Sicherung und Updates
 
 **Neue additive SQLite-Tabellen:** source_modules, source_sections,
-source_tokens, source_notes und source_fts einschließlich Indizes und Triggern.
+source_tokens, source_notes, source_translation_editions, source_translations,
+source_package_metadata und source_fts einschließlich Indizes und Triggern.
 Ein zusätzlicher Oberflächenform-Index für die bisherigen Bibel-Token unterstützt
 die Vergleichssuche; bestehende Daten werden nicht verändert.
 Bestehende Bibeltexttabellen, Einstellungen und Studienprojekte bleiben erhalten.
@@ -158,7 +202,7 @@ Amicus den gesamten SQLite-Datenbestand sichert. Vor dem Test mit produktiven
 Daten dennoch eine externe Sicherung erstellen. Ein Werksreset oder eine
 vollständige Deinstallation mit Datenlöschung entfernt auch diese Quellen.
 
-Die Versionsdatei bleibt auf dem Basisstand 1.3.1. Es erfolgt ausdrücklich
+Die Versionsdatei steht auf 1.3.2. Es erfolgt ausdrücklich
 **kein Commit auf GitHub**, bis der Nutzer den Teststand freigegeben hat.
 
 ## Tests für Entwickler

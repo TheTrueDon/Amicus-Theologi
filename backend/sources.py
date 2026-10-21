@@ -1,7 +1,8 @@
 """Independent workspace for citable, non-biblical primary sources.
 
 CSV/TSV, JSON and TEI P5 inputs are supported. Tokens are indexed for
-concordances, but lemmas/grammar are NEVER invented from bare text.
+concordances. Imported or model-generated analyses must retain a visible
+source and review status; no analysis is inferred from bare text at runtime.
 """
 import csv
 import html
@@ -24,7 +25,7 @@ LANGUAGES = ('la', 'grc', 'he')
 MAX_FILE = 25_000_000
 MAX_SECTIONS = 100_000
 IDENT = re.compile(r'[A-Za-z0-9_-]{2,48}\Z')
-WORD = re.compile(r"[\w\u0300-\u036f\u0591-\u05c7]+(?:[’'][\w\u0300-\u036f\u0591-\u05c7]+)*", re.UNICODE)
+WORD = re.compile(r"(?:(?!_)[\w\u0300-\u036f\u0591-\u05c7])+(?:[’'](?:(?!_)[\w\u0300-\u036f\u0591-\u05c7])+)*", re.UNICODE)
 PERSEUS_LAT = 'https://raw.githubusercontent.com/PerseusDL/canonical-latinLit/master/data/phi0474/phi001/phi0474.phi001.perseus-lat2.xml'
 PERSEUS_GRC = 'https://raw.githubusercontent.com/PerseusDL/canonical-greekLit/master/data/tlg0059/tlg002/tlg0059.tlg002.perseus-grc2.xml'
 SEFARIA_AVOT = 'https://www.sefaria.org/api/v3/texts/Pirkei_Avot.1?version=hebrew&return_format=text_only'
@@ -172,6 +173,29 @@ def setup(db):
       modified_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
       PRIMARY KEY(module_id,ref),
       FOREIGN KEY(module_id,ref) REFERENCES source_sections(module_id,ref) ON DELETE CASCADE
+    );
+    CREATE TABLE IF NOT EXISTS source_translation_editions (
+      module_id TEXT NOT NULL REFERENCES source_modules(id) ON DELETE CASCADE,
+      translation_id TEXT NOT NULL, language TEXT NOT NULL, title TEXT NOT NULL,
+      author TEXT NOT NULL, edition TEXT NOT NULL, license TEXT NOT NULL,
+      provenance TEXT NOT NULL, PRIMARY KEY(module_id,translation_id)
+    );
+    CREATE TABLE IF NOT EXISTS source_package_metadata (
+      module_id TEXT NOT NULL REFERENCES source_modules(id) ON DELETE CASCADE,
+      key TEXT NOT NULL, value TEXT NOT NULL,
+      PRIMARY KEY(module_id,key)
+    );
+    CREATE TABLE IF NOT EXISTS source_translations (
+      module_id TEXT NOT NULL, ref TEXT NOT NULL, translation_id TEXT NOT NULL,
+      text TEXT NOT NULL, PRIMARY KEY(module_id,ref,translation_id),
+      FOREIGN KEY(module_id,ref) REFERENCES source_sections(module_id,ref) ON DELETE CASCADE,
+      FOREIGN KEY(module_id,translation_id) REFERENCES source_translation_editions(module_id,translation_id) ON DELETE CASCADE
+    );
+    CREATE TABLE IF NOT EXISTS source_translation_documents (
+      module_id TEXT NOT NULL REFERENCES source_modules(id) ON DELETE CASCADE,
+      translation_id TEXT NOT NULL, text TEXT NOT NULL,
+      PRIMARY KEY(module_id,translation_id),
+      FOREIGN KEY(module_id,translation_id) REFERENCES source_translation_editions(module_id,translation_id) ON DELETE CASCADE
     );
     CREATE VIRTUAL TABLE IF NOT EXISTS source_fts USING fts5(
       text, content='source_sections', content_rowid='rowid',
@@ -404,7 +428,8 @@ def read_conllu(raw):
                 # CIRCSE augments some LiLa-linked CoNLL-U records with an
                 # 11th column containing a Lemma Bank URI. The first 10
                 # columns still follow CoNLL-U and are used unchanged.
-                if len(fields) == 11 and fields[10].startswith('http://lila-erc.eu/data/id/lemma/'):
+                if (len(fields) == 11 and
+                        (fields[10] == '_' or fields[10].startswith('http://lila-erc.eu/data/id/'))):
                     fields = fields[:10]
                 if len(fields) != 10:
                     raise ValueError(f'CoNLL-U Abschnitt {number}: 10 Spalten erwartet.')
@@ -484,10 +509,14 @@ def install_source(module_id, title, author, language, edition, license_name, pr
 
 def modules():
     with connect() as db:
-        return [dict(r) for r in db.execute("""SELECT m.*,
+        result = [dict(r) for r in db.execute("""SELECT m.*,
           (SELECT COUNT(*) FROM source_sections s WHERE s.module_id=m.id) AS section_count,
           (SELECT COUNT(*) FROM source_tokens t WHERE t.module_id=m.id AND t.lemma IS NOT NULL) AS annotated_tokens
           FROM source_modules m ORDER BY m.title""")]
+        for item in result:
+            item['package_metadata'] = {r['key']: json.loads(r['value']) for r in db.execute(
+                'SELECT key,value FROM source_package_metadata WHERE module_id=?',(item['id'],))}
+        return result
 
 
 def remove_source(module_id):
@@ -509,11 +538,27 @@ def passage(module_id, reference):
             raise ValueError('Diese Quellenstelle wurde nicht gefunden.')
         rows = db.execute("""SELECT position,surface,start,end,lemma,morph,strong
           FROM source_tokens WHERE module_id=? AND ref=? ORDER BY position""",(module_id,reference)).fetchall()
+        translations = [dict(r) for r in db.execute("""SELECT t.translation_id,t.text,e.language,
+          e.title,e.author,e.edition,e.license,e.provenance
+          FROM source_translations t JOIN source_translation_editions e
+          USING(module_id,translation_id) WHERE t.module_id=? AND t.ref=?
+          ORDER BY e.language,e.title""",(module_id,reference))]
+        work_translations = []
+        if current['ordinal'] == 1:
+            work_translations = [dict(r) for r in db.execute("""SELECT t.translation_id,t.text,e.language,
+              e.title,e.author,e.edition,e.license,e.provenance
+              FROM source_translation_documents t JOIN source_translation_editions e
+              USING(module_id,translation_id) WHERE t.module_id=? ORDER BY e.language,e.title""",(module_id,))]
+        package_metadata = {r['key']: json.loads(r['value']) for r in db.execute(
+            'SELECT key,value FROM source_package_metadata WHERE module_id=?',(module_id,))}
         prev = db.execute('SELECT ref FROM source_sections WHERE module_id=? AND ordinal<? ORDER BY ordinal DESC LIMIT 1',
                           (module_id,current['ordinal'])).fetchone()
         nxt = db.execute('SELECT ref FROM source_sections WHERE module_id=? AND ordinal>? ORDER BY ordinal LIMIT 1',
                          (module_id,current['ordinal'])).fetchone()
     return {'ref':reference,'text':current['text'],'tokens':[dict(r) for r in rows],
+            'translations':translations,
+            'work_translations':work_translations,
+            'package_metadata':package_metadata,
             'previous':prev[0] if prev else None,'next':nxt[0] if nxt else None}
 
 
@@ -569,6 +614,9 @@ def word_analysis(module_id, reference, position):
             WHERE t.module_id=? AND t.ref=? AND t.position=?""",(module_id,reference,position)).fetchone()
         if row is None: raise ValueError('Wortposition nicht gefunden.')
         obj = dict(row)
+        annotation_row=db.execute("SELECT value FROM source_package_metadata WHERE module_id=? AND key='annotation_edition'",
+                                  (module_id,)).fetchone()
+        annotation_meta=json.loads(annotation_row['value']) if annotation_row else {}
         options = list(dict.fromkeys((obj['surface'],obj['surface'].lower(),
                                      obj['surface'].capitalize())))
         placeholders = ','.join('?' for _ in options)
@@ -595,12 +643,17 @@ def word_analysis(module_id, reference, position):
     lemma = obj['lemma'] or obj['surface']
     from .morph_display import decode
     morph = obj['morph'] or ''
-    if morph and '=' in morph:
-        grammar = morph.replace('|', ' · ')
-    elif morph and obj['language'] in ('grc','he'):
-        grammar = decode(morph, obj['language'])
-    else:
-        grammar = morph or 'Für diese Textstelle liegen keine wortbezogenen Morphologiedaten vor.'
+    decoded=decode(morph,obj['language']) if morph else {'recognized':False,'features':[]}
+    features=decoded.get('features',[])
+    grammar=' · '.join(f"{item['name']}: {item['value']}" for item in features)
+    obj['morphology_detail_missing']=(decoded.get('scheme')=='Universal Dependencies' and len(features)<=1)
+    if obj['morphology_detail_missing'] and grammar:
+        grammar+=' · Quelle enthält keine weiteren Flexionsmerkmale'
+    if not grammar:
+        grammar=decoded.get('notice') or morph or 'Für diese Textstelle liegen keine wortbezogenen Morphologiedaten vor.'
+        if morph and not decoded.get('recognized'):
+            grammar=f"Unbekannter Morphologiecode {morph}; Originalcode bleibt erhalten."
+    obj['morphology_decoded']=bool(decoded.get('recognized'))
     obj['grammar'] = grammar
     distinct = {}
     for item in candidates:
@@ -613,9 +666,9 @@ def word_analysis(module_id, reference, position):
         {**c,'grammar':c['morph'].replace('|',' · ') if c['morph'] and '=' in c['morph']
          else c['morph'] or 'Keine Flexionsangaben'}
         for c in sorted(distinct.values(),key=lambda c:-c['attestations'])[:8]]
-    obj['annotation_quality'] = ('automatic' if module_id=='quellen-severian-annotiert'
-                                 else 'reviewed' if module_id=='quellen-confessiones-annotiert'
-                                 else 'provided') if obj['lemma'] else 'unannotated'
+    quality=annotation_meta.get('quality','provided')
+    obj['annotation_quality'] = quality if obj['lemma'] else 'unannotated'
+    obj['annotation_status'] = annotation_meta.get('review_status','')
     from .lexical_text import best_gloss
     entries = lookup(obj['language'], lemma, obj['strong'] or '')
     if not entries and not obj['lemma']:
@@ -711,7 +764,7 @@ def fetch_catalog_data(url, cap=MAX_FILE):
     approved={item['url'] for item in CATALOG.values()}
     if url not in approved:
         raise ValueError('Nicht katalogisierte Downloadadresse.')
-    with urlopen(Request(url, headers={'User-Agent':'Amicus-Theologi/1.3.1 Quellenstudium'}),
+    with urlopen(Request(url, headers={'User-Agent':'Amicus-Theologi/1.3.2 Quellenstudium'}),
                  timeout=45) as response:
         host=urlparse(response.geturl()).hostname
         if host not in ('raw.githubusercontent.com','www.sefaria.org'):

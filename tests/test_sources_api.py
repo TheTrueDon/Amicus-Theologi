@@ -2,6 +2,7 @@
 import os
 import tempfile
 import unittest
+from pathlib import Path
 from fastapi.testclient import TestClient
 
 from backend.database import init_db
@@ -66,6 +67,18 @@ class SourceWindowApiTests(unittest.TestCase):
           files={'file':('x.csv',b'ref,text\nA,foo\nA,bar\n','text/csv')})
         self.assertEqual(response.status_code,422)
         self.assertEqual(self.client.get('/api/sources/modules').json(),[])
+
+    def test_offline_package_install_adds_parallel_translation(self):
+        path=Path(__file__).resolve().parents[1]/'source_packages/amicus-hebraeisch-genesis-oshb.amicus-source'
+        response=self.client.post('/api/sources/packages/install',files={
+            'file':(path.name,path.read_bytes(),'application/zip')})
+        self.assertEqual(response.status_code,200,response.text)
+        self.assertEqual(response.json()['sections'],1533)
+        passage=self.client.get('/api/sources/passage',params={
+            'module_id':'genesis-oshb-wlc','ref':'Gen.1.1'}).json()
+        self.assertEqual(passage['translations'][0]['text'],'Am Anfang schuf Gott Himmel und Erde.')
+        self.assertEqual(passage['package_metadata']['annotation_edition']['provider'],
+                         'Open Scriptures Hebrew Bible (OSHB)')
 
 
 if __name__=='__main__':

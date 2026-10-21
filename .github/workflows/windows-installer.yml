@@ -45,6 +45,7 @@ jobs:
           node --check frontend/wordtools.js
           node --check frontend/workflow.js
           node --check frontend/release1.js
+          node --check frontend/sources.js
           node --check ANLEITUNG.js
       - name: Build & test real Windows exe; create installer
         shell: pwsh

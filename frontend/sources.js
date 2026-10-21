@@ -39,15 +39,21 @@ async function showTooltip(button,position){
   node.replaceChildren(make('strong','',w.surface),make('span','',subtitle));
   if(w.has_annotation){
    node.append(make('small','',w.grammar));
-   node.append(make('small','tooltip-provenance',w.annotation_quality==='automatic'
-    ?'Automatische Analyse · nicht redaktionell geprüft':'Wortbezogene Annotation'));
+   node.append(make('small','tooltip-provenance',({
+    automatic:'Automatische Analyse · nicht redaktionell geprüft',
+    mixed:'Gemischte Herkunft · einzelne Ergänzungen automatisch',
+    edition:'Editionsgebundene Analyse · Originalcodes der Quelle',
+    reviewed:'Redaktionell geprüft laut Quellenangabe',
+    provided:'Importierte Analyse · Prüfstatus siehe Editionsangabe'
+   })[w.annotation_quality]||'Importierte Wortanalyse'));
   }else if(w.candidate_analyses?.length){
    node.append(make('small','',w.candidate_analyses[0].grammar));
    node.append(make('small','tooltip-provenance','Nur Vergleichskorpus! Für diese Stelle nicht geprüft.'));
   }
-  if(w.lexica?.length){
-   const gloss=w.lexica[0].display_gloss||w.lexica[0].gloss||'';
-   if(gloss)node.append(make('small','tooltip-gloss',gloss.slice(0,200)));
+  const translation=w.lexica?.find(entry=>String(entry.display_gloss||'').trim());
+  if(translation){
+   node.append(make('small','tooltip-gloss',translation.display_gloss.trim().slice(0,200)));
+   node.append(make('small','tooltip-provenance','Übersetzung aus: '+translation.title));
   }
   positionTooltip(button,node);
  }catch(error){if(request===tooltipRequest){node.replaceChildren(make('small','',error.message));positionTooltip(button,node);}}
@@ -71,9 +77,15 @@ async function loadModules(preferred=state.active){
  const scope=$('#search-scope'),oldScope=scope.value;
  scope.replaceChildren(new Option('Alle Quellen',''));
  const list=$('#library');list.replaceChildren();
- for(const m of state.modules){
-  select.add(new Option(m.title+' · '+m.language,m.id));annotations.add(new Option(m.title,m.id));
-  scope.add(new Option(m.title,m.id));
+ const languageLabels={la:'Lateinische Quellen',grc:'Altgriechische Quellen',he:'Hebräische Quellen'};
+ for(const language of ['la','grc','he']){
+  const entries=state.modules.filter(m=>m.language===language);if(!entries.length)continue;
+  const moduleGroup=document.createElement('optgroup');moduleGroup.label=languageLabels[language];select.append(moduleGroup);
+  const scopeGroup=document.createElement('optgroup');scopeGroup.label=languageLabels[language];scope.append(scopeGroup);
+  list.append(make('h4','source-group-title',languageLabels[language]));
+  for(const m of entries){
+  moduleGroup.append(new Option(m.title,m.id));annotations.add(new Option(m.title,m.id));
+  scopeGroup.append(new Option(m.title,m.id));
   const row=make('div','library-item'),open=make('button','library-link',m.title);
   open.title=m.author+' · '+m.edition;open.onclick=()=>selectModule(m.id);
   row.append(open,make('small','',m.language+' · '+fmt(m.section_count)+' Abschnitte · '+fmt(m.annotated_tokens)+' Wörter mit Analyse'));
@@ -84,6 +96,7 @@ async function loadModules(preferred=state.active){
     await loadModules(state.active===m.id?'':state.active);toast('Quelle entfernt.');
    }catch(error){toast(error.message,true);}
   };row.append(remove);list.append(row);
+  }
  }
  if(!state.modules.length)list.append(make('p','placeholder','Noch keine Quellen installiert.'));
  scope.value=state.modules.some(m=>m.id===oldScope)?oldScope:'';
@@ -105,8 +118,11 @@ async function selectModule(id,requestedRef=''){
  const m=activeModule();if(!m)return;
  $('#reader-title').textContent=m.title;
  $('#reader-lang').textContent=({la:'Latein',grc:'Altgriechisch',he:'Hebräisch'})[m.language]||m.language;
+ const annotation=m.package_metadata?.annotation_edition;
  $('#edition-note').textContent=m.author+' · '+m.edition+' · '+m.license+' · Quelle: '+m.provenance
-  +' · '+fmt(m.annotated_tokens)+' Wörter mit positionsgenauen Annotationen';
+  +' · '+fmt(m.annotated_tokens)+' Wörter mit positionsgenauen Annotationen'
+  +(annotation?' · Morphologie: '+annotation.provider+' ('+annotation.method+'). '+annotation.coverage:'')
+  +(m.package_metadata?.scope?' · Umfang: '+m.package_metadata.scope:'');
  state.refs=await api(url('/api/sources/sections',{module_id:id}));
  const dropdown=$('#ref-select');dropdown.replaceChildren(new Option('Abschnitt wählen',''));
  for(const row of state.refs)dropdown.add(new Option(row.ref,row.ref));
@@ -144,6 +160,14 @@ async function selectPassage(ref){
   para.append(button);offset=t.end;
  }
  para.append(document.createTextNode(chars.slice(offset).join('')));out.append(para);
+ const translations=$('#source-translations');translations.replaceChildren();
+ for(const edition of [...(state.passage.translations||[]),...(state.passage.work_translations||[])]){
+  const card=make('article','translation-card'),heading=make('div','translation-heading');
+  heading.append(make('h3','',edition.title),make('span','tag',({de:'Deutsch',en:'Englisch',it:'Italienisch',la:'Latein',grc:'Altgriechisch',he:'Hebräisch'})[edition.language]||edition.language));
+  if(state.passage.work_translations?.some(item=>item.translation_id===edition.translation_id))heading.append(make('span','tag','Gesamtübersetzung'));
+  card.append(heading,make('p','translation-text',edition.text),make('small','translation-credit',edition.author+' · '+edition.edition+' · '+edition.license+' · '+edition.provenance));
+  translations.append(card);
+ }
  $('#word-analysis').replaceChildren(make('p','placeholder','Klicke ein Wort, um es zu analysieren.'));
  $('#lexicon-results').replaceChildren(make('p','placeholder','Keine Wortauswahl.'));
  $('#note-text').disabled=false;$('#note-save').disabled=false;
@@ -158,10 +182,13 @@ async function selectWord(position){
    make('p','','Grundform: '+(w.has_annotation?w.lemma:'Für diese Stelle nicht annotiert')),
    make('p','','Morphologie: '+w.grammar));
   if(w.has_annotation){
-   pane.append(make('p','field-caption',w.annotation_quality==='automatic'
-    ?'Die Analyse wurde automatisch erzeugt und nicht manuell validiert.'
-    :w.annotation_quality==='reviewed'?'Die Annotation wurde nach Angaben des Herausgebers manuell geprüft.'
-    :'Die Annotation stammt aus dem importierten Datensatz.'));
+   pane.append(make('p','field-caption',w.annotation_status||({
+    automatic:'Diese Analyse wurde automatisch erzeugt und nicht redaktionell geprüft.',
+    mixed:'Dieses Paket kombiniert Quellanalysen mit automatisch ergänzten Wörtern; die Herkunft dieses einzelnen Tokens ist nicht separat ausgewiesen.',
+    edition:'Die Analyse übernimmt die Morphologiecodes der genannten Edition.',
+    reviewed:'Die Annotation wurde laut Quellenangabe redaktionell geprüft.',
+    provided:'Die Analyse stammt aus dem importierten Datensatz; ein Prüfstatus ist nicht ausgewiesen.'
+   })[w.annotation_quality]||'Die Analyse stammt aus dem importierten Datensatz.'));
   }else if(w.candidate_analyses?.length){
    const possibilities=make('div','candidate-analyses');
    possibilities.append(make('h4','','Mögliche Analysen aus anderen Texten'));
@@ -307,12 +334,23 @@ async function sendForm(id,endpoint,statusId,done){
  }catch(error){status(statusId,error.message,true);}
  finally{button.disabled=false;}
 }
+async function installPackage(form){
+ const button=form.querySelector('button[type="submit"]');button.disabled=true;
+ status('package-install-status','Paket wird geprüft. Texte und Wortdaten werden erst nach erfolgreicher Prüfung gemeinsam installiert.');
+ try{
+  const result=await api('/api/sources/packages/install',{method:'POST',body:new FormData(form)});
+  status('package-install-status',fmt(result.sections)+' Abschnitte, '+fmt(result.annotated_sections)+' vollständig annotierte Abschnitte und '+fmt(result.translations)+' Übersetzungen '+(result.updated?'aktualisiert.':'installiert.'));
+  form.reset();await loadModules(result.module_id);await loadCatalog();
+ }catch(error){status('package-install-status',error.message,true);}
+ finally{button.disabled=false;}
+}
 document.addEventListener('DOMContentLoaded',async()=>{
  document.addEventListener('scroll',hideTooltip,true);
  document.addEventListener('pointerdown',e=>{if(!e.target.closest('.word-token'))hideTooltip();});
  window.addEventListener('resize',hideTooltip);
  document.addEventListener('keydown',e=>{if(e.key==='Escape')hideTooltip();});
  $('#catalog-open').onclick=()=>{dialog('catalog-dialog');loadCatalog().catch(e=>status('catalog-status',e.message,true));};
+ $('#package-install-form').onsubmit=e=>{e.preventDefault();installPackage(e.currentTarget);};
  $('#import-open').onclick=()=>dialog('import-dialog');$('#help-open').onclick=()=>dialog('help-dialog');
  for(const button of document.querySelectorAll('[data-close]'))button.onclick=()=>document.getElementById(button.dataset.close).close();
  $('#catalog-language').onchange=()=>loadCatalog().catch(e=>status('catalog-status',e.message,true));

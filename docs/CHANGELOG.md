@@ -1,4 +1,20 @@
-## Unveröffentlichter Testzweig auf Basis 1.3.1 – Quellenstudium, Morphologie- und Tooltip-Korrektur
+## 1.3.2 – Ein-Klick-Quelleninstallation (Entwicklungsstand)
+
+- Der Erststart-Assistent installiert mit einem Klick alle installierbaren
+  Bibelausgaben, Hauptkatalog-Korpora und Lexika, Quellenstudium-Katalogeinträge
+  sowie alle mitgelieferten `.amicus-source`-Pakete.
+- Offlinepakete werden zuerst installiert. Bereits vorhandene Module werden
+  übersprungen; einzelne Onlinefehler werden angezeigt und blockieren die
+  verbleibenden Quellen nicht.
+- Der Fortschritt zeigt den aktuellen Quellentitel, Anzahl und Prozentwert,
+  Fehler und die nur extern verfügbaren Hilfslinks.
+- Nach einem Werksreset erscheint der Willkommensdialog erneut und bietet
+  denselben Installationsschritt an.
+- Keine Datenbankmigration; Windows- und Ubuntu-PyInstaller-Builds enthalten
+  jetzt auch den Ordner `source_packages`.
+- Noch nicht als stabile Version veröffentlicht.
+
+## Unveröffentlichter Testzweig auf Basis 1.3.2 – Quellenstudium, Morphologie- und Tooltip-Korrektur
 
 - Eigenständiges Quellenstudium erhält wieder ein sichtbares Wort-Tooltip auf Maus-Hover, Tastaturfokus und Touch-Auswahl, einschließlich Lemma, Morphologie, möglicher Bedeutung und Kennzeichnung der Datenqualität.
 - Zwei neue Ein-Klick-Datenpakete: vollständig annotierte *Confessiones* von Augustinus (CIRCSE, manuell nachgeprüft) und die analysierte griechische Severian-Ausgabe des Patristic Text Archive (automatische Analyse).

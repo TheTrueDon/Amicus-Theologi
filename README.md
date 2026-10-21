@@ -19,7 +19,8 @@ Amicus Theologi bietet eine dreigeteilte Oberfläche aus **Suche · Bibeltext ·
 **Dokumentation:** [Vollständiges Benutzerhandbuch](ANLEITUNG.html) ·
 [Schnellstart](docs/SCHNELLSTART.md) ·
 [Quellenstudium](docs/QUELLENSTUDIUM.md) ·
-[Änderungsprotokoll](docs/CHANGELOG.md).
+[Änderungsprotokoll](docs/CHANGELOG.md) ·
+[Barrierefreiheit](ACCESSIBILITY.md).
 
 Der Entwicklungszweig `feature/quellenstudium` ergänzt einen eigenen Arbeitsbereich
 für außerbiblische lateinische, altgriechische und hebräische Texte. Im Erststart-

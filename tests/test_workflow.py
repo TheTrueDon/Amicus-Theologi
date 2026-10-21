@@ -27,7 +27,7 @@ def test_frontend_routes_and_schema_unchanged():
         try:
             init_db()
             with TestClient(app) as client:
-                assert client.get('/api/status').json()['version']=='1.0.8'
+                assert client.get('/api/status').json()['version']==(ROOT/'VERSION').read_text(encoding='utf-8').strip()
                 page=client.get('/')
                 assert page.status_code==200
                 assert '<title>Amicus Theologi</title>' in page.text

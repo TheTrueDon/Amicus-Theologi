@@ -1,5 +1,10 @@
 # Entwicklungsroadmap – Amicus Theologi
 
+**Nebenentwicklung auf eigener Testbasis 1.3.1:** Quellenstudium für
+außerbiblische Texte. Der Arbeitsbereich wird erst nach einem
+Nutzertest in den regulären Entwicklungszweig integriert. Funktionsumfang,
+Datenformate, Grenzen und Sicherung: [QUELLENSTUDIUM.md](QUELLENSTUDIUM.md).
+
 - [x] 0.1 – Grundgerüst, dreigeteilte Oberfläche, Konfiguration
 - [x] 0.2 – Textmodule, Navigation, parallele Texte
 - [x] 0.3 – FTS5-Volltextsuche, Filter, erste Befehle

@@ -11,6 +11,12 @@ ID = re.compile(r'[a-zA-Z0-9_-]{2,48}\Z')
 def clean_key(value):
     return unicodedata.normalize('NFC', value.strip()).casefold()
 
+def latin_key(value):
+    """Macron-insensitive Latin lookup; preserves the printed headword."""
+    value=re.sub(r'\((\d+)\)$',r'\1',value.strip())
+    return ''.join(char for char in unicodedata.normalize('NFD', value.casefold())
+                   if unicodedata.category(char) != 'Mn')
+
 def read_lexicon(raw):
     if len(raw)>MAX_BYTES:
         raise ValueError('Lexikondatei darf maximal 12 MB enthalten.')
@@ -37,7 +43,7 @@ def read_lexicon(raw):
 
 def install_lexicon(module_id,title,language,license_name,provenance,version,entries):
     if not ID.fullmatch(module_id):raise ValueError('Lexikon-ID: 2–48 Zeichen, Buchstaben, Zahlen, - oder _.')
-    if language not in ('grc','he'):raise ValueError('Lexikon-Sprache muss grc oder he sein.')
+    if language not in ('la','grc','he'):raise ValueError('Lexikon-Sprache muss la, grc oder he sein.')
     if any(not s or len(s)>250 for s in (title,license_name,provenance,version)):
         raise ValueError('Titel, Lizenz, Quelle und Version sind Pflichtfelder (max. 250 Zeichen).')
     with connect() as db:
@@ -46,7 +52,7 @@ def install_lexicon(module_id,title,language,license_name,provenance,version,ent
         db.execute('INSERT INTO lexicon_modules(id,title,language,license,provenance,version) VALUES(?,?,?,?,?,?)',
                    (module_id,title,language,license_name,provenance,version))
         db.executemany('INSERT INTO lexicon_entries(module_id,lemma,lemma_key,strong,gloss,definition,reference) VALUES(?,?,?,?,?,?,?)',
-                       [(module_id,*e) for e in entries])
+                       [(module_id,e[0],latin_key(e[0]) if language=='la' else e[1],*e[2:]) for e in entries])
     return {'module_id':module_id,'entries':len(entries)}
 
 def installed_lexica():
@@ -55,20 +61,24 @@ def installed_lexica():
           LEFT JOIN lexicon_entries e ON e.module_id=l.id GROUP BY l.id ORDER BY l.title''')]
 
 def lookup(language,lemma='',strong=''):
-    if language not in ('grc','he') or len(lemma)>200 or len(strong)>80:
+    if language not in ('la','grc','he') or len(lemma)>200 or len(strong)>80:
         raise ValueError('Ungültige Sprache oder Wortschlüssel.')
-    lemma_key=clean_key(lemma)
+    lemma_key=latin_key(lemma) if language=='la' else clean_key(lemma)
     strong=strong.strip().upper()
     if not lemma_key and not strong: return []
     with connect() as db:
         # Strong numbers are supplementary identifiers; only exact lemma matches
         # when a lemma is provided, avoiding misleading lexical cross-links.
+        # Lewis & Short suffixes homographs with digits (amicus1, amicus2).
+        keys=[lemma_key]+[lemma_key+str(n) for n in range(1,10)] if language=='la' else [lemma_key]
+        placeholders=','.join('?' for _ in keys)
         rows=db.execute('''SELECT e.lemma,e.strong,e.gloss,e.definition,e.reference,
                l.id AS module_id,l.title,l.language,l.license,l.provenance,l.version
                FROM lexicon_entries e JOIN lexicon_modules l ON l.id=e.module_id
-               WHERE l.language=? AND ((? <> '' AND e.lemma_key=?) OR (? <> '' AND e.strong=?))
+               WHERE l.language=? AND ((? <> '' AND e.lemma_key IN ('''+placeholders+'''))
+                  OR (? <> '' AND e.strong=?))
                ORDER BY l.title,e.lemma LIMIT 100''',
-            (language,lemma_key,lemma_key,strong,strong)).fetchall()
+            (language,lemma_key,*keys,strong,strong)).fetchall()
     return [dict(r) for r in rows]
 
 def remove_lexicon(module_id):

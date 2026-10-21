@@ -1,8 +1,35 @@
 # Amicus Theologi 📖
 
-**Freie, offlinefähige Studienumgebung für wissenschaftliche Bibelarbeit – Version 1.3.1.**
+**Freie, offlinefähige Studienumgebung für wissenschaftliche Bibelarbeit – Entwicklungsstand 1.3.2.**
+
+> **Optionaler Testzweig Quellenstudium (noch kein Release):** Auf Basis
+> des Entwicklungsstands 1.3.2 öffnet sich ein separates Fenster für außerbiblische
+> Primärtexte in Latein, Altgriechisch und Hebräisch. Enthalten sind
+> manuelle Quellen-, Annotationen- und Lexikonimporte, ein viergeteilter
+> Ein-Klick-Katalog (u. a. Augustinus, Clemens, PTA, Sefaria, LSJ,
+> Georges und UD-Treebanks), zusätzlich die annotierten *Confessiones*
+> (CIRCSE) und die automatisch analysierte Severian-Ausgabe (PTA),
+> Wort-Tooltips, Textnavigation, Suche, Statistiken und Notizen.
+> Für reine Texteditionen sind nur Vergleichskorpus-Vorschläge möglich,
+> keine als gesichert ausgegebenen Wortanalysen.
+> **Anleitung:** [docs/QUELLENSTUDIUM.md](docs/QUELLENSTUDIUM.md).
 
 Amicus Theologi bietet eine dreigeteilte Oberfläche aus **Suche · Bibeltext · Analyse**, griechisch/hebräische Wortinformationen, importierbare Bibelausgaben und Lexika, exegetische Studienprojekte, eine begrenzte Synopse und textkritische Vergleiche. Bei den vorkompilierten Windows-/Ubuntu-Installern ist **keine zusätzliche Python-Installation** erforderlich; Internet wird nur zum Herunterladen neuer wissenschaftlicher Datenmodule benötigt. Beim Start aus dem Quellcode-ZIP müssen Python-Abhängigkeiten zunächst installiert werden.
+
+**Dokumentation:** [Vollständiges Benutzerhandbuch](ANLEITUNG.html) ·
+[Schnellstart](docs/SCHNELLSTART.md) ·
+[Quellenstudium](docs/QUELLENSTUDIUM.md) ·
+[Änderungsprotokoll](docs/CHANGELOG.md).
+
+Der Entwicklungszweig `feature/quellenstudium` ergänzt einen eigenen Arbeitsbereich
+für außerbiblische lateinische, altgriechische und hebräische Texte. Im Erststart-
+Dialog lassen sich mit einem Klick die mitgelieferten Quellenpakete und sämtliche
+installierbaren Einträge aus Bibel-, Textmodul- und Quellenkatalog einrichten.
+Die Fortschrittsanzeige nennt Quelle und Status; einzelne Fehler halten den Lauf
+nicht auf. Eine lokale Installation funktioniert danach offline. Externe
+Nachschlageportale bleiben Links. Der Quellenkatalog unterstützt außerdem
+Importpakete (`.amicus-source`), Übersetzungen pro Werk, optionale positionsgenaue
+Wortdaten, Suche, Lexika, Statistiken sowie Notizen pro Quellenstelle.
 
 > **Wissenschaftliche Einordnung:** 1.0 ist die erste zusammengeführte, getestete *Anwendungsbasis*, kein nachgewiesener vollständiger Ersatz für BibleWorks und keine vollständige kritische Textedition. Einige Quellformate (insbesondere STEPBible TAHOT und SWORD) sind noch experimentell. Angaben zu Morphologie und Wortbedeutung stammen aus den installierten Datensätzen; unbekannte Codes werden nicht geraten.
 
@@ -18,6 +45,18 @@ Die morphologische Suche kann bis zu fünf Wortbedingungen mit UND oder ODER ver
 ## Neu in 1.3.1: Positionsbedingungen
 
 Jede Wortbedingung kann auf den Versanfang (Tokenposition 1) oder einen inklusiven Tokenpositionsbereich eingeschränkt werden. Tokenpositionen beginnen in jedem Vers bei 1. Die Vorgaben wirken mit UND und ODER; Suchabfragen aus 1.3.0 funktionieren weiter. Es ist keine zusätzliche Datenbankmigration nötig.
+
+## Entwicklungsstand 1.3.2: Quellen mit einem Klick einrichten
+
+Beim ersten Start und nach einem Werksreset kann der Willkommensdialog alle
+mitgelieferten Quellenpakete und alle installierbaren Onlineeinträge aus den
+Bibel-, Textmodul- und Quellenkatalogen nacheinander installieren. Bereits
+vorhandene Module werden übersprungen. Die Anzeige nennt die aktuell bearbeitete
+Quelle, den Gesamtfortschritt und einzelne Fehler; ein Fehler hält die übrigen
+Installationen nicht auf. Externe Forschungshilfen bleiben Links, da sie keine
+lokal installierbaren Datenmodule sind. Onlineinstallationen benötigen eine
+Internetverbindung. Die Anwendung verwendet dafür keine zusätzliche
+Datenbanktabelle.
 
 ## Aus 1.1.2: Wortformensuche nach Bibelbuch filtern
 
@@ -62,7 +101,7 @@ Beim ersten Start werden bisherige lokale Daten sicher in den neuen Amicus-Daten
 
 **Windows-Desktopverknüpfung (optional):** Die Datei `install_windows_shortcut.ps1` erstellt eine Desktopverknüpfung, wenn du sie über PowerShell ausführst. Die normalen Startskripte reichen ansonsten aus.
 
-Im Browser erscheint beim ersten Start die **dreiteilige Einführung**. Mit „Mini-Beispiele installieren“ kannst du Johannes 1 und Genesis 1 mit Wortanalyse ganz ohne Download ausprobieren. Diese Auszüge sind absichtlich kurz, nicht zitierfähig und keine vollständige Bibel. Über „Textmodule“ → „Modulkatalog“ installierst du weitere Quellen, sofern eine Internetverbindung besteht.
+Im Browser erscheint beim ersten Start die **dreiteilige Einführung**. „Alle verfügbaren Quellen installieren“ richtet die installierbaren Bibelausgaben, Quellenkataloge und mitgelieferten Offlinepakete ein; die Fortschrittsanzeige nennt den aktuellen Titel und einzelne Fehler. Für Onlinequellen ist Internet erforderlich. „Mini-Beispiele installieren“ bleibt als kleine Offline-Alternative zum Ausprobieren verfügbar.
 
 📗 Eine verständliche Schritt-für-Schritt-Anleitung: [docs/SCHNELLSTART.md](docs/SCHNELLSTART.md). Auch die Datei `ANLEITUNG.html` lässt sich direkt im Browser öffnen; für die Suche werden `ANLEITUNG.js` und `ANLEITUNG.css` aus demselben Ordner geladen.
 

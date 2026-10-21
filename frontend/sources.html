@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="de">
+<head>
+ <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+ <title>Quellenstudium · Amicus Theologi</title>
+ <link rel="icon" href="/assets/amicus.png">
+ <link rel="stylesheet" href="/assets/sources.css">
+ <script src="/assets/sources.js" defer></script>
+</head>
+<body data-theme="dark">
+<header class="header">
+ <div class="identity"><span class="seal">✝</span><div><strong>Amicus Theologi</strong><small>Quellenstudium · Primärtexte</small></div></div>
+ <div class="header-actions">
+  <span class="tag">Lokal · Offline nach Installation</span>
+  <button id="catalog-open">▤ Katalog</button>
+  <button id="import-open">＋ Importassistent</button>
+  <button id="help-open">? Formate</button>
+  <a href="/" target="_blank" rel="noopener">↗ Bibelstudium</a>
+ </div>
+</header>
+<main class="workspace">
+ <aside class="panel side">
+  <div class="panel-head"><div><small>WERKZEUG 01</small><h2>Suche</h2></div></div>
+  <div class="pane-scroll">
+   <form id="search-form" class="stack">
+    <label>Suchausdruck<input name="q" id="q" type="search" maxlength="180" placeholder="Wort, =Phrase, anfang* …"></label>
+    <label>Suchmodus<select name="mode"><option value="all">Alle Wörter</option><option value="phrase">Genaue Wortfolge</option><option value="any">Eines der Wörter</option></select></label>
+    <label>Suchbereich<select name="module_id" id="search-scope"><option value="">Alle Quellen</option></select></label>
+    <details><summary>Wort- und Morphologiesuche</summary>
+     <div class="stack detail-fields">
+      <label>Lemma<input name="lemma" id="lemma-query" maxlength="200" placeholder="Nur importierte Lemmata"></label>
+      <label>Wortform<input name="surface" id="surface-query" maxlength="200"></label>
+      <label>Morphologie-Code<input name="morph" maxlength="100" placeholder="z. B. Case=Nom"></label>
+     </div>
+    </details>
+    <button class="primary" type="submit">⌕ Suche starten</button>
+   </form>
+   <div id="search-status" class="message" role="status">Text oder Wortbedingung eingeben.</div>
+   <div id="search-results" class="results"></div>
+   <div class="pager"><button id="search-prev" disabled>←</button><span id="search-count"></span><button id="search-next" disabled>→</button></div>
+   <h3 class="subhead">Installierte Quellen</h3>
+   <div id="library" class="results"></div>
+  </div>
+ </aside>
+ <section class="panel reader">
+  <div class="panel-head reader-head">
+   <div><small>ARBEITSBEREICH 02</small><h2 id="reader-title">Quellenbibliothek</h2></div>
+   <span id="reader-lang" class="tag">–</span>
+  </div>
+  <div class="reader-nav">
+   <label>Werk<select id="module-select"><option value="">Quelle wählen</option></select></label>
+   <label>Stelle<select id="ref-select"><option value="">Abschnitt wählen</option></select></label>
+   <button id="section-prev" disabled aria-label="Vorheriger Abschnitt">◀</button>
+   <button id="section-next" disabled aria-label="Nächster Abschnitt">▶</button>
+  </div>
+  <div class="pane-scroll reader-content">
+   <div class="source-reference" id="source-reference">Noch keine Quelle gewählt</div>
+   <article id="source-text" class="text-content">
+    <p class="placeholder">Installiere eine Quelle über den Katalog oder importiere einen eigenen Text. Latein, Altgriechisch und Hebräisch werden unterstützt.</p>
+   </article>
+   <section id="source-translations" class="translations" aria-label="Übersetzungen"></section>
+   <p id="edition-note" class="edition-note"></p>
+  </div>
+  <footer class="panel-foot">Wörter anklicken · Text und Navigation bleiben im eigenen Quellenfenster</footer>
+ </section>
+ <aside class="panel analysis">
+  <div class="panel-head"><div><small>WERKZEUG 03</small><h2>Wortanalyse</h2></div></div>
+  <div class="pane-scroll">
+   <div id="word-analysis" class="analysis-card"><p class="placeholder">Klicke ein Wort im Quellentext an. Ohne Annotation sind nur Schreibweise und gegebenenfalls Lexikontreffer belegt.</p></div>
+   <h3 class="subhead">Wörterbücher / Lexika</h3>
+   <div id="lexicon-results" class="results"><p class="placeholder">Keine Wortauswahl.</p></div>
+   <h3 class="subhead">Konkordanz und Statistik</h3>
+   <div id="word-stats" class="results"><p class="placeholder">Wähle ein Wort oder eine Quelle.</p></div>
+   <h3 class="subhead">Notiz zur Quellenstelle</h3>
+   <label for="note-text" class="field-caption">Persönliche Beobachtungen / Übersetzung</label>
+   <textarea id="note-text" rows="5" maxlength="20000" placeholder="Deine Übersetzung oder Notizen …" disabled></textarea>
+   <button id="note-save" disabled>Notiz speichern</button>
+   <div id="note-status" class="message" role="status"></div>
+   <p class="source-warning">Wortbezogene Annotationen sind von Vergleichskorpus-Vorschlägen getrennt. Bei automatisch analysierten Editionen wird die Herkunft gekennzeichnet. Mögliche Formen aus anderen Texten sind keine gesicherte grammatische Analyse dieser Stelle.</p>
+  </div>
+ </aside>
+</main>
+<dialog id="catalog-dialog" class="large-dialog">
+ <div class="dialog-top"><div><small>ONLINE-KATALOG</small><h2>Quellen und Lexika installieren</h2></div><button data-close="catalog-dialog" aria-label="Schließen">×</button></div>
+ <p class="hint">Installiere kuratierte Offlinepakete oder lade eine Edition aus dem Onlinekatalog. Die Paketmetadaten nennen Edition, Rechte, Herkunft, Übersetzungen und den Prüfstatus der Wortanalysen.</p>
+ <section class="import-step package-install"><h3>Amicus-Quellenpaket installieren</h3>
+  <p>Ein Paket enthält den Originaltext, seine Stellenstruktur, Editions- und Lizenzangaben, optionale positionsgenaue Wortanalysen sowie zugeordnete Übersetzungen. Installiere eine <code>.amicus-source</code>- oder <code>.zip</code>-Datei.</p>
+  <form id="package-install-form" class="import-grid">
+   <label>Quellenpaket<input name="file" type="file" accept=".amicus-source,.zip" required></label>
+   <button class="primary" type="submit">Paket prüfen und installieren</button>
+  </form>
+  <p id="package-install-status" class="message" role="status"></p>
+ </section>
+ <div class="catalog-filters">
+  <label>Kategorie<select id="catalog-category"><option value="">Alle vier Bereiche</option><option value="quellen">1 · Primärquellen</option><option value="lexika">2 · Lexika</option><option value="sprachen">3 · Sprachwissenschaftliche Daten</option><option value="hilfsmittel">4 · Hilfsmittel</option></select></label>
+  <label>Sprache<select id="catalog-language"><option value="">Alle Sprachen</option><option value="la">Latein</option><option value="grc">Altgriechisch</option><option value="he">Hebräisch</option></select></label>
+ </div>
+ <div id="catalog-list" class="catalog-cards"></div>
+ <p id="catalog-status" class="message" role="status"></p>
+ <div class="dialog-bottom"><button data-close="catalog-dialog">Fertig</button></div>
+</dialog>
+<dialog id="import-dialog" class="large-dialog">
+ <div class="dialog-top"><div><small>IMPORTASSISTENT</small><h2>Eigene wissenschaftliche Quellen</h2></div><button data-close="import-dialog" aria-label="Schließen">×</button></div>
+ <p class="hint">Alle Dateien müssen UTF-8 verwenden. Du kannst strukturierte Quellen, manuelle Wortannotationen und Lexika getrennt importieren. Die Ursprungsdatei wird nicht verändert.</p>
+ <section class="import-step"><h3>1 · Textquelle</h3>
+  <p>CSV/TSV mit <code>ref,text</code>, JSON mit <code>sections:[{ref,text}]</code> oder TEI-P5-XML.</p>
+  <form id="source-import-form" class="import-grid">
+   <label>Modul-ID<input name="module_id" required pattern="[A-Za-z0-9_-]{2,48}" placeholder="augustinus_confessiones"></label>
+   <label>Titel<input name="title" required maxlength="250" placeholder="Confessiones"></label>
+   <label>Autor<input name="author" required maxlength="250" placeholder="Augustinus"></label>
+   <label>Sprache<select name="language"><option value="la">Latein</option><option value="grc">Altgriechisch</option><option value="he">Hebräisch</option></select></label>
+   <label>Edition<input name="edition" required maxlength="250" placeholder="Herausgeber, Jahr, Ausgabe"></label>
+   <label>Lizenz / Nutzungsrechte<input name="license_name" required maxlength="250" placeholder="Public Domain / eigene Rechte / CC BY …"></label>
+   <label>Quelle / Herkunft<input name="provenance" required maxlength="250" placeholder="Bibliographischer Nachweis oder URL"></label>
+   <label>Quelldatei<input name="file" type="file" accept=".tsv,.csv,.txt,.json,.xml,.tei" required></label>
+   <input name="version" value="1" type="hidden">
+   <button class="primary" type="submit">Textquelle importieren</button>
+  </form>
+  <p id="source-import-status" class="message" role="status"></p>
+ </section>
+ <section class="import-step"><h3>2 · Wortannotationen (optional)</h3>
+  <p>CSV/TSV mit <code>ref,position,surface,lemma,morph</code>, optional <code>strong</code>. Positionen beginnen bei 1 und müssen exakt zum Text passen. Morphologie kann z. B. <code>Case=Nom|Number=Sing</code> sein.</p>
+  <form id="annotation-form" class="import-grid">
+   <label>Textmodul<select id="annotation-module" name="module_id" required></select></label>
+   <label>Annotationsdatei<input name="file" type="file" accept=".csv,.tsv,.txt" required></label>
+   <button type="submit">Wortdaten zuordnen</button>
+  </form>
+  <p id="annotation-status" class="message" role="status"></p>
+ </section>
+ <section class="import-step"><h3>3 · Lexikon / Wörterbuch</h3>
+  <p>CSV/TSV mit <code>lemma,definition</code>; optional <code>gloss,strong,reference</code>. Die Einträge funktionieren auch für Latein und unabhängig von Strong-Nummern.</p>
+  <form id="lexicon-form" class="import-grid">
+   <label>Lexikon-ID<input name="module_id" required pattern="[A-Za-z0-9_-]{2,48}"></label>
+   <label>Titel<input name="title" required maxlength="250"></label>
+   <label>Sprache<select name="language"><option value="la">Latein</option><option value="grc">Altgriechisch</option><option value="he">Hebräisch</option></select></label>
+   <label>Lizenz<input name="license_name" required maxlength="250"></label>
+   <label>Herkunft<input name="provenance" required maxlength="250"></label>
+   <label>Lexikondatei<input name="file" type="file" accept=".csv,.tsv,.txt" required></label>
+   <input name="version" type="hidden" value="1">
+   <button type="submit">Lexikon importieren</button>
+  </form>
+  <p id="lexicon-status" class="message" role="status"></p>
+ </section>
+ <div class="dialog-bottom"><button data-close="import-dialog">Fertig</button></div>
+</dialog>
+<dialog id="help-dialog" class="large-dialog">
+ <div class="dialog-top"><h2>Standardformate für Quellentexte</h2><button data-close="help-dialog" aria-label="Schließen">×</button></div>
+ <h3>Quellen als CSV oder TSV</h3><pre>ref,text
+I.1,"Lorem ipsum ..."
+I.2,"Alius textus ..."</pre>
+ <h3>Quellen als JSON</h3><pre>{"sections":[{"ref":"I.1","text":"Lorem ipsum ..."}]}</pre>
+ <h3>Wortdaten als TSV</h3><pre>ref	position	surface	lemma	morph
+I.1	1	Lorem	lorem	Case=Nom|Number=Sing</pre>
+ <h3>Lexikon als CSV</h3><pre>lemma,definition,gloss
+lorem,"Beispieleintrag","Bedeutung"</pre>
+ <h3>Annotierte Forschungsdaten per Klick</h3>
+ <p class="hint">Im Katalog unter <strong>Sprachwissenschaftliche Daten</strong> stehen nun außerdem die vollständig annotierten <em>Confessiones</em> des Augustinus (CIRCSE, manuell nachgeprüft) und die maschinell analysierte griechische Edition des Severian von Gabala (Patristic Text Archive) bereit. Die beiden UD-Treebank-Auszüge bleiben ebenfalls erhalten. Die Wortpositionen werden beim Import geprüft; nicht zuordenbare Textabschnitte bleiben ohne diese Annotationen. Normale Primärtext-Ausgaben enthalten nicht automatisch Wortdaten.</p>
+ <h3>Hilfsmittel und Rechte</h3>
+ <p class="hint">Der vierte Katalogbereich enthält externe Nachschlageportale wie Corpus Corporum. Diese werden geöffnet, nicht als Gesamtkorpus installiert. Die Nutzungsrechte einer konkreten Edition sind maßgeblich; insbesondere bei mit NC markierten Datensätzen ist kommerzielle Nutzung ausgeschlossen.</p>
+ <p class="hint">Die Beispiele zeigen nur das Format, keine zitierfähigen sprachwissenschaftlichen Daten. TEI-XML wird aus dem <code>&lt;body&gt;</code> gelesen; Absatz- und Zeilenreferenzen werden aus der vorhandenen Gliederung gebildet. Bearbeitungen und Importergebnisse müssen vor einer wissenschaftlichen Verwendung geprüft werden.</p>
+ <div class="dialog-bottom"><button data-close="help-dialog">Schließen</button></div>
+</dialog>
+<div id="toast" role="status" aria-live="polite" hidden></div>
+</body></html>

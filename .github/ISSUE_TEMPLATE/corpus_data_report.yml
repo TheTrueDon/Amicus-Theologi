@@ -1,0 +1,71 @@
+name: Text-, Korpus- oder Morphologiedaten melden
+description: Fehler oder Lizenzinformationen zu Texten, Annotationen und Lexika melden
+title: "[Daten] "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Bitte beschreibe die Datenquelle so genau, dass der Befund überprüfbar ist. Füge keine urheberrechtlich geschützten Volltexte oder privaten Studiennotizen ein. Ein kurzer, rechtmäßig zitierbarer Beispielschnipsel reicht meist aus.
+  - type: dropdown
+    id: data_type
+    attributes:
+      label: Art der Daten
+      options:
+        - Bibeltext oder Übersetzung
+        - Griechische Wortannotation
+        - Hebräische Wortannotation
+        - Lateinische oder andere Primärquelle
+        - Lexikon
+        - Textkritische Lesart
+        - Lizenz- oder Herkunftsfrage
+        - Sonstiges
+    validations:
+      required: true
+  - type: input
+    id: module
+    attributes:
+      label: Modul und Edition
+      description: Titel, Version oder Kennung des installierten Moduls.
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Herkunft oder stabile Quellen-URL
+      description: Nenne Herausgeber, Projekt und möglichst eine dauerhafte URL.
+    validations:
+      required: true
+  - type: input
+    id: reference
+    attributes:
+      label: Stelle oder stabiler Datensatzbezeichner
+      description: Zum Beispiel Buch/Kapitel/Vers, Werk/Abschnitt oder Tokenposition.
+    validations:
+      required: true
+  - type: textarea
+    id: observation
+    attributes:
+      label: Beobachtung
+      description: Was zeigt Amicus, und was erwartest du aufgrund der dokumentierten Quelle?
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Beleg, Lizenz oder Morphologiecode
+      description: Füge Quellenangaben, Schema, Textzeugen und Lizenznachweise ein. Bei Morphologieproblemen bitte Wortform, Lemma und Originalcode nennen.
+  - type: textarea
+    id: sample
+    attributes:
+      label: Minimalbeispiel
+      description: Nur einen kurzen Ausschnitt einfügen, wenn die Lizenz das erlaubt. Keine kompletten Kapitel, Bücher oder Wörterbuchartikel.
+  - type: checkboxes
+    id: rights
+    attributes:
+      label: Rechte und Datenschutz
+      options:
+        - label: Ich habe keine privaten Notizen oder personenbezogenen Daten eingefügt.
+          required: true
+        - label: Ich habe keine geschützten Volltexte oder vollständigen Lexikoneinträge angehängt.
+          required: true

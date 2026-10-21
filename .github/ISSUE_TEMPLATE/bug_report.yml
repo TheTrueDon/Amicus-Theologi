@@ -1,0 +1,74 @@
+name: Fehler melden
+description: Einen reproduzierbaren Fehler in Amicus Theologi melden
+title: "[Fehler] "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Bitte prüfe zuerst, ob bereits ein Issue zu diesem Problem existiert. Veröffentliche keine privaten Studiennotizen, personenbezogenen Daten oder urheberrechtlich geschützten Volltexte.
+  - type: input
+    id: version
+    attributes:
+      label: Amicus-Version
+      description: Zum Beispiel 1.3.2; steht auch in der Versionsanzeige.
+      placeholder: 1.3.2
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Betriebssystem
+      options:
+        - Windows
+        - Ubuntu / Linux
+        - macOS
+        - Andere
+    validations:
+      required: true
+  - type: dropdown
+    id: install_method
+    attributes:
+      label: Installationsart
+      options:
+        - Windows-Installer
+        - Ubuntu-DEB
+        - Quellcode / ZIP
+        - Andere oder unbekannt
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Schritte zur Reproduktion
+      description: Beschreibe die Schritte in der Reihenfolge, in der du sie ausführst.
+      placeholder: |
+        1. …
+        2. …
+        3. …
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Erwartetes Verhalten
+      description: Was sollte passieren?
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Tatsächliches Verhalten
+      description: Was ist stattdessen passiert? Füge die genaue Fehlermeldung ein, falls vorhanden.
+    validations:
+      required: true
+  - type: textarea
+    id: corpus
+    attributes:
+      label: Betroffene Texte oder Daten
+      description: Nenne Modul, Edition und Referenz. Für Probleme mit Morphologie bitte Wortform, Lemma, Code und Stelle angeben, soweit verfügbar. Keine geschützten Volltexte einfügen.
+  - type: textarea
+    id: logs
+    attributes:
+      label: Protokoll oder zusätzliche Hinweise
+      description: Ergänze relevante, bereinigte Meldungen. Entferne Zugangsdaten, private Pfade und persönliche Daten.

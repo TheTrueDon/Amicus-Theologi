@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Benutzerhandbuch
+    url: https://github.com/TheTrueDon/Amicus-Theologi/blob/main/HANDBUCH_OFFLINE.html
+    about: Installation, Suche, Quellenstudium und Datenimport nachschlagen.
+  - name: Sicherheitsproblem melden
+    url: https://github.com/TheTrueDon/Amicus-Theologi/blob/main/SECURITY.md
+    about: Hinweise zum vertraulichen und datensparsamen Melden von Sicherheitsproblemen.

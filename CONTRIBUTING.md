@@ -4,6 +4,8 @@ Wir möchten eine wissenschaftlich zuverlässige, kostenlose und langfristig war
 
 **Beiträge sind willkommen:** besonders reproduzierbare Fehlerberichte, reproduzierbare Morphologie- und Verszählungsfälle, Lizenznachweise für offene Textkorpora, Tests mit unterschiedlichen Betriebssystemen und Hinweise aus realen exegetischen Arbeitsabläufen.
 
+Für alle Beiträge gilt der [Verhaltenskodex](CODE_OF_CONDUCT.md). Neue Issues und Pull Requests verwenden die Vorlagen unter `.github/ISSUE_TEMPLATE` und `.github/pull_request_template.md`.
+
 Vor einem Pull Request: `python -m unittest discover -s tests -v` ausführen. Neue Importadapter sollen **stabile Referenzen, Datenausgabe und Metadaten** sorgfältig prüfen, unerkannte Formate ausdrücklich ablehnen und keine unannotierten Aussagen als belegte Morphologie präsentieren. Autor:innen müssen die Rechte der beigefügten Daten dokumentieren; keine geschützten Lexika oder Texte direkt ins Repository aufnehmen.
 
 **Versionsverwaltung:** Branch pro Funktion oder Bugfix; Änderungen der Datenbankstruktur müssen im Changelog ausdrücklich genannt und migriert werden. Datenbankmigrationen müssen den Bestand respektieren und nach Möglichkeit nur additiv sein.

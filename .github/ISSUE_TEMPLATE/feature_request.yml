@@ -1,0 +1,43 @@
+name: Verbesserung vorschlagen
+description: Eine Funktion oder Verbesserung für Amicus Theologi vorschlagen
+title: "[Vorschlag] "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Gute Vorschläge beschreiben zuerst den Arbeitsablauf oder das Problem. Bitte prüfe, ob es bereits ein ähnliches Issue gibt.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Welches Problem oder welcher Arbeitsbedarf besteht?
+      description: Beschreibe die exegetische, textwissenschaftliche oder technische Aufgabe.
+      placeholder: Wenn ich …, möchte ich …, damit …
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Vorgeschlagene Lösung
+      description: Wie könnte Amicus dabei helfen? Eine grobe Idee genügt.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternativen oder vorhandener Arbeitsablauf
+      description: Wie löst du die Aufgabe derzeit? Welche Alternative hast du erwogen?
+  - type: textarea
+    id: context
+    attributes:
+      label: Fachlicher Kontext
+      description: Nenne bei Bedarf Textedition, Korpus, Morphologieschema oder einen konkreten Anwendungsfall.
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Vor dem Absenden
+      options:
+        - label: Ich habe nach einem bereits vorhandenen Vorschlag gesucht.
+          required: true
+        - label: Ich habe keine privaten oder urheberrechtlich geschützten Inhalte eingefügt.
+          required: true

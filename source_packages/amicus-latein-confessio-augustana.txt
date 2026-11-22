@@ -1,0 +1,9 @@
+Confessio Augustana · Latein, 28 Artikel
+
+Volltext: 402 Abschnitte, ermittelt und geprüft durch den CA-Volltextgenerator anhand der lateinischen Wikisource-Transkription der Concordia-Ausgabe Leipzig 1584.
+
+Wortdaten: 8.348 Wortpositionen mit automatisch vorhergesagten Lemmata und Universal-Dependencies-Merkmalen. Die Vorhersagen sind nicht fachwissenschaftlich geprüft. Das separate Wörterbuch enthält 915 lateinische Stichwörter. Deutsche allgemeine Wörterbuchbedeutungen liegen für 6.937 Vorkommen vor; sie sind keine Satzübersetzung und nicht kontextgeprüft.
+
+Textquelle: https://la.wikisource.org/wiki/Confessio_Augustana (CC BY-SA 4.0 laut Wikisource). Historischer Wortlaut gemeinfrei.
+Wörterbuch: FreeDict lat-deu 1.0.3, GPL-3.0-or-later, plus eigene Lernwortliste: https://github.com/freedict/fd-dictionaries/tree/master/lat-deu.
+Morphologiemodell: Stanza, Apache-2.0; automatische Modellvorhersage.

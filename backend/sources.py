@@ -764,7 +764,7 @@ def fetch_catalog_data(url, cap=MAX_FILE):
     approved={item['url'] for item in CATALOG.values()}
     if url not in approved:
         raise ValueError('Nicht katalogisierte Downloadadresse.')
-    with urlopen(Request(url, headers={'User-Agent':'Amicus-Theologi/1.3.2 Quellenstudium'}),
+    with urlopen(Request(url, headers={'User-Agent':'Amicus-Theologi/1.3.3 Quellenstudium'}),
                  timeout=45) as response:
         host=urlparse(response.geturl()).hostname
         if host not in ('raw.githubusercontent.com','www.sefaria.org'):

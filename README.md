@@ -1,9 +1,9 @@
 # Amicus Theologi 📖
 
-**Freie, offlinefähige Studienumgebung für wissenschaftliche Bibelarbeit – Entwicklungsstand 1.3.2.**
+**Freie, offlinefähige Studienumgebung für wissenschaftliche Bibelarbeit – Entwicklungsstand 1.3.3.**
 
 > **Optionaler Testzweig Quellenstudium (noch kein Release):** Auf Basis
-> des Entwicklungsstands 1.3.2 öffnet sich ein separates Fenster für außerbiblische
+> des Entwicklungsstands 1.3.3 öffnet sich ein separates Fenster für außerbiblische
 > Primärtexte in Latein, Altgriechisch und Hebräisch. Enthalten sind
 > manuelle Quellen-, Annotationen- und Lexikonimporte, ein viergeteilter
 > Ein-Klick-Katalog (u. a. Augustinus, Clemens, PTA, Sefaria, LSJ,
@@ -46,7 +46,7 @@ Die morphologische Suche kann bis zu fünf Wortbedingungen mit UND oder ODER ver
 
 Jede Wortbedingung kann auf den Versanfang (Tokenposition 1) oder einen inklusiven Tokenpositionsbereich eingeschränkt werden. Tokenpositionen beginnen in jedem Vers bei 1. Die Vorgaben wirken mit UND und ODER; Suchabfragen aus 1.3.0 funktionieren weiter. Es ist keine zusätzliche Datenbankmigration nötig.
 
-## Entwicklungsstand 1.3.2: Quellen mit einem Klick einrichten
+## Version 1.3.3: LXX und Confessio Augustana beim ersten Einrichten
 
 Beim ersten Start und nach einem Werksreset kann der Willkommensdialog alle
 mitgelieferten Quellenpakete und alle installierbaren Onlineeinträge aus den
@@ -101,7 +101,7 @@ Beim ersten Start werden bisherige lokale Daten sicher in den neuen Amicus-Daten
 
 **Windows-Desktopverknüpfung (optional):** Die Datei `install_windows_shortcut.ps1` erstellt eine Desktopverknüpfung, wenn du sie über PowerShell ausführst. Die normalen Startskripte reichen ansonsten aus.
 
-Im Browser erscheint beim ersten Start die **dreiteilige Einführung**. „Alle verfügbaren Quellen installieren“ richtet die installierbaren Bibelausgaben, Quellenkataloge und mitgelieferten Offlinepakete ein; die Fortschrittsanzeige nennt den aktuellen Titel und einzelne Fehler. Für Onlinequellen ist Internet erforderlich. „Mini-Beispiele installieren“ bleibt als kleine Offline-Alternative zum Ausprobieren verfügbar.
+Im Browser erscheint beim ersten Start die **dreiteilige Einführung**. „Alle verfügbaren Quellen installieren“ richtet die installierbaren Bibelausgaben, Quellenkataloge und mitgelieferten Offlinepakete ein. Dazu gehören jetzt auch die Septuaginta-Ausgabe nach Rahlfs mit griechischer Morphologie sowie die lateinische Confessio Augustana mit 28 Artikeln und einem Latein–Deutsch-Lexikon; die Fortschrittsanzeige nennt den aktuellen Titel und einzelne Fehler. Für Onlinequellen ist Internet erforderlich. „Mini-Beispiele installieren“ bleibt als kleine Offline-Alternative zum Ausprobieren verfügbar.
 
 📗 Eine verständliche Schritt-für-Schritt-Anleitung: [docs/SCHNELLSTART.md](docs/SCHNELLSTART.md). Auch die Datei `ANLEITUNG.html` lässt sich direkt im Browser öffnen; für die Suche werden `ANLEITUNG.js` und `ANLEITUNG.css` aus demselben Ordner geladen.
 

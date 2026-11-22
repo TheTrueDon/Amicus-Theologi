@@ -184,7 +184,7 @@ async def morphology_import(file:UploadFile=File(...),module_id:str=Form(...)):
 
 @app.get('/api/morphology/word')
 def morphology_word(module_id:str,book:str,chapter:int,verse:int,position:int):
- if not re.fullmatch(r'[a-zA-Z0-9_-]{2,48}',module_id) or book not in NAMES or not(1<=chapter<=200 and 1<=verse<=200 and 1<=position<=500):
+ if not re.fullmatch(r'[a-zA-Z0-9_-]{2,48}',module_id) or book not in NAMES or not(1<=chapter<=200 and 1<=verse<=200 and 1<=position<=2000):
   raise HTTPException(422,'Ungültiger Wortverweis.')
  result=get_word(module_id,book,chapter,verse,position)
  if result is None:raise HTTPException(404,'Zu diesem Wort liegen keine Annotationen vor.')
@@ -207,7 +207,7 @@ def morphology_forms(module_id:str,lemma:str,limit:int=50,offset:int=0):
 @app.get('/api/morphology/preview')
 def morphology_preview(module_id:str,book:str,chapter:int,verse:int,position:int):
  """Short, source-based hover preview. Never invent a translation or grammar."""
- if not re.fullmatch(r'[a-zA-Z0-9_-]{2,48}',module_id) or book not in NAMES or not(1<=chapter<=200 and 1<=verse<=200 and 1<=position<=500):
+ if not re.fullmatch(r'[a-zA-Z0-9_-]{2,48}',module_id) or book not in NAMES or not(1<=chapter<=200 and 1<=verse<=200 and 1<=position<=2000):
   raise HTTPException(422,'Ungültiger Wortverweis.')
  word=get_word(module_id,book,chapter,verse,position)
  if word is None:raise HTTPException(404,'Zu diesem Wort liegen keine Annotationen vor.')

@@ -12,7 +12,7 @@ from backend.source_packages import install_package, inspect_package
 from backend.sources import modules, passage, get_note, save_note, word_analysis
 
 
-def package_bytes(*, bad_surface=False, version='1.0', lemma='principium', text='In principio', quality='reviewed'):
+def package_bytes(*, bad_surface=False, version='1.0', lemma='principium', text='In principio', quality='reviewed', with_translation=True):
     manifest = {
         'format': 'amicus-source-package', 'format_version': 1,
         'source': {'id':'pkg-augustine-test','title':'Augustinus · Testausgabe',
@@ -22,15 +22,16 @@ def package_bytes(*, bad_surface=False, version='1.0', lemma='principium', text=
         'annotation_edition': {'provider':'Fixture','method':'Manuell geprüft','coverage':'Alle Wörter des Testabschnitts',
             'license':'CC0','provenance':'Test','quality':quality,
             'review_status':'Prüfung laut Fixture'},
-        'translation_editions': [{'id':'de-test','language':'de','title':'Deutsche Arbeitsübersetzung',
+        'translation_editions': ([{'id':'de-test','language':'de','title':'Deutsche Arbeitsübersetzung',
             'author':'Testübersetzung','edition':'Teststand 2026','license':'CC0',
-            'provenance':'Für den Test erstellt'}]
+            'provenance':'Für den Test erstellt'}] if with_translation else [])
     }
     words='ref\tposition\tsurface\tlemma\tmorph\tstrong\nI.1\t1\t'+('alio' if bad_surface else 'in')+'\tin\tADP\t\nI.1\t2\tprincipio\t'+lemma+'\tNOUN|Case=Abl|Number=Sing\t\n'
     files={'manifest.json':json.dumps(manifest,ensure_ascii=False),
         'sections.csv':'ref,text\nI.1,"'+text+'"\n',
         'words.tsv':words,
-        'translations.csv':'ref,translation_id,text\nI.1,de-test,"Am Anfang"\n@work,de-test,"Gesamtübersetzung"\n'}
+        'translations.csv':('ref,translation_id,text\nI.1,de-test,"Am Anfang"\n@work,de-test,"Gesamtübersetzung"\n'
+                            if with_translation else 'ref,translation_id,text\n')}
     manifest['checksums']={name:'sha256:'+hashlib.sha256(value.encode('utf-8')).hexdigest()
                            for name,value in files.items() if name!='manifest.json'}
     files['manifest.json']=json.dumps(manifest,ensure_ascii=False)
@@ -76,6 +77,14 @@ class SourcePackageTests(unittest.TestCase):
             install_package(package_bytes(bad_surface=True))
         self.assertNotIn('pkg-augustine-test',[m['id'] for m in modules()])
 
+    def test_text_and_annotations_can_be_installed_without_claiming_a_translation(self):
+        result=install_package(package_bytes(with_translation=False))
+        self.assertEqual(result['sections'],1)
+        self.assertEqual(result['translations'],0)
+        content=passage('pkg-augustine-test','I.1')
+        self.assertEqual(content['text'],'In principio')
+        self.assertEqual(content['translations'],[])
+
     def test_reinstall_updates_analysis_and_keeps_notes(self):
         install_package(package_bytes())
         save_note('pkg-augustine-test','I.1','Meine Notiz')
@@ -118,7 +127,8 @@ class SourcePackageTests(unittest.TestCase):
                   'amicus-griechisch-philo-de-opificio-mundi.amicus-source':(172,'grc'),
                   'amicus-griechisch-josephus-bellum-judaicum.amicus-source':(4001,'grc'),
                   'amicus-griechisch-severian.amicus-source':(13,'grc'),
-                  'amicus-hebraeisch-genesis-oshb.amicus-source':(1533,'he')}
+                  'amicus-hebraeisch-genesis-oshb.amicus-source':(1533,'he'),
+                  'amicus-latein-confessio-augustana.amicus-source':(402,'la')}
         for filename,(count,language) in expected.items():
             with self.subTest(filename=filename):
                 manifest,sections,annotations,editions,translations,work_translations=inspect_package((root/filename).read_bytes())
@@ -128,7 +138,8 @@ class SourcePackageTests(unittest.TestCase):
                                     for rows in annotations.values()
                                     for lemma,morph,_strong in rows),
                                 'Jedes Wort braucht mindestens Lemma und Morphologie-/Wortartcode.')
-                expected_quality={'la':'mixed','grc':'automatic','he':'edition'}[language]
+                is_ca=filename=='amicus-latein-confessio-augustana.amicus-source'
+                expected_quality='automatic' if is_ca else {'la':'mixed','grc':'automatic','he':'edition'}[language]
                 self.assertEqual(manifest['annotation_edition']['quality'],expected_quality)
                 self.assertEqual(manifest['annotation_edition']['codes_recognized_by_decoder']['tokens'],
                                  manifest['annotation_edition']['codes_recognized_by_decoder']['tokens_total'])
@@ -136,8 +147,12 @@ class SourcePackageTests(unittest.TestCase):
                 if filename not in ('amicus-griechisch-philo-de-opificio-mundi.amicus-source',
                                     'amicus-griechisch-josephus-bellum-judaicum.amicus-source'):
                     self.assertTrue(annotations)
-                self.assertTrue(editions)
-                self.assertTrue(translations or work_translations)
+                if is_ca:
+                    self.assertEqual(editions,{})
+                    self.assertFalse(translations or work_translations)
+                else:
+                    self.assertTrue(editions)
+                    self.assertTrue(translations or work_translations)
                 result=install_package((root/filename).read_bytes())
                 self.assertEqual(result['sections'],count)
                 first=sections[0][0]

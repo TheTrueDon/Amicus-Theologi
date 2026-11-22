@@ -25,6 +25,8 @@ if [[ "${AMICUS_USE_EXISTING_FROZEN:-0}" != '1' ]]; then
     --add-data 'frontend:frontend' \
     --add-data 'modules/examples:modules/examples' \
     --add-data 'source_packages:source_packages' \
+    --add-data 'bible_packages:bible_packages' \
+    --add-data 'lexicon_packages:lexicon_packages' \
     --add-data 'assets/amicus.png:assets' \
     --add-data 'assets/amicus.ico:assets' \
     --add-data 'ANLEITUNG.html:.' \

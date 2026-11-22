@@ -55,8 +55,8 @@ def _clean(name, criteria):
             for key,value in condition.items():
                 if key in ('position_from','position_to'):
                     if value is None or value=='':continue
-                    if isinstance(value,bool) or not isinstance(value,int) or not 1<=value<=500:
-                        raise ValueError('Tokenpositionen müssen ganze Zahlen zwischen 1 und 500 sein.')
+                    if isinstance(value,bool) or not isinstance(value,int) or not 1<=value<=2000:
+                        raise ValueError('Tokenpositionen müssen ganze Zahlen zwischen 1 und 2000 sein.')
                     item[key]=value
                 else:
                     if not isinstance(value,str) or len(value)>200:

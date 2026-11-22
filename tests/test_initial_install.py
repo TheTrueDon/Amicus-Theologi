@@ -20,14 +20,19 @@ class InitialInstallTests(unittest.TestCase):
                 }))
 
             class FakeConnection:
+                class Rows(list):
+                    def fetchone(self):
+                        return self[0] if self else None
+
                 def __enter__(self):
                     return self
 
                 def __exit__(self, *_):
                     return False
 
-                def execute(self, _query):
-                    return [("already-installed-package",)]
+                def execute(self, query, *_args):
+                    return self.Rows([("already-installed-package",)]
+                                     if 'source_modules' in query else [])
 
             with (
                 patch.object(initial_install, 'PACKAGE_DIR', package_dir),
@@ -48,7 +53,8 @@ class InitialInstallTests(unittest.TestCase):
                 tasks, skipped, external = initial_install._build_plan()
 
         self.assertEqual({task['id'] for task in tasks},
-                         {'bible-new', 'lexicon-1', 'source-1', 'package-1'})
+                         {'bible-new', 'lexicon-1', 'source-1', 'package-1',
+                          'lxx-rahlfs-os', 'ca-augustana-de-glossar'})
         self.assertEqual(skipped, 1)
         self.assertEqual(external, ['Onlinehilfe'])
 

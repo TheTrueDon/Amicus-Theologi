@@ -33,7 +33,7 @@ def parse_annotation_file(raw):
         except (ValueError,TypeError,KeyError):raise ValueError(f'Zeile {n}: Ungültige Zahlen.')
         surface=(row.get('surface') or '').strip();lemma=(row.get('lemma') or '').strip()
         morph=(row.get('morph') or '').strip();strong=(row.get('strong') or '').strip()
-        if not b or not (1<=ch<=200 and 1<=v<=200 and 1<=pos<=500) or not surface or not lemma or not morph or max(map(len,(surface,lemma,morph,strong)))>200:
+        if not b or not (1<=ch<=200 and 1<=v<=200 and 1<=pos<=2000) or not surface or not lemma or not morph or max(map(len,(surface,lemma,morph,strong)))>200:
             raise ValueError(f'Zeile {n}: Ungültiges Wort oder fehlende Merkmale.')
         key=(b,ch,v); ident=(*key,pos)
         if ident in positions:raise ValueError(f'Zeile {n}: doppelte Wortposition.')

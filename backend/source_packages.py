@@ -1,7 +1,7 @@
 """Offline, self-describing Amicus source packages (ASPK v1).
 
-Packages contain UTF-8 sections, optional position-aligned morphology, and one
-or more explicitly attributed translations. No archive code is executed.
+Packages contain UTF-8 sections, optional position-aligned morphology, and
+zero or more explicitly attributed translations. No archive code is executed.
 """
 import csv
 import hashlib
@@ -30,7 +30,7 @@ def _required(obj, fields, label):
             raise ValueError(f'{label}: {field} ist erforderlich (max. 250 Zeichen).')
 
 
-def _csv_rows(raw, required, label, maximum=1_500_000):
+def _csv_rows(raw, required, label, maximum=1_500_000, allow_empty=False):
     try:
         text = raw.decode('utf-8-sig')
     except UnicodeDecodeError as exc:
@@ -40,7 +40,7 @@ def _csv_rows(raw, required, label, maximum=1_500_000):
     if not set(required) <= set(reader.fieldnames or ()):
         raise ValueError(f'{label}: Benötigte Spalten: {", ".join(required)}.')
     rows = list(reader)
-    if not rows or len(rows) > maximum:
+    if (not rows and not allow_empty) or len(rows) > maximum:
         raise ValueError(f'{label}: Datei ist leer oder enthält zu viele Zeilen.')
     return rows
 
@@ -107,15 +107,15 @@ def inspect_package(raw):
     section_map = {ref: text for ref, _ordinal, text in sections}
 
     editions = manifest.get('translation_editions')
-    if not isinstance(editions, list) or not editions or len(editions) > 20:
-        raise ValueError('Mindestens eine Übersetzung mit Editionsmetadaten ist erforderlich.')
+    if not isinstance(editions, list) or len(editions) > 20:
+        raise ValueError('Übersetzungsausgaben müssen als Liste angegeben werden.')
     edition_map = {}
     for edition in editions:
         _required(edition, ('id','language','title','author','edition','license','provenance'), 'Übersetzung')
         if not TRANSLATION_ID.fullmatch(edition['id']) or edition['id'] in edition_map:
             raise ValueError('Übersetzungs-IDs müssen eindeutig und gültig sein.')
         edition_map[edition['id']] = edition
-    translations = _csv_rows(files[file_map['translations']], ('ref','translation_id','text'), 'Übersetzungen', 300_000)
+    translations = _csv_rows(files[file_map['translations']], ('ref','translation_id','text'), 'Übersetzungen', 300_000, allow_empty=True)
     seen_translations = set()
     translation_data = []
     translation_documents = []

@@ -11,9 +11,13 @@ from .bible_catalog import bible_catalog, install_bible_from_catalog
 from .catalog import catalog_list, install_catalog_item
 from . import sources
 from .source_packages import install_package
+from .bible_packages import install_bible_package, package_info
+from .lexicon import read_lexicon, install_lexicon
 
 ROOT = Path(getattr(sys, '_MEIPASS', Path(__file__).resolve().parents[1]))
 PACKAGE_DIR = ROOT / 'source_packages'
+BIBLE_PACKAGE_DIR = ROOT / 'bible_packages'
+LEXICON_PACKAGE_DIR = ROOT / 'lexicon_packages'
 _LOCK = Lock()
 _JOB = None
 
@@ -71,6 +75,46 @@ def _build_plan():
     if not package_paths:
         add('bundled-source-packages', 'Mitgelieferte Quellenpakete', False,
             lambda: _fail('Im Programmordner wurden keine .amicus-source-Pakete gefunden.'))
+
+    # Bible editions with included word annotations and local parallel texts.
+    for path in sorted(BIBLE_PACKAGE_DIR.glob('*.amicus-bible')) if BIBLE_PACKAGE_DIR.is_dir() else []:
+        try:
+            editions = package_info(path)
+            with connect() as db:
+                installed_ids = {row[0] for row in db.execute('SELECT id FROM modules')}
+        except Exception as exc:
+            key = 'bundled-bible-' + path.stem[:32]
+            add(key, path.name, False,
+                lambda error=str(exc): _fail('Bibelpaket ungültig: ' + error))
+            continue
+        main = editions[0]
+        all_present = all(edition['id'] in installed_ids for edition in editions)
+        add(main['id'], main['title'], all_present,
+            lambda package_path=path: install_bible_package(package_path.read_bytes()))
+
+    # Bundled dictionaries used by the installed source texts (for example the
+    # Latin–German vocabulary accompanying the Confessio Augustana).
+    for path in sorted(LEXICON_PACKAGE_DIR.glob('*/manifest.json')) if LEXICON_PACKAGE_DIR.is_dir() else []:
+        try:
+            meta = json.loads(path.read_text(encoding='utf-8-sig'))
+            module_id = meta['id']; title = meta['title']
+            entries_path = path.parent / meta['entries_file']
+            if (not isinstance(module_id, str) or not isinstance(title, str) or
+                    entries_path.parent != path.parent or entries_path.suffix.lower() != '.csv' or
+                    not entries_path.is_file()):
+                raise ValueError('Lexikonmanifest enthält ungültige Dateiangaben.')
+            with connect() as db:
+                present = db.execute('SELECT 1 FROM lexicon_modules WHERE id=?', (module_id,)).fetchone() is not None
+        except Exception as exc:
+            key = 'bundled-lexicon-' + path.parent.name[:32]
+            add(key, path.parent.name, False,
+                lambda error=str(exc): _fail('Lexikonpaket ungültig: ' + error))
+            continue
+        def install_local_lexicon(manifest_path=path, manifest=meta, csv_path=entries_path):
+            entries = read_lexicon(csv_path.read_bytes())
+            return install_lexicon(manifest['id'], manifest['title'], manifest['language'],
+                manifest['license'], manifest['provenance'], manifest['version'], entries)
+        add(module_id, title, present, install_local_lexicon)
 
     # Biblical text editions shown under Bibelausgaben.
     for item in bible_catalog():

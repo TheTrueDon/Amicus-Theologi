@@ -1,0 +1,9 @@
+{
+  "id": "ca-augustana-de-glossar",
+  "title": "Confessio Augustana · Latein–Deutsch-Lexikon",
+  "language": "la",
+  "license": "GPL-3.0-or-later (FreeDict lat-deu; ergänzt um eigene Lernwortliste)",
+  "provenance": "FreeDict lat-deu v1.0.3 und eigens erstellte Lemmata; https://github.com/freedict/fd-dictionaries/tree/master/lat-deu",
+  "version": "FreeDict-1.0.3 / CA-2026-11",
+  "entries_file": "entries.csv"
+}

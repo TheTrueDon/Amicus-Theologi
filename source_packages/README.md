@@ -98,3 +98,7 @@ Das Josephus-Paket baut `tools/build_josephus_package.py` aus den griechischen
 und englischen Perseus-TEI-Dateien.
 Die Skripte laden keine Quelldateien selbst herunter und führen keine
 Archivdateien aus.
+
+## Confessio Augustana
+
+`amicus-latein-confessio-augustana.amicus-source` ist ein Quellenstudium-Paket für alle 28 Artikel (402 Abschnitte). Es enthält 8.348 automatisch vorhergesagte Wortanalysen; diese sind nicht fachwissenschaftlich geprüft. Das mitgelieferte Latein–Deutsch-Wörterbuch liegt separat unter `lexicon_packages/ca-augustana-de` und wird bei der initialen Ein-Klick-Installation mit eingerichtet. Siehe `amicus-latein-confessio-augustana.txt` für Umfang, Lizenzen und Quellen.
